@@ -40,6 +40,19 @@ function firstVisit(): boolean {
   try { return localStorage.getItem(INTRO_KEY) !== "1"; } catch { return true; }
 }
 
+/** Ícone de cada aba no trilho da folha recolhida. */
+function TabIcon({ id }: { id: Tab | "lab" }) {
+  const line = { fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round" } as const;
+  return (
+    <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+      {id === "scenes" && <path {...line} d="M10 3 2.5 7 10 11l7.5-4zM2.5 10.5 10 14.5l7.5-4M2.5 14 10 18l7.5-4" />}
+      {id === "passes" && <><path {...line} d="M10 18s5.5-5.2 5.5-9.5a5.5 5.5 0 0 0-11 0C4.5 12.8 10 18 10 18z" /><circle {...line} cx="10" cy="8.5" r="2" /></>}
+      {id === "lab" && <path {...line} d="M7.5 2.5h5M8.5 2.5v5L4 15.5a1.5 1.5 0 0 0 1.3 2.2h9.4a1.5 1.5 0 0 0 1.3-2.2L11.5 7.5v-5M6.3 12.5h7.4" />}
+      {id === "ask" && <path {...line} d="M3 5.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H9l-4 3.5V14a2 2 0 0 1-2-2z" />}
+    </svg>
+  );
+}
+
 export function App() {
   const { t, f, lang, setLang } = useI18n();
   const map = useRef<MapHandle | null>(null);
@@ -78,6 +91,8 @@ export function App() {
   /** Painel do laboratório aberto por cima do mapa: o hidrograma ou uma das duas peças de física. */
   const [lab, setLab] = useState<LabId | null>(LINK.lab ?? null);
   const closeLab = useCallback(() => setLab(null), []);
+  /** A folha recolhida: no lugar dela fica um trilho de ícones, um por aba, e o mapa ganha a largura. */
+  const [folded, setFolded] = useState(false);
   // quem chega por um link para uma cena ou lugar vai direto para lá, sem a abertura
   const [intro, setIntro] = useState(() => firstVisit() && !DEEP_LINK);
   // o agente responde sobre a cena aberta e as marcadas para comparar
@@ -139,6 +154,7 @@ export function App() {
     if (intro) closeIntro();
     setSelectedId(id);
     setOpened(true);
+    setFolded(false);
     setLab(null);
     setTab("scenes");
     move((m) => m.flyToScene(scene));
@@ -147,6 +163,7 @@ export function App() {
   function choosePlace(next: Place, fly: boolean) {
     if (intro) closeIntro();
     setPlace(next);
+    setFolded(false);
     setLab(null);
     setTab("passes");
     if (fly) move((m) => m.flyToPlace(next));
@@ -161,6 +178,7 @@ export function App() {
   const hydroScene = scenes.find((s) => s.id === selectedId && s.waterSeries) ?? scenes.find((s) => s.waterSeries);
   function openLab(panel: LabId) {
     if (intro) closeIntro();
+    setFolded(false);
     setLab(panel);
   }
   const togglePick = (id: string) => {
@@ -169,16 +187,19 @@ export function App() {
   };
 
   // a aba do laboratório vem logo antes da conversa: depois do lugar, se ele estiver na fileira; senão, depois da cena
+  // a aba do lugar só existe depois que alguém escolhe um lugar, pela busca ou no mapa
+  const visibleTabs = TABS.filter((id) => id !== "passes" || place !== null || tab === "passes");
   const beforeLab: Tab = place !== null || tab === "passes" ? "passes" : "scenes";
 
   return (
-    <div className={[intro ? "app app--intro" : "app", lab ? "app--lab" : ""].join(" ").trim()} data-aud={audience}>
+    <div className={[intro ? "app app--intro" : "app", folded ? "app--rail" : lab ? "app--lab" : ""].join(" ").trim()} data-aud={audience}>
       <main className="stage">
         <Suspense fallback={<div className="map"><p className="map__status">{t.map.loading}</p></div>}>
           <MapView
             ref={attachMap}
             audience={audience}
             labOpen={lab !== null}
+            sideFolded={folded}
             scenes={scenes}
             selectedId={selectedId}
             titledId={tab === "scenes" && lab === null ? selectedId : null}
@@ -229,10 +250,28 @@ export function App() {
       )}
 
       {/* painel de vidro: a cena aberta, o lugar escolhido ou a conversa, no nível de detalhe escolhido no rodapé */}
+      {folded ? (
+      <aside className="story story--rail glass">
+        {/* folha recolhida: cada aba vira um ícone, que reabre a folha nela */}
+        <nav className="rail" aria-label={t.tabs.aria}>
+          {visibleTabs.map((id) => (
+            <Fragment key={id}>
+              <button type="button" aria-label={t.tabs[id]} title={t.tabs[id]} aria-current={lab === null && tab === id ? "true" : undefined} onClick={() => { setFolded(false); closeLab(); setTab(id); }}>
+                <TabIcon id={id} />
+                {id === "ask" && chat.turns.length > 0 && <span>{chat.turns.length}</span>}
+              </button>
+              {id !== "ask" && id === beforeLab && (
+                <button type="button" aria-label={t.lab.open} title={t.lab.open} aria-current={lab !== null ? "true" : undefined} onClick={() => openLab(lab ?? "hydro")}><TabIcon id="lab" /></button>
+              )}
+            </Fragment>
+          ))}
+        </nav>
+      </aside>
+      ) : (
       <aside className="story glass">
+        <div className="story__head">
         <div className="tabs" role="tablist" aria-label={t.tabs.aria}>
-          {/* a aba do lugar só existe depois que alguém escolhe um lugar, pela busca ou no mapa */}
-          {TABS.filter((id) => id !== "passes" || place !== null || tab === "passes").map((id) => (
+          {visibleTabs.map((id) => (
             <Fragment key={id}>
               <div className={id === "passes" && place ? "tabs__item tabs__item--closable" : "tabs__item"}>
                 <button type="button" role="tab" id={`tab-${id}`} aria-selected={lab === null && tab === id} aria-controls="panel" onClick={() => { closeLab(); setTab(id); }}>
@@ -248,6 +287,10 @@ export function App() {
               )}
             </Fragment>
           ))}
+        </div>
+        <button type="button" className="story__fold" aria-label={t.tabs.fold} title={t.tabs.fold} onClick={() => setFolded(true)}>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
         </div>
         {lab ? (
           <Suspense fallback={<div className="lab" id="lab-panel" role="tabpanel" aria-labelledby="tab-lab"><p className="muted lab__wait">{t.scenes.loading}</p></div>}>
@@ -286,6 +329,7 @@ export function App() {
         </footer>
         </>)}
       </aside>
+      )}
 
       {LINK.perf && <PerfPanel />}
     </div>
