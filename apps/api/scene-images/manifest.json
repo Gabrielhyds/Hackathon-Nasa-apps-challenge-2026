@@ -1,0 +1,406 @@
+{
+  "scenes": {
+    "taquari": {
+      "center": [
+        -29.726,
+        -51.812
+      ],
+      "bbox": [
+        -51.94336,
+        -29.84064,
+        -51.67969,
+        -29.61167
+      ],
+      "stack": "053_D_103",
+      "polarization": "HH + HV",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "before": {
+        "date": "2026-07-11",
+        "granule": "NISAR_L2_PR_GCOV_025_053_D_103_4005_DHDH_A_20260711T213351_20260711T213426_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-07-23",
+        "granule": "NISAR_L2_PR_GCOV_026_053_D_103_4005_DHDH_A_20260723T213350_20260723T213425_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "validPct": 100.0,
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0,
+          "HV": -6.0
+        }
+      }
+    },
+    "sindh": {
+      "center": [
+        26.0,
+        68.5
+      ],
+      "bbox": [
+        68.1,
+        25.6,
+        68.9,
+        26.4
+      ],
+      "stack": "041_A_015",
+      "polarization": "HH + HV",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "before": {
+        "date": "2026-06-17",
+        "granule": "NISAR_L2_PR_GCOV_023_041_A_015_4005_DHDH_A_20260617T004523_20260617T004558_P05023_F_F_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-09-09",
+        "granule": "NISAR_L2_PR_GCOV_030_041_A_015_4005_DHDH_A_20260909T004519_20260909T004554_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "validPct": 100.0,
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0,
+          "HV": -6.0
+        }
+      }
+    },
+    "labrea": {
+      "center": [
+        -7.3,
+        -64.8
+      ],
+      "bbox": [
+        -65.25,
+        -7.75,
+        -64.35,
+        -6.85
+      ],
+      "stack": "161_A_174",
+      "polarization": "HH + HV",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "before": {
+        "date": "2026-08-24",
+        "granule": "NISAR_L2_PR_GCOV_028_161_A_174_2005_DHDH_A_20260824T100151_20260824T100226_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-10-23",
+        "granule": "NISAR_L2_PR_GCOV_033_161_A_174_2005_DHDH_A_20261023T100151_20261023T100225_P05036_N_F_J_001",
+        "release": "validated"
+      },
+      "validPct": 100.0,
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0,
+          "HV": -6.0
+        }
+      }
+    },
+    "jakobshavn": {
+      "center": [
+        69.2,
+        -49.8
+      ],
+      "bbox": [
+        -50.3,
+        68.7,
+        -49.3,
+        69.7
+      ],
+      "stack": "131_A_037",
+      "polarization": "HH",
+      "polarizations": [
+        "HH"
+      ],
+      "before": {
+        "date": "2026-06-23",
+        "granule": "NISAR_L2_PR_GCOV_023_131_A_037_7700_SHNA_A_20260623T064735_20260623T064815_P05023_N_P_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-11-02",
+        "granule": "NISAR_L2_PR_GCOV_034_131_A_037_7700_SHNA_A_20261102T064732_20261102T064809_P05036_N_P_J_001",
+        "release": "validated"
+      },
+      "validPct": 99.9,
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0
+        }
+      }
+    },
+    "gelo-sul": {
+      "center": [
+        -49.3,
+        -73.2
+      ],
+      "bbox": [
+        -73.7,
+        -49.8,
+        -72.7,
+        -48.8
+      ],
+      "stack": "032_A_153",
+      "polarization": "HH + HV",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "before": {
+        "date": "2026-06-28",
+        "granule": "NISAR_L2_PR_GCOV_024_032_A_153_4005_DHDH_A_20260628T110500_20260628T110539_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-10-26",
+        "granule": "NISAR_L2_PR_GCOV_034_032_A_153_4005_DHDH_A_20261026T110458_20261026T110537_P05036_N_F_J_001",
+        "release": "validated"
+      },
+      "validPct": 100.0,
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0,
+          "HV": -6.0
+        }
+      }
+    },
+    "maceio": {
+      "center": [
+        -9.6,
+        -35.7
+      ],
+      "bbox": [
+        -36.05,
+        -9.95,
+        -35.35,
+        -9.25
+      ],
+      "stack": "139_D_093",
+      "polarization": "HH + HV",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "before": {
+        "date": "2026-06-23",
+        "granule": "NISAR_L2_PR_GCOV_023_139_D_093_4005_DHDH_A_20260623T203820_20260623T203859_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-10-21",
+        "granule": "NISAR_L2_PR_GCOV_033_139_D_093_4005_DHDH_A_20261021T203817_20261021T203851_P05036_N_F_J_001",
+        "release": "validated"
+      },
+      "validPct": 100.0,
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0,
+          "HV": -6.0
+        }
+      }
+    },
+    "campinas": {
+      "center": [
+        -23.0,
+        -47.1
+      ],
+      "bbox": [
+        -47.6,
+        -23.5,
+        -46.6,
+        -22.5
+      ],
+      "stack": "024_D_100",
+      "polarization": "HH + HV",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "before": {
+        "date": "2026-06-27",
+        "granule": "NISAR_L2_PR_GCOV_024_024_D_100_4005_DHDH_A_20260627T211532_20260627T211606_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-11-06",
+        "granule": "NISAR_L2_PR_GCOV_035_024_D_100_4005_DHDH_A_20261106T211530_20261106T211604_P05036_N_F_J_001",
+        "release": "validated"
+      },
+      "validPct": 100.0,
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0,
+          "HV": -6.0
+        }
+      }
+    },
+    "pantanal": {
+      "center": [
+        -18.5,
+        -57.2
+      ],
+      "bbox": [
+        -57.7,
+        -19.0,
+        -56.7,
+        -18.0
+      ],
+      "stack": "132_A_168",
+      "polarization": "HH + HV",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "before": {
+        "date": "2026-07-17",
+        "granule": "NISAR_L2_PR_GCOV_025_132_A_168_2005_DHDH_A_20260717T094153_20260717T094228_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-10-21",
+        "granule": "NISAR_L2_PR_GCOV_033_132_A_168_2005_DHDH_A_20261021T094151_20261021T094226_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "validPct": 99.8,
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0,
+          "HV": -6.0
+        }
+      }
+    },
+    "kalimantan": {
+      "center": [
+        -0.5,
+        113.5
+      ],
+      "bbox": [
+        113.1,
+        -0.9,
+        113.9,
+        -0.1
+      ],
+      "stack": "061_D_089",
+      "polarization": "HH + HV",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "before": {
+        "date": "2026-06-30",
+        "granule": "NISAR_L2_PR_GCOV_024_061_D_089_2005_DHDH_M_20260630T104507_20260630T104541_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-10-28",
+        "granule": "NISAR_L2_PR_GCOV_034_061_D_089_2005_DHDH_M_20261028T104504_20261028T104539_P05036_N_F_J_001",
+        "release": "validated"
+      },
+      "validPct": 100.0,
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0,
+          "HV": -6.0
+        }
+      }
+    },
+    "chokwe": {
+      "center": [
+        -24.53,
+        33.0
+      ],
+      "bbox": [
+        32.67,
+        -24.83,
+        33.33,
+        -24.23
+      ],
+      "stack": "114_A_165",
+      "polarization": "HH + HV",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "before": {
+        "date": "2026-01-05",
+        "granule": "NISAR_L2_PR_GCOV_009_114_A_165_4005_DHDH_A_20260105T034232_20260105T034253_X05010_N_P_J_001",
+        "release": "beta"
+      },
+      "after": {
+        "date": "2026-01-17",
+        "granule": "NISAR_L2_PR_GCOV_010_114_A_165_4005_DHDH_A_20260117T034232_20260117T034254_X05010_N_P_J_001",
+        "release": "beta"
+      },
+      "product": "gcov",
+      "scale": {
+        "quantity": "gamma0 amplitude",
+        "topDb": {
+          "HH": 0.0,
+          "HV": -6.0
+        }
+      },
+      "validPct": 100.0
+    },
+    "laguaira": {
+      "center": [
+        10.55,
+        -66.93
+      ],
+      "bbox": [
+        -67.1,
+        10.25,
+        -66.5,
+        10.7
+      ],
+      "stack": "061_A_007",
+      "polarization": "HH",
+      "polarizations": [
+        "HH"
+      ],
+      "before": {
+        "date": "2026-06-18",
+        "referenceDate": "2026-06-06",
+        "granule": "NISAR_L2_PR_GUNW_022_061_A_007_023_4000_SH_20260606T095837_20260606T095911_20260618T095836_20260618T095911_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "after": {
+        "date": "2026-06-30",
+        "referenceDate": "2026-06-18",
+        "granule": "NISAR_L2_PR_GUNW_023_061_A_007_024_4000_SH_20260618T095836_20260618T095911_20260630T095835_20260630T095910_P05023_N_F_J_001",
+        "release": "provisional"
+      },
+      "validPct": 50.0,
+      "product": "gunw",
+      "cycleCm": 12.1
+    }
+  },
+  "generated": "2026-11-14",
+  "source": "NISAR L2 GCOV, preview _LATLON.png (8 bits, contraste esticado), catálogo CMR da NASA; cenas com product gcov vêm do próprio arquivo GCOV (scripts/gcov_crop.py)"
+}

@@ -1,0 +1,218 @@
+# Nexxus
+
+Aplicação do time para o NASA Space Apps Challenge 2026 (Campinas), desafio **Dancing with the SARs**.
+Mostra mudanças na superfície da Terra vistas pelo radar do satélite NISAR: um mapa-múndi com cenas analisadas (série de passagens, HH e HV), a lista de passagens do satélite sobre qualquer lugar e um agente que responde sobre as cenas.
+
+Evento: sábado 14 e domingo 15 de novembro de 2026. A submissão fecha domingo às 23h59. Funcionalidades congelam domingo às 15h; depois disso, só correção, demo e página do projeto.
+
+## Quem faz o quê
+
+- **Gabriel**: front (`apps/web`) e integração com a API.
+- **Mateus**: API (`apps/api`) e ingestão dos dados da NASA (`scripts/`).
+- **Vitor**: agente (prompts e qualidade das respostas). Entra pela rota `POST /ask`.
+- **Laís**: submissão, narrativa e demo.
+
+## Como rodar
+
+Só é preciso ter Docker. Nada de Node na máquina.
+
+```bash
+docker compose up -d --build                      # sobe tudo: front em :8080, API em :3000/api
+docker compose -f docker-compose.dev.yml up       # desenvolvimento com recarga automática: front em :5173, API em :3000/api
+docker compose -f docker-compose.dev.yml run --rm dev npm run typecheck
+docker compose -f docker-compose.dev.yml run --rm dev npm test     # testes do front e da API
+docker compose logs -f api                        # ver o que a API está fazendo
+docker compose down                               # derruba tudo
+```
+
+Configuração (agente, modo de dados) fica no arquivo `.env` da raiz; o modelo é `.env.example`. Mudou o `.env`, rode `docker compose up -d --build` de novo.
+
+Quem tiver Node 20+ também pode rodar direto: `npm install`, depois `npm run dev`, `npm run typecheck`, `npm test`. No Windows, fora do WSL, `npm run dev` não sobe o front (o script `dev:http` define a variável no estilo POSIX): use o Docker.
+
+Antes de dizer que uma mudança está pronta: conferir tipos, rodar os testes e abrir a tela para ver.
+
+## Estrutura
+
+```
+packages/contract   Formato dos dados (types.ts), dados de exemplo (fixtures/) e geradores de exemplo (mock.ts)
+apps/api            NestJS. Responde no formato do contrato: passagens reais (CMR), cenas de exemplo com imagens reais (scene-images/) e ponte para o agente (agent.service.ts)
+scripts/            Geração dos pacotes de imagem do globo (tile-packs.mjs), das imagens reais das cenas (scene_images.py, preview; gcov_crop.py, calibrada; gunw_crop.py, interferograma), da série de água do Taquari (water_series.py), da imagem óptica do dia do evento (optical_day.py), da lista de cidades da busca (places_data.py) e, para o laboratório, do contexto e das miniaturas da régua de cheia (hydrograph.py) e dos interferogramas (insar_fringes.py)
+apps/web            React + Vite + TypeScript. O front
+docs/               Capturas de tela do README e a lista do que falta (proximos-passos.md)
+```
+
+Dentro de `apps/web/src`:
+
+- `api/` é o único lugar que busca dados. `index.ts` escolhe entre `mock.ts` (navegador) e `http.ts` (API).
+- `i18n/` tem os textos da interface: `en.ts` (idioma principal) e `pt.ts`. `useI18n()` devolve os textos (`t`), a formatação (`f`) e o idioma.
+- `components/MapView.tsx` é o mapa: um globo 3D do MapLibre com imagem de satélite. Cada cena é um pino e, de perto, a imagem de radar dela.
+- `components/ScenesPanel.tsx`, `PassesPanel.tsx`, `AskPanel.tsx`, `PlaceSearch.tsx` são as abas e a busca. `Intro.tsx` é a abertura da primeira visita (reabre pelo botão About/Sobre).
+- `components/SceneSheet.tsx` é a folha da cena aberta e `SceneIndex.tsx`, o carrossel de cenas na base. No carrossel vêm primeiro os eventos documentados e depois as mudanças sazonais, cada grupo com o seu rótulo, sem nota no cartão; quando há cartões fora da tela, aparecem setas nas pontas e a borda esmaece. A folha tem três níveis de detalhe: no Simples é uma história curta; na Aula e nos Dados tem seções no topo, uma por vez. Aula: História, Atividade (quatro passos que comandam o mapa: prever se o lugar escureceu ou clareou e conferir com a medida do par, tocar o antes e depois, trocar HH e HV, e por que funciona sob nuvem) e Como o radar vê. Dados: História, Medir (histograma da mudança em dB com o limiar que se arrasta, áreas de cada lado e a tabela de limiares; o mapa acompanha) e Origem, que termina com a comparação entre cenas, só com os fatos reais. O ranking saiu da tela: as notas são de exemplo (a API ainda as manda, e elas só ordenam as cenas dentro de cada grupo do carrossel). Na cena que tem série de água, a régua de cheia vem logo abaixo do título, com o número do pico em destaque. As medidas vêm do mapa (`onAnalysis`), e os comandos vão para ele (`play`, `setPol`, `setSensitivity` em `MapHandle`).
+- `components/Lab.tsx` é o laboratório, uma folha por cima do mapa com três abas: `Hydrograph.tsx` (régua de cheia), `PulseLab.tsx` (compressão de pulso) e `FringeLab.tsx` (régua de franjas). Ver O laboratório.
+- `lib/` tem `ranking.ts` (nota), `geo.ts` (órbita e distâncias), `format.ts` (números, datas e coordenadas por idioma), `scale.ts` (comparação de área com algo conhecido), `motion.ts` (curvas e contagem animada), `tiles.ts` (de onde vem a imagem de satélite), `change.ts` (mapa de mudança entre duas passagens), `series.ts` (par de passagens comparado, polarização e a sequência que o botão de tocar percorre), `urlState.ts` (estado da tela no endereço da página), `nextPass.ts` (estimativa da próxima passagem), `speckle.ts` (imagem de exemplo), `useChat.ts` (conversa com o agente), `probe.ts` (leitura em dB sob o ponteiro, no dado calibrado), `provenance.ts` (origem das imagens de uma cena: versão e granule de cada passagem, dB do branco, parte sem dado, notas de exemplo), `analysis.ts` (medidas do par em tela para a aba Medir: histograma da mudança em dB e área de cada lado por limiar), `hydro.ts` (contas da régua de cheia sobre `waterSeries`: pico, piso de cada órbita, ligações dentro da mesma órbita, eixo do tempo, leituras do rio por dia, janela sem visão óptica), `pulse.ts` (FFT e simulação da compressão de pulso), `optical.ts` (imagem óptica do dia do evento: arquivo, cantos e enquadramento), `perf.ts` (medidas de desempenho) e `fringes.ts` (leitura da fase ao longo de uma linha do interferograma).
+- `assets/optical` tem a imagem óptica do dia do evento (ver Trocar exemplo por dado real, item 9). `assets/hydro` e `assets/insar` têm os recortes, mapas e interferogramas do laboratório, gerados pelos scripts. Entram no pacote da página, então funcionam sem API e sem internet.
+- `styles.css` tem todos os estilos e os tokens de design.
+
+## Trocar exemplo por dado real
+
+Esta é a parte que mais importa no evento. O front nunca lê exemplo direto: tudo passa por `apps/web/src/api`.
+
+1. **Apontar para a API real.** No `.env` da raiz, definir `VITE_API_MODE=http` e `VITE_API_URL=<endereço da API>`, e rodar `docker compose up -d --build`. Nenhum componente muda. O padrão (`/api`) usa a API de exemplo deste repositório.
+2. **A API precisa responder nestas rotas**, no formato de `packages/contract/src/types.ts`:
+
+   | Rota | Devolve | Usado em |
+   |---|---|---|
+   | `GET /scenes?lang=&include=` | `ScenesResponse` (critérios e cenas; `floodContext` na cena que tem série de água) | ranking, mapa, comparação, régua de cheia |
+   | `GET /passes?lat=&lon=` | `Pass[]`, da mais recente para a mais antiga; `isExample: true` nas inventadas | aba Passes, faixas da órbita no mapa |
+   | `GET /places?q=&kind=&lang=&country=&admin=` | `Place[]` | busca de lugar |
+   | `POST /ask` com `AskRequest` | `AskResponse` | aba Ask |
+   | `POST /ask/stream` com `AskRequest` | eventos `AskStreamEvent` por SSE | aba Ask, resposta aparecendo aos poucos |
+
+   Em `/places`, `kind` filtra por `city`, `state` ou `country` (padrão `all`), `country` (código de duas letras) restringe a busca a um país e `admin` (o `adminKey` de um estado, só junto com `country`) às cidades de um estado. Com `country`, `q` pode vir vazio para listar o que há dentro. É assim que a busca afunila de país para estado e cidade.
+
+   `lang` é `en` ou `pt`; sem ele, a API responde em inglês. `POST /ask/stream` é opcional: se a API não tiver, o front usa `POST /ask`.
+
+   Em `/scenes`, `include=interferogram` acrescenta a cena de interferograma (item 10); sem ele, só vêm cenas de brilho. O front pede com ele no modo `http` (`api/http.ts`); no modo `mock` a cena não existe.
+
+3. **Imagem de satélite do fundo.** Vem do Blue Marble da NASA (GIBS), público e sem chave; mais de perto, do Esri World Imagery. Está tudo em `lib/tiles.ts`. **Sem rede:** o mundo inteiro (zoom 0 a 4) e os arredores de cada cena (zoom 5 a 8) já vêm junto com a página, em `apps/web/public/tiles` (11 MB, com os arredores da cena de interferograma), e o mapa lê deles antes da rede. Mudou a lista de cenas ou a posição delas, gere de novo com `docker compose -f docker-compose.dev.yml run --rm dev npm run tiles` (precisa de internet) e commite. O botão Agora troca o fundo pelas nuvens mais recentes do GOES-East (também do GIBS), só sobre as Américas; sem internet ele avisa que não carregou. Com uma cena de fora das Américas aberta, a legenda diz que ali não há nuvens ao vivo (`inGoesEastView`, em `lib/tiles.ts`). As nuvens continuam visíveis na escala das cenas e a imagem de radar aparece por cima delas: é o argumento de que o radar atravessa nuvem, e a legenda do botão diz isso.
+4. **Imagens de radar.** Cada cena tem `polarizations` (`["HH", "HV"]` ou `["HH"]`; a primeira abre) e `acquisitions`, a série de passagens da mais antiga para a mais recente (pelo menos duas). Cada passagem tem `date` e `images`, uma URL por polarização: `{ HH: "...", HV: "..." }`. Chave ausente ou `null` faz o front desenhar um ruído sintético para aquela polarização e avisar que é exemplo. Com URLs de PNG ou JPG já recortados para o `bbox` da cena (`[oeste, sul, leste, norte]`), o mapa desenha a imagem real no lugar certo; só troca quando todas as passagens daquela polarização têm imagem. O servidor das imagens precisa liberar CORS.
+   Na caixa do divisor, a linha do tempo tem dois marcadores (passagem de antes e de depois; abre na primeira contra a última) e o botão HH/HV troca a polarização de todas as cenas que a tiverem. O botão de tocar varre uma passagem por vez sobre a anterior.
+
+   **Já há imagens reais** das dez cenas em `apps/api/scene-images/<cena>/`, duas passagens por cena e uma imagem em tons de cinza por polarização (`before-HH.png`, `before-HV.png`, `after-HH.png`, `after-HV.png`); `apps/api/scene-images/manifest.json` guarda órbita, datas, `bbox`, polarizações, a granule e a versão do produto (`release`) de cada passagem, a parte do recorte com dado (`validPct`) e a escala (`scale`). A API serve a pasta em `/api/scene-images/` com CORS liberado e, em `GET /scenes`, troca as passagens das cenas que têm imagem pelas duas do manifest, com as URLs, as datas, o `bbox`, a granule e a versão; se o centro da cena mudar, ela volta ao exemplo até o script rodar de novo. As URLs levam uma versão (`?v=`), calculada da entrada do manifest: gerou de novo, o navegador não reaproveita a imagem antiga do cache. Atrás de outro domínio, `PUBLIC_API_URL` ajusta o endereço das imagens (padrão `/api`).
+
+   **De onde saem.** Todas vêm de `scripts/gcov_crop.py`: o recorte calibrado do arquivo GCOV, numa escala fixa, igual nas duas datas e em todas as cenas (branco = 0 dB em HH e −6 dB em HV), de modo que `lib/change.ts` não muda. Com essa escala, a caixa do divisor mostra o sinal em dB sob o ponteiro nas duas passagens do par (`lib/probe.ts`: dB = topo + 20·log10(cinza/255), média de 3 × 3 pixels); só nos níveis Aula e Dados, só com imagem calibrada real, e cinza 0 ou 255 aparece como "sem dado ou abaixo do piso" e "topo ou mais". O manifest tem `product: "gcov"`, a API manda `imagery: "gcov"` na cena e a caixa do divisor mostra a legenda de dado calibrado. `scripts/scene_images.py` gera o preview público do NISAR (8 bits, com contraste esticado em cada data: serve para ver, não para valores em dB) e guarda, em `SCENES`, a órbita, as datas e o recorte de cada cena; numa cena nova, é ele que escolhe os três. O cabeçalho de cada script explica o método, os limites e o comando.
+
+   **Gerar de novo** (só Docker, com internet e o `EARTHDATA_TOKEN` no `.env`):
+   1. Em `SCENES`, no `scene_images.py`, ficam o centro (o mesmo da fixture), a órbita, as datas e, se preciso, o recorte (`bbox`) de cada cena; sem `stack`, `before` e `after`, o script escolhe sozinho. `scripts/nisar_passagens.py <lat> <lon> <nome>` lista as órbitas e as datas de um ponto.
+   2. Rodar o `scene_images.py` com o id da cena: grava o preview e, no manifest, a órbita, as datas, o recorte e as granules. Sem o token a posição pode errar por quilômetros, e o script não troca uma cena já posicionada pelo KML ou vinda do GCOV. Cena que falha fica como estava. Cena cujas datas não têm preview (Chókwè) não passa por este passo: o `scene_images.py` não a gera, e o `gcov_crop.py` a aceita direto, sem entrada no manifest, se `SCENES` fixar `stack`, `before`, `after` e `bbox`.
+   3. Rodar o `gcov_crop.py <cena>` (de 40 s a 3,5 min por data, conforme o recorte): troca o preview pelo recorte calibrado e grava a versão de cada passagem. O `scene_images.py` sem nome de cena não mexe em cena que vem do GCOV; com o nome, volta ao preview.
+   4. Olhar os PNGs (alguns previews vêm listrados), acertar na fixture o que mudou (centro, `bbox`, datas, polarizações; um teste da API confere com o manifest) e subir de novo com `docker compose up -d --build`. No Docker de desenvolvimento a API já lê o manifest novo.
+
+   No Windows, o `docker run` dos cabeçalhos precisa de `"${PWD}:/repo"` no PowerShell e de `MSYS_NO_PATHCONV=1` na frente no Git Bash.
+5. **Mapa de mudança.** No divisor, o modo "What changed" compara as duas passagens marcadas na linha do tempo, pinta onde o sinal caiu (âmbar) e onde subiu (azul-gelo) além de um limiar e mostra os km² de cada lado, sem somar, com um controle de sensibilidade. No dado calibrado (`imagery: "gcov"`) a mediana da cena não é descontada, porque as duas datas têm a mesma escala; no preview e no exemplo, é. A conta é feita no navegador; o método está no cabeçalho de `lib/change.ts`. Abre em 1,25× e o controle vai de 2× a 1,1×; abaixo de 0,5% da imagem, a tela diz que quase nada mudou. Funciona com as imagens de exemplo e com as reais, desde que o servidor delas libere CORS; sem isso o modo avisa que não consegue ler. A área medida é a fração de pixels vezes a área do `bbox`, então o `bbox` precisa corresponder ao recorte real da imagem. As duas imagens precisam estar alinhadas e na mesma escala de brilho.
+6. **Área alterada.** `areaKm2` na cena é opcional. Com ele, o detalhe mostra uma comparação de escala ("cerca de 4 vezes Paris"), calculada em `lib/scale.ts`. Hoje nenhuma cena tem: o número era inventado.
+7. **Fontes, ressalvas e origem da imagem.** Campos opcionais da cena, que a API manda e a folha da cena mostra (`SceneSheet.tsx`; as contas ficam em `lib/provenance.ts`): depois do resumo, a base, a ressalva e as fontes, em todos os níveis de detalhe; no nível Dados, recolhidas, a granule e a versão de cada passagem, o dB do branco e a parte sem dado quando falta alguma, e o aviso de notas de exemplo junto da nota; na legenda do divisor, a versão do produto. `basis` diz em que a cena se apoia: `documented-event` (as fontes de `sources` documentam o evento; a leitura da imagem continua sendo do time) ou `interpretation` (sem evento confirmado). `sources` traz título, no idioma pedido, e URL; `caveat` é a ressalva de leitura da imagem. Cada passagem leva `granule` e `release` (beta, provisória ou validada); `imageryDetails` leva o dB do branco de cada polarização (`topDb`) e a parte do recorte com dado nas duas datas (`validPct`); nos critérios, `isExample` avisa que as notas são inventadas. Textos e fontes ficam na fixture, e só entra fonte que alguém abriu e conferiu (o dia vai em `checked`); granule, versão, escala e parte com dado vêm do manifest, pela API (`apps/api/src/scene-images.ts`).
+8. **Água nova e nível do rio no Taquari.** A cena do Taquari leva `waterSeries` (a água aberta nova medida em cada passagem do NISAR, com a faixa e o texto do método) e `riverGauge` (leituras do nível do rio, cada uma com lugar, hora e fonte), nos dois modos: são medidas e fontes reais, não exemplo. O front ainda não mostra (item em `docs/proximos-passos.md`); o agente já recebe. A série sai de `scripts/water_series.py`, que mede as 21 passagens das duas órbitas que cobrem o recorte e grava `packages/contract/src/fixtures/taquari-water.json`; o cabeçalho explica o método, os limites e o comando. A fixture publica só até 27/07/2026 (`WATER_UNTIL`), e um teste da API confere a cena contra o arquivo. Mudou o `bbox` da cena, a série some até o script rodar de novo. É outra medida, não a do mapa de mudança, e não vai para `areaKm2`.
+9. **Imagem óptica do dia do evento (modo Sob nuvem).** A cena do Taquari leva `opticalDay` (dia, região, satélite, crédito e uma frase, no idioma pedido), nos dois modos. A imagem não vem por endereço: `scripts/optical_day.py` baixa do GIBS a cor verdadeira do MODIS Aqua de 23/07/2026, o dia da passagem do radar, e grava `apps/web/src/assets/optical/taquari-2026-07-23.webp` (250 m por pixel, borda transparente, abaixo de 400 kB para caber no preview); funciona sem API e sem internet. É 23/07 e não 22/07, o dia do pico: em 22/07 a região é um branco liso, que na tela não se lê como nuvem. Na tela, a caixa do divisor ganha o terceiro modo, Sob nuvem / Under cloud, só em cena que tem o campo e o arquivo (`hasOptical`, em `lib/optical.ts`): o mapa se afasta (`opticalFrame`), a nuvem cobre a tela, a moldura da cena aparece vazia e o radar entra varrendo; o divisor arrasta entre nuvem e radar. `?view=optical` guarda o modo no endereço. O agente recebe o campo. A imagem é para ver: não mede cobertura de nuvem. Outra cena: acrescentar em `OPTICAL` no script e o campo `optical` em `RAW`, na fixture, com a mesma data e o mesmo recorte (um teste do front confere o arquivo).
+10. **Interferograma.** `GET /scenes?include=interferogram` acrescenta, no fim da lista, a cena `laguaira` (`kind: "interferogram"`): os terremotos de 24/06/2026 no norte da Venezuela, com fonte. Nela cada item de `acquisitions` é um par de passagens (`referenceDate` → `date`; o primeiro par termina antes dos terremotos, o segundo os atravessa) e a imagem em `images.HH` é a fase, não o brilho: branco na fase média da cena, escuro a meio ciclo dela, transparente na água e onde o sinal se perdeu num dos dois pares. `cycleCm` diz quantos centímetros de mudança na distância até o satélite vale uma volta de cor (branco, escuro, branco), e `change` não se aplica. As imagens saem de `scripts/gunw_crop.py` (arquivos GUNW, com a ionosfera descontada pela estimativa do próprio arquivo; `product: "gunw"` no manifest; o cabeçalho explica o método, os limites e o comando). Na tela (`isInterferogram` e `pairs`, em `lib/series.ts`): o divisor compara os dois pares, com as datas de cada um; não há botões de polarização nem mapa de mudança, mesmo com `?view=change`; a legenda diz quanto vale uma volta de cor e que os vazios são água ou sinal perdido, em todos os níveis de detalhe; a folha explica a fase no lugar do claro e escuro e leva à régua de franjas do laboratório. Se as imagens não carregarem, a tela avisa em vez de desenhar exemplo. Sem as imagens no manifest a API não a serve, porque não há exemplo que substitua uma imagem de fase. O agente só a recebe quando a pergunta a marca.
+11. **Se a API real vier com outro formato**, adaptar em `apps/web/src/api/http.ts`, convertendo a resposta para os tipos do contrato. Não espalhar conversão pelos componentes.
+12. **Mudou o contrato?** Atualizar junto: `types.ts`, `fixtures/scenes.ts` e `mock.ts` (em `packages/contract/src`), em `apps/api/src` o `controllers.ts`, o `scene-images.ts` (o que vem do manifest) e o `agent-context.ts` (o que vai ao agente), a tabela acima e, se mudou rota ou parâmetro, `apps/web/src/api` (`index.ts`, `http.ts` e `mock.ts`).
+
+O selo "Dados de exemplo" no topo aparece sozinho quando `VITE_API_MODE` não é `http`. Respostas do agente com `isExample: true` também são marcadas na tela.
+
+## O laboratório
+
+Botão Radar lab / Laboratório no topo, ou `?lab=hydro|pulse|fringes` no endereço. Cada aba abre numa parte só, com a ferramenta na tela e um texto curto, e o resto fica a um clique: régua de cheia (Gráfico, Conferência, Método), pulso (Simulação, A conta por dentro) e franjas (Régua, Como ler). Três abas; tudo com dado público, sem login, e tudo roda sem internet depois de gerado.
+
+1. **Régua de cheia (hidrograma de radar do Taquari).** A água aberta nova que o NISAR mediu em cada passagem, nas duas órbitas: as 8 passagens de `scene.waterSeries`, de 17/06 a 27/07/2026, uma a cada 4 ou 8 dias. O pico é 23/07, a noite seguinte à cheia: cerca de 53 km² (de 49 a 56), contra 0,3 a 1,6 km² nas passagens de referência. A medida vem do dado calibrado (`scripts/water_series.py`; ver Trocar exemplo por dado real, item 8), a mesma que a API manda ao agente; o painel da cena mostra uma miniatura com o botão que abre a régua. No gráfico: marcador vazado nas passagens de referência, barra com a faixa conforme o limiar de água, ligação só dentro da mesma órbita e de um ciclo (`orbitLinks`, em `lib/hydro.ts`) e uma linha por dia de leitura do rio (`scene.riverGauge`, com fonte). A conferência, toda na tela:
+   - nível do rio, de `riverGauge`: 24,7 m em Lajeado em 22/07 e, na manhã seguinte, 23,1 m em Estrela (descendo) e 9,1 m em Taquari (subindo).
+   - mapa de água OPERA DSWx-S1 (JPL, Sentinel-1), pelo GIBS: 6,6 km² em 13/07 e 12,0 km² em 25/07. É toda a água aberta, com o leito do rio, então fica no cartão e fora do eixo do gráfico. O Sentinel-1 perdeu o pico.
+   - imagem óptica HLS (Landsat e Sentinel-2), pelo GIBS: sem visão limpa do vale de 15/07 a 01/08; a de 25/07 tem 78% de nuvem.
+
+   O contexto que não é do NISAR (chuva ERA5 e vazão GloFAS, as duas pelo Open-Meteo; dias de visão óptica; OPERA) vem no campo `floodContext` da cena (`FloodContext` em `types.ts`; fixture `packages/contract/src/fixtures/taquari-context.json`), só junto com `waterSeries`. O cartão da passagem escolhida só mostra imagem quando há a calibrada da cena (as duas passagens que ela compara, 11/07 e 23/07, e só com a API). As miniaturas de `assets/hydro` são o preview do NISAR, de uns 150 pixels de lado: parecem ampliadas em qualquer tamanho e saíram do cartão; a do pico ainda aparece na Conferência, ao lado da imagem óptica, quando não há a calibrada. Imagem nítida nas oito datas depende de gravar o recorte calibrado de cada passagem, com o token do Earthdata. Gerar o contexto e as miniaturas de novo: `docker run --rm -v "$PWD:/repo" -w /repo python:3.12-slim sh -c "pip install -q numpy pillow && python scripts/hydrograph.py"` e commitar a fixture e `apps/web/src/assets/hydro`. O script já mediu a água no preview de 8 bits (47,5 km² no pico); esses números saíram e não devem voltar à tela. Outra cena: precisa de `waterSeries`; para o contexto, trocar `SCENE` no script e registrar a fixture em `FLOOD_CONTEXT`, em `fixtures/scenes.ts`.
+2. **Por dentro do pulso (compressão de pulso).** Simulação no navegador (`lib/pulse.ts`): chirp em banda base, eco de um ou dois alvos enterrado em ruído limitado à banda, e a correlação feita pela frequência (FFT do eco vezes o conjugado da FFT do pulso). Os controles são banda (5, 20, 40, 77 MHz), duração do pulso, força do eco e distância entre os alvos. A tela mostra o ganho B·T, a nitidez (c·T/2 → c/2B), a relação sinal-ruído medida contra a teórica e quantas multiplicações a FFT poupa. É simulação: os valores de banda e duração são os da banda L do NISAR, o resto é ilustrativo.
+3. **Régua de franjas (interferometria).** Interferogramas reais do NISAR (preview do produto GUNW, trilha 162 ascendente) sobre o terremoto da Venezuela de 24/06/2026 (M 7,2 e M 7,5, USGS): o par de 13/06 a 25/06 atravessa o tremor e o de 01/06 a 13/06 é a referência sem tremor. O preview pinta a fase com a tabela `twilight` do matplotlib, sem mistura; `scripts/insar_fringes.py` desfaz a tabela e grava a fase num PNG de um byte por pixel. No navegador, a régua (`lib/fringes.ts`) soma a fase ao longo da linha arrastada e mostra quantas franjas há entre as duas pontas; a tela diz quanto vale uma franja (cerca de 12,1 cm de mudança na distância entre o chão e o satélite, o mesmo `cycleCm` da cena `laguaira`, em `assets/insar/insar.json`) e para aí: **não soma centímetros, não diz quanto nem para que lado o chão andou**. A linha padrão dá 4,7 franjas no par do terremoto e 0,3 no par de calma, que a tela mostra como margem de erro. Nada é descontado do preview (ionosfera e troposfera estão dentro da fase), e a tela diz isso; a cena `laguaira` da API é outro recorte, de outra trilha (061) e outros pares, com a ionosfera descontada. Gerar de novo: o mesmo `docker run`, com `pip install -q numpy pillow matplotlib` e `python scripts/insar_fringes.py`.
+
+O preview (`npm run preview:build`) embute as imagens do laboratório; cada arquivo precisa ficar abaixo de 400 kB (`assetsInlineLimit`).
+
+## Medir o desempenho
+
+`?perf=1` no endereço abre o painel de desempenho (`components/PerfPanel.tsx`), que mostra as medidas daquela visita com bom, médio ou lento, e copia tudo em JSON. As medidas ficam sempre ligadas (`lib/perf.ts`); só o painel depende do endereço.
+
+- **Nossas:** cenas carregadas e globo pronto (tempo desde abrir a página), imagem de radar de uma cena (baixar e decodificar; só com imagens reais, ou seja, com a API), mapa de mudança e compressão de pulso (tempo de cada conta).
+- **Do navegador,** pela biblioteca `web-vitals`: TTFB, FCP, LCP, CLS e INP. Mais as travadas (tarefas de mais de 50 ms) e a mais longa delas, que só o Chrome mede.
+- Cada medida nossa também entra na linha do tempo do navegador como `nexxus:<id>` (aba Performance das ferramentas de desenvolvedor).
+- Medida nova: acrescentar o id em `MetricId`, `METRICS` e `LIMITS`, o nome e a dica em `i18n` (`perf.metrics`), e chamar `timed`, `stopwatch` ou `recordSinceStart` no ponto medido.
+- Os limites das métricas do navegador são os do Google; os das nossas foram escolhidos para a demo (globo em até 2,5 s, imagem de radar em até 1 s, cada conta em até 16 ms). Meça no computador da demo, com o Docker normal: no servidor de desenvolvimento os tempos de carga são outros.
+
+## Ligar o agente
+
+A aba Ask já funciona de ponta a ponta: envia a pergunta, as cenas em contexto (a aberta e as marcadas para comparar), o histórico da conversa e o idioma; mostra a resposta enquanto chega; permite parar, tentar de novo e limpar; e transforma as citações em botões que levam à cena.
+
+Para trocar o texto de exemplo por um agente de verdade:
+
+1. No `.env` da raiz, definir `AGENT_URL` (endereço que recebe a pergunta) e, se precisar, `AGENT_API_KEY`. Rodar `docker compose up -d --build`. `GET /api/health` passa a mostrar `"agent": "connected"`.
+2. Ajustar o formato: o corpo enviado é montado em `apps/api/src/agent-context.ts` (`agentBody`) e a resposta é lida em `callAgent`, em `agent.service.ts`. Hoje vai `{ question, history, lang, criteria, scenes }`, com as cenas em contexto como `GET /scenes` as serve (datas, granules e versões reais, base, fontes, ressalva e origem da imagem), sem os endereços das imagens; a API espera de volta `{ answer, citations }`, onde `citations` é uma lista de ids de cena.
+3. Se a API do agente transmitir a resposta em tempo real, trocar o método `stream` do mesmo arquivo para repassar os pedaços como eventos `delta`. Hoje ele fatia a resposta pronta em palavras.
+
+O front não precisa mudar em nenhum desses passos. A lógica da conversa está em `apps/web/src/lib/useChat.ts` e a chamada em `apps/web/src/api/http.ts`.
+
+## Link que guarda o estado
+
+O endereço da página acompanha a tela, para um link levar direto a um ponto (útil para gravar a demo e para a página do projeto):
+
+`?scene=labrea&view=change&pol=HV&steps=1,4&compare=labrea,sindh&tab=ask&lang=pt&lab=fringes&place=-22.9,-47.1,Campinas`
+
+- `scene` abre a cena e voa até ela; `view=change` já abre no mapa de mudança e `view=optical`, no modo Sob nuvem (só no Taquari); `pol=HV` escolhe a polarização; `steps=1,4` escolhe as passagens comparadas (posição na série, a partir de 0); `compare` marca as cenas comparadas.
+- `place` (lat, lon, nome) mostra as passagens do lugar; `tab` escolhe a aba; `lang` vale mais que o idioma lembrado.
+- `lab` abre o laboratório numa das abas: `hydro`, `pulse` ou `fringes`.
+- `perf=1` mostra o painel de desempenho.
+- Só entra no endereço o que difere do padrão, e a navegação não cria entradas no histórico.
+- Quem chega por um link para cena, lugar ou aba não vê a abertura.
+- Estado novo que mereça link: acrescentar em `lib/urlState.ts` (leitura, escrita e a lista `OURS`, com teste) e no efeito que escreve o endereço em `App.tsx`, com a dependência nova.
+
+## Idiomas
+
+Inglês é o idioma principal; o seletor EN/PT fica no topo e a escolha é lembrada no navegador.
+
+- Texto de interface nunca vai solto no componente. Adicionar a chave em `i18n/en.ts` e a tradução em `i18n/pt.ts`; o TypeScript acusa se faltar em um deles.
+- Números, datas e coordenadas passam por `f` de `useI18n()`.
+- Texto que vem da API (nomes de cena, resumos, critérios, resposta do agente) é traduzido pela API, conforme o `lang` enviado.
+
+## O que ainda é exemplo
+
+- Cenas em `packages/contract/src/fixtures/scenes.ts`: lugar, órbita, datas, `bbox` e polarizações são reais e batem com o `manifest.json` das imagens (um teste da API confere); as passagens por órbita também são reais, contadas no catálogo, mas nenhum teste as confere. Duas são eventos documentados, com fonte em `sources`: o Taquari, a enchente de 22/07/2026 (a passagem de 11/07 contra a da noite seguinte à cheia, num recorte só do baixo vale), e Chókwè, a cheia do rio Limpopo de janeiro de 2026 (05/01 contra 17/01, as datas das imagens que a NASA publicou). O campo `event` de `RAW` troca "Mudança sazonal" pelo nome do evento e a estação pela data. Sem evento confirmado com fonte, a cena é "Mudança sazonal", com o sentido (`change`) medido no par de imagens calibradas; vale também para Campinas, a cidade do time. As notas do ranking são inventadas, e os critérios avisam (`isExample`). A cena de interferograma (La Guaira, os terremotos de 24/06/2026, também com fonte) só entra a pedido: ver Trocar exemplo por dado real, item 10.
+- Passagens: estas já são reais. A API consulta o catálogo público da NASA (CMR, sem login) nas três coleções GCOV do NISAR (`apps/api/src/cmr.ts` e `passes.service.ts`), guarda a resposta por 30 min e conta uma vez só a mesma data, direção e trilha. Se o CMR falhar, a API responde com `mockPasses`, que marca cada passagem com `isExample`, e a aba Passes avisa. Lista vazia não é falha: é ponto sem cobertura. `PASSES_ONLINE=0` desliga a consulta; `GET /api/health` diz de onde veio a última resposta (`passes`). No modo `mock` do front, só exemplo. A "próxima passagem" é sempre estimativa do front: última passagem de cada direção mais ciclos de 12 dias, até chegar a hoje.
+- Imagens de radar: as dez cenas usam imagens reais do NISAR, duas passagens em HH e HV (Jakobshavn só HH), todas do arquivo GCOV calibrado; ver Trocar exemplo por dado real, item 4. No Taquari, a água aberta nova em 23/07/2026, na noite seguinte à cheia, dá cerca de 53 km² (de 49 a 56, conforme o limiar de água, entre −14 e −10 dB): HH caiu 3 dB ou mais em relação à referência de águas baixas da mesma órbita e ficou abaixo de −12 dB; quatro dias depois, na outra órbita, cerca de 5 km², e as passagens de referência ficam entre 0,3 e 1,6 km² (item 8). Não é a área alagada: água sob árvores ou entre prédios não aparece assim, e o leito normal do rio não entra. O mapa de mudança do app mostra cerca de 60 km² mais escuros em 1,25× e 42 km² em 1,5× (conferido na tela em 14/11, sem descontar a mediana), e quase nada mais claro: é outra medida, sem teste de água, e não se soma nem se compara com os 53 km². No modo `mock` do front, sem API, voltam ao ruído de `lib/speckle.ts`, uma série por polarização. Várias cenas quase não mudam entre as duas datas (Campinas, Kalimantan, Lábrea), e a tela diz isso. Em Chókwè o mapa de mudança separa as duas coisas: cerca de 173 km² mais escuros, a faixa da cheia ao longo do rio, e cerca de 3.450 km² mais claros, o chão em volta, que clareia como solo molhado (o resumo avisa). O número antigo, 780 km², vinha de descontar a mediana da cena e não vale mais.
+- Hidrograma do Taquari e interferogramas da Venezuela: reais, ver O laboratório. A compressão de pulso é simulação. A régua de cheia mostra a série calibrada (`waterSeries`); chuva e vazão do contexto são reanálise e modelo, não medição no rio.
+- Série de passagens: a série real tem só as duas passagens do manifest. O caminho para mais já existe e falta rodar: datas anteriores da mesma órbita na chave `earlier` de `SCENES` (o Taquari já tem 17/06 e 29/06/2026), `gcov_crop.py <cena>` grava `earlier-<data>-<POL>.png` e a lista `earlier` no manifest, e a API as põe antes das duas passagens, só se a lista estiver em ordem, for anterior à `before`, o produto for `gcov` e todos os arquivos existirem (senão a cena sai com duas). A tela já mostra a linha do tempo, a escolha do par e o botão de tocar com mais de duas. Com a série mais longa, a cena abre na primeira contra a última: os números do mapa de mudança citados aqui valem para 11/07 contra 23/07.
+- Agente: sem `AGENT_URL`, `mockAsk` monta um texto a partir das notas, sem modelo, e repete a ressalva da cena quando há.
+- Busca de lugar: esta já é real. Dá para digitar qualquer nome ou escolher um país e afunilar para estado e cidade. Países e territórios (253) e estados (4,6 mil) vêm de uma lista embutida do Natural Earth e do GeoNames, nos dois idiomas. Cidades: a API lê ao subir `apps/api/data/cities.json.gz`, com todo lugar povoado de mais de 500 habitantes do GeoNames (226 mil, CC BY 4.0: citar GeoNames na submissão), cada um com estado (0,3% ficam sem) e, quando existe, o nome em português; funciona sem rede. Só quando nenhuma cidade da lista casa com o texto a API tenta o Open-Meteo (`PLACES_ONLINE=0` desliga). Gerar de novo: `docker run --rm -v "$PWD:/repo" -w /repo python:3.12-slim sh -c "pip install -q pyshp shapely && python scripts/places_data.py"` (baixa 235 MB para `.cache/places`). No modo `mock` do front, sem API, ficam só as 7,3 mil cidades embutidas na página.
+
+## Design
+
+Identidade: a Terra ocupa a tela inteira e a interface é uma folha clara pousada sobre ela. Azul profundo, branco-gelo e um único vermelho.
+
+- Tokens em `:root` de `apps/web/src/styles.css` valem sobre o globo (fundo escuro). A classe `.sheet` troca os mesmos tokens por valores para fundo claro: é usada na folha lateral e na caixa do divisor. Não escrever cor solta em componente.
+- O mapa repete três cores na constante `C` de `MapView.tsx`; mudou uma, mude a outra. A largura da folha também é espelhada lá (`SHEET`).
+- Vermelho (`--red`) só para seleção, melhor valor, ação e a área alterada no radar. Azul (`--blue`, e o tom claro `--blue-2`) só em dados (órbita ascendente, critérios do ranking). A barra da nota não usa vermelho.
+- Uma família só, Archivo: larga e pesada nos títulos (`font-stretch`), normal no texto, algarismos tabulares. Rótulos em frase normal, sem caixa alta.
+- Cantos arredondados só em quem flutua sobre o mapa (folhas, botões em pílula, miniaturas). Dentro da folha, fios de 1px (`--line`) separam as áreas; sem sombras.
+- Não usar o logotipo da NASA: as regras do Space Apps proíbem.
+- Cada informação aparece num lugar só. A folha mostra resumo, série e área; pesos e comparação ficam recolhidos; a caixa do divisor tem legenda de uma linha, e detalhe técnico vai para a dica do mouse.
+- Todo estado tem tela: carregando, vazio e erro. Erro diz o que houve e o que fazer.
+- Respeitar `prefers-reduced-motion` e manter foco de teclado visível.
+- Movimento explica, não enfeita: o globo gira até o primeiro toque, os anéis marcam a cena aberta e a que está sob o ponteiro, o divisor percorre a série de passagens sozinho, uma por vez, a faixa da órbita atravessa o lugar, as linhas do ranking deslizam quando a ordem muda. Toda animação em código consulta `reduceMotion()` de `lib/motion.ts`.
+
+## Convenções
+
+- Texto de interface em inglês e português (ver Idiomas), frases diretas, sem ponto de exclamação. Código, nomes de campos e de arquivos em inglês; comentários em português.
+- TypeScript estrito. Sem `any`.
+- Dados do servidor via TanStack Query (`useQuery`); a conversa com o agente é a exceção (`lib/useChat.ts`). Estado de tela com `useState` no `App.tsx`.
+- CSS puro em `styles.css`, classes no estilo `bloco__elemento--variação`. Não adicionar biblioteca de componentes.
+- Função pura nova em `lib/` ganha teste em `*.test.ts`.
+- Commits pequenos, direto na `main`, mensagem em português dizendo o que mudou.
+- Commit feito por agente (Claude Code) sai com o nome e o e-mail de git de quem pediu, nunca como "Claude", e sem a linha `Co-Authored-By` no fim da mensagem. Nas sessões do Gabriel: `Gabriel Yoshino`, com o mesmo e-mail dos merges dele no histórico (`git log --author="Gabriel Yoshino" --format=%ae -1`); configurar com `git config user.name` e `git config user.email` antes do primeiro commit da sessão. E só commitar quando ele pedir: mudança de tela ele quer ver antes.
+- Chaves e senhas nunca no repositório. Variável `VITE_*` vai para o navegador: não colocar segredo nela.
+
+## Preview para mostrar ao time
+
+`npm run preview:build` (ou `docker compose -f docker-compose.dev.yml run --rm dev npm run preview:build`) gera `apps/web/dist-preview`: o front com dados de exemplo, pronto para publicar como página avulsa dentro de uma moldura isolada, que é como o preview do Claude hospeda. Nesse tipo de hospedagem o navegador recusa módulos JavaScript, fontes e `fetch` dos próprios arquivos, então esse build sai como um script clássico só, com fontes embutidas e as imagens do globo carregadas por tags `<script>` (`scripts/preview-build.mjs`). Não é o build da demo: a demo usa o Docker normal. Lá não funcionam o botão Agora, o detalhe de satélite de perto e a busca de cidades pequenas, porque a página não alcança a internet.
+
+## Cuidados conhecidos
+
+- **O que funciona sem internet:** globo, cenas, série de passagens, mapa de mudança, ranking, passagens e busca de lugar (todas as cidades com mais de 500 habitantes), desde que a página e a API de exemplo estejam rodando na máquina (Docker). **O que não funciona:** detalhe de satélite acima do zoom 8 fora dos arredores das cenas, o botão Agora, a busca de povoados com menos de 500 habitantes, as passagens reais (caem para o exemplo, com aviso) e qualquer agente ou API externos.
+
+- `@nexxus/contract` é lido como fonte pelo front (alias no `vite.config.ts`) e como `dist/` pela API. Depois de mexer no contrato, a API só enxerga a mudança após `npm run build -w @nexxus/contract` (os scripts `dev`, `typecheck`, `test` e `tiles` da raiz fazem isso antes).
+- O mapa (`MapView`, com o MapLibre) é baixado à parte do resto da página (`lazy` em `App.tsx`), para o topo e a folha lateral aparecerem antes; um aviso no `index.html` (`preloadMap`, em `vite.config.ts`) faz o navegador começar a baixá-lo junto com o código principal. O laboratório também é um pedaço à parte, baixado só quando é aberto; por isso a miniatura da série fica em `HydroSpark.tsx`, fora de `Hydrograph.tsx`.
+- Dos pacotes de imagem do globo, só o do mundo inteiro baixa ao abrir; o dos arredores das cenas (7,9 MB) começa cerca de um segundo depois, ou antes, se o mapa pedir uma imagem que o primeiro não tem (`packLookup`, em `lib/tiles.ts`). O CSS do MapLibre é importado em `main.tsx`, antes de `styles.css`: se for junto com o mapa, chega depois e desfaz o tamanho dele.
+- Movimentos pedidos antes de o mapa carregar ficam numa fila, rodam quando ele chega e sobrevivem à remontagem: em desenvolvimento o React monta o mapa duas vezes, e limpar a fila ali fazia o link para uma cena não voar até ela.
+- O mapa precisa de WebGL. Sem ele, mostra a mensagem de erro do mapa.
+- As fronteiras (`world-atlas`, 750 kB) são carregadas sob demanda, depois da primeira tela.
+- Os Dockerfiles usam a raiz do repositório como contexto, por causa do pacote de contrato.
+- O Docker de desenvolvimento guarda `node_modules` num volume. Mudou dependência e algo ficou estranho: `docker compose -f docker-compose.dev.yml down -v` e suba de novo.
+- O nginx do front (`apps/web/nginx.conf`) está com buffer desligado em `/api/`, para a resposta do agente chegar aos poucos. Outro proxy na frente precisa do mesmo cuidado. Ele também comprime texto (gzip em JavaScript, CSS e JSON; a resposta do agente em pedaços fica de fora), guarda por um ano os arquivos de `assets/`, que têm hash no nome, e manda conferir a cada visita o `index.html` e os pacotes de `tiles/`.
+
+## Pendências
+
+A lista única do que falta, com dono, onde mexer e quando está pronto, fica em `docs/proximos-passos.md`. Pegou ou terminou um item, atualize lá; ideia nova entra lá, não aqui.

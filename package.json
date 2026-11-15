@@ -1,0 +1,22 @@
+{
+  "name": "nexxus",
+  "private": true,
+  "license": "MIT",
+  "version": "0.1.0",
+  "description": "Nexxus: mudanças na superfície vistas pelo radar do NISAR. NASA Space Apps Challenge 2026.",
+  "workspaces": ["packages/*", "apps/*"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "npm run build -w @nexxus/contract && concurrently -n api,web -c gray,red \"npm run dev -w @nexxus/api\" \"npm run dev:http -w @nexxus/web\"",
+    "dev:mock": "npm run dev -w @nexxus/web",
+    "build": "npm run build -w @nexxus/contract && npm run build -w @nexxus/api && npm run build -w @nexxus/web",
+    "typecheck": "npm run build -w @nexxus/contract && npm run typecheck -w @nexxus/api && npm run typecheck -w @nexxus/web",
+    "test": "npm run test -w @nexxus/web && npm run build -w @nexxus/contract && npm run test -w @nexxus/api",
+    "tiles": "npm run build -w @nexxus/contract && node scripts/tile-packs.mjs",
+    "preview:build": "node scripts/preview-build.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "typescript": "^5.6.3"
+  }
+}

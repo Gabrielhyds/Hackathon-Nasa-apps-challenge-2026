@@ -1,0 +1,32 @@
+# Desenvolvimento com recarga automática, só com Docker:
+#
+#   docker compose -f docker-compose.dev.yml up
+#
+# Front em http://localhost:5173 · API em http://localhost:3000/api
+# Salvou um arquivo, a tela atualiza sozinha.
+#
+# Rodar testes e conferir tipos pelo mesmo container:
+#   docker compose -f docker-compose.dev.yml run --rm dev npm test
+#   docker compose -f docker-compose.dev.yml run --rm dev npm run typecheck
+services:
+  dev:
+    image: node:22-alpine
+    working_dir: /repo
+    command: sh -c "npm install && npm run dev"
+    environment:
+      AGENT_URL: ${AGENT_URL:-}
+      AGENT_API_KEY: ${AGENT_API_KEY:-}
+      PLACES_ONLINE: ${PLACES_ONLINE:-1}
+      PASSES_ONLINE: ${PASSES_ONLINE:-1}
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-/api}
+      VITE_POLL: "1"
+      TSC_WATCHFILE: DynamicPriorityPolling
+    volumes:
+      - .:/repo
+      - node_modules:/repo/node_modules
+    ports:
+      - "5173:5173"
+      - "3000:3000"
+
+volumes:
+  node_modules:

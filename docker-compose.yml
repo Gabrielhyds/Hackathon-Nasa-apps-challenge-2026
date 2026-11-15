@@ -1,0 +1,38 @@
+# Sobe tudo com um comando, sem precisar de Node na máquina:
+#
+#   docker compose up -d --build
+#
+# Front em http://localhost:8080 · API em http://localhost:3000/api
+# Para desenvolver com recarga automática, use docker-compose.dev.yml.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      # Agente: sem AGENT_URL a API responde com texto de exemplo. Defina no arquivo .env da raiz.
+      AGENT_URL: ${AGENT_URL:-}
+      AGENT_API_KEY: ${AGENT_API_KEY:-}
+      # 0 desliga a busca online de cidades e usa só a lista embutida.
+      PLACES_ONLINE: ${PLACES_ONLINE:-1}
+      PASSES_ONLINE: ${PASSES_ONLINE:-1}
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-/api}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # http = usa a API · mock = dados de exemplo dentro do navegador
+        VITE_API_MODE: ${VITE_API_MODE:-http}
+        # /api passa pelo nginx até o serviço `api`. Para outra API, use a URL completa.
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    ports:
+      # Porta do front na máquina. Se a 8080 estiver ocupada, defina WEB_PORT no .env.
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+    restart: unless-stopped
