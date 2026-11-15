@@ -163,6 +163,25 @@ def test_modelo_numero_inventado_cai_para_reserva(monkeypatch):
     assert a.mode == "offline"
 
 
+def test_contexto_do_modelo_diz_qual_cena_esta_aberta(monkeypatch):
+    from agent.prompt import build_context
+    cards = [core.CARDS["campinas"]]
+    assert "OPEN SCENE: Campinas, Brasil\n" in build_context("What changed here?", "en", cards, "campinas")
+    assert "OPEN SCENE" not in build_context("What changed here?", "en", cards, None)
+    assert "OPEN SCENE" not in build_context("What changed here?", "en", cards, "lugar-desconhecido")
+    # e a pergunta com cena aberta chega ao modelo com essa linha
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    visto = []
+
+    async def gen(system, user):
+        visto.append(user)
+        return "In Campinas the two passes look almost the same [campinas]."
+
+    monkeypatch.setattr(llm, "generate", gen)
+    run(core.ask("What changed here?", scene="campinas"))
+    assert visto and "OPEN SCENE: Campinas, Brasil" in visto[0]
+
+
 def test_modelo_link_inventado_e_removido(monkeypatch):
     fake_model(monkeypatch, "NISAR flies 747 km up [nisar]. See https://fake.example.com")
     a = run(core.ask("What is NISAR?"))
