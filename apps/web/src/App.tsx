@@ -246,7 +246,7 @@ export function App() {
       {LINK.perf && <PerfPanel />}
       {lab && (
         <Suspense fallback={<section className="lab glass" role="dialog" aria-label={t.lab.aria}><p className="map__status">{t.scenes.loading}</p></section>}>
-          <Lab panel={lab} scene={hydroScene} loading={scenesQuery.isPending} onPanel={setLab} onClose={closeLab} />
+          <Lab panel={lab} scene={hydroScene} loading={scenesQuery.isPending} failed={scenesQuery.isError} onRetry={() => scenesQuery.refetch()} onPanel={setLab} onClose={closeLab} />
         </Suspense>
       )}
     </div>

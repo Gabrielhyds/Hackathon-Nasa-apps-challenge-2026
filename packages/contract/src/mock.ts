@@ -42,7 +42,18 @@ export type CityRow = [string, string, string, number, number, string];
  */
 const DATA = placesJson as unknown as { countries: RegionRow[]; states: RegionRow[]; cities: CityRow[] };
 
-const plain = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+/** Letras que a decomposi\u00e7\u00e3o de acentos n\u00e3o desfaz (\u0142, \u00f8, \u00df, \u0131...) e os ap\u00f3strofos curvos, que ningu\u00e9m digita. */
+const FOLD: Record<string, string> = {
+  "\u0142": "l", "\u00f8": "o", "\u0111": "d", "\u00f0": "d", "\u0131": "i", "\u0127": "h", "\u0259": "e", "\u00df": "ss", "\u00e6": "ae", "\u0153": "oe", "\u00fe": "th",
+  "\u2019": "'", "\u2018": "'", "\u02bb": "'", "\u02bc": "'",
+};
+/**
+ * Forma de compara\u00e7\u00e3o de um nome: sem acentos, em min\u00fasculas e com as letras de `FOLD` trocadas,
+ * para "Lodz" achar \u0141\u00f3d\u017a e "Diyarbakir" achar Diyarbak\u0131r.
+ */
+export const foldName = (s: string): string =>
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[\u0142\u00f8\u0111\u00f0\u0131\u0127\u0259\u00df\u00e6\u0153\u00fe\u2019\u2018\u02bb\u02bc]/g, (c) => FOLD[c]);
+const plain = foldName;
 interface Entry {
   kind: PlaceKind;
   names: [string, string];
@@ -114,9 +125,11 @@ export function searchPlaces(query: string, options: PlaceSearchOptions = {}): P
       if (adminKey && (e.kind !== "city" || e.adminKey !== adminKey)) continue;
     }
     if (!q) { starts.push(e); continue; }
-    const at = Math.min(...e.keys.map((k) => { const i = k.indexOf(q); return i < 0 ? Infinity : i; }));
-    if (at === 0) starts.push(e);
-    else if (at !== Infinity && contains.length < limit) contains.push(e);
+    // posição do texto no nome, em qualquer dos dois idiomas; a lista da API tem 226 mil cidades, então sem alocar nada aqui
+    const a = e.keys[0].indexOf(q);
+    const b = a === 0 || e.keys[1] === e.keys[0] ? a : e.keys[1].indexOf(q);
+    if (a === 0 || b === 0) starts.push(e);
+    else if ((a > 0 || b > 0) && contains.length < limit) contains.push(e);
   }
   if (q) {
     // nome exato primeiro; no resto vale a ordem da lista: países, estados e cidades por população

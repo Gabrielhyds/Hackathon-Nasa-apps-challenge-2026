@@ -11,7 +11,15 @@ import { PlacesService } from "./places.service";
  * A API de verdade precisa responder nas mesmas rotas, com os mesmos formatos.
  */
 
-const lang = (raw?: string): Lang => (raw === "pt" ? "pt" : "en");
+/**
+ * Um parâmetro da query como texto. O Express entrega uma lista quando o parâmetro vem repetido (`?q=a&q=b`) e um
+ * objeto quando vem com colchetes (`?q[x]=1`): vale o primeiro texto da lista, e o resto conta como ausente. Sem isto,
+ * `.trim()` numa lista derrubava a rota com 500.
+ */
+const text = (raw: unknown): string | undefined =>
+  typeof raw === "string" ? raw : Array.isArray(raw) && typeof raw[0] === "string" ? raw[0] : undefined;
+
+const lang = (raw?: unknown): Lang => (text(raw) === "pt" ? "pt" : "en");
 
 @Controller("health")
 export class HealthController {
@@ -31,7 +39,7 @@ export class ScenesController {
    * de interferograma, que o front só deve pedir quando souber mostrá-la.
    */
   @Get()
-  list(@Query("lang") l?: string, @Query("include") include?: unknown): ScenesResponse {
+  list(@Query("lang") l?: unknown, @Query("include") include?: unknown): ScenesResponse {
     return servedScenes(lang(l), parseInclude(include));
   }
 }
@@ -42,7 +50,8 @@ export class PassesController {
 
   /** Passagens reais do catálogo da NASA (CMR). Se ele falhar, exemplo marcado com `isExample`. */
   @Get()
-  list(@Query("lat") latRaw?: string, @Query("lon") lonRaw?: string): Promise<Pass[]> {
+  list(@Query("lat") latQuery?: unknown, @Query("lon") lonQuery?: unknown): Promise<Pass[]> {
+    const latRaw = text(latQuery), lonRaw = text(lonQuery);
     const lat = Number(latRaw);
     const lon = Number(lonRaw);
     if (!latRaw?.trim() || !lonRaw?.trim() || !Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) {
@@ -58,12 +67,13 @@ export class PlacesController {
 
   @Get()
   search(
-    @Query("q") q = "", @Query("kind") kind?: string, @Query("lang") l?: string,
-    @Query("country") country?: string, @Query("admin") admin?: string,
+    @Query("q") q?: unknown, @Query("kind") kindQuery?: unknown, @Query("lang") l?: unknown,
+    @Query("country") countryQuery?: unknown, @Query("admin") adminQuery?: unknown,
   ): Promise<Place[]> {
+    const kind = text(kindQuery), country = text(countryQuery), admin = text(adminQuery);
     const k: PlaceKind | "all" = kind === "city" || kind === "state" || kind === "country" ? kind : "all";
     const countryCode = country && /^[A-Za-z]{2}$/.test(country) ? country.toUpperCase() : undefined;
-    return this.places.search(q, { kind: k, lang: lang(l), countryCode, adminKey: countryCode && admin ? admin : undefined });
+    return this.places.search(text(q) ?? "", { kind: k, lang: lang(l), countryCode, adminKey: countryCode && admin ? admin : undefined });
   }
 }
 

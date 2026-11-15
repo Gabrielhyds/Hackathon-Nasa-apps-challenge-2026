@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass, field
 
 from . import llm
 from .guard import check_answer, cited_ids, clean, collect, wrong_scene
-from .knowledge import SCENE_CARDS, Card, _terms, detect_lang, load_cards, load_versao, retrieve
+from .knowledge import Card, _terms, detect_lang, load_cards, load_versao, retrieve, scene_in_focus
 from .prompt import SYSTEM_PROMPT, build_context
 
 log = logging.getLogger("nexxus.agent")
@@ -87,8 +87,11 @@ def offline_answer(question: str, lang: str, hits: list[tuple[Card, float]]) -> 
 async def ask(question: str, lang: str | None = None, scene: str | None = None) -> Answer:
     question = question.strip()
     lang = lang if lang in ("pt", "en") else detect_lang(question)
+    # A cena aberta só vale quando a pergunta é sobre ela: o front a manda em toda pergunta.
+    aberta = scene_in_focus(question, CARDS, scene)
+    if not aberta:
+        scene = None
     hits = retrieve(question, CARDS, scene=scene)
-    aberta = SCENE_CARDS.get((scene or "").strip().lower()) if scene else None
     if aberta:
         # Com uma cena aberta, não manda outras cenas para o modelo: ele troca os lugares.
         hits = [(c, s) for c, s in hits if c.tipo != "cena" or c.id == aberta]
@@ -96,16 +99,16 @@ async def ask(question: str, lang: str | None = None, scene: str | None = None) 
 
     if not llm.available():
         return offline_answer(question, lang, hits)
+    if not cards:
+        # Sem cartão, a única resposta aceita é dizer que não sabe: nem pergunta ao modelo, que gastaria
+        # um pedido da cota por minuto numa resposta que seria jogada fora.
+        return _finish(NO_INFO[lang].format(t=TOPICS[lang]), lang, "no_info", [])
 
     try:
         raw = await llm.generate(SYSTEM_PROMPT, build_context(question, lang, cards, scene))
     except Exception as exc:  # rede, cota, tempo esgotado: cai para a reserva
         log.warning("modelo falhou, usando reserva: %s", exc)
         return offline_answer(question, lang, hits)
-
-    if not cards:
-        # Sem cartão, a única resposta aceita é dizer que não sabe.
-        return _finish(NO_INFO[lang].format(t=TOPICS[lang]), lang, "no_info", [])
 
     ids = cited_ids(raw, CARDS)
     used = [CARDS[i] for i in ids if CARDS[i] in cards] or [cards[0]]
