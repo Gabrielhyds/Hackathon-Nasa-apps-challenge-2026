@@ -39,6 +39,7 @@ apps/api            NestJS. Responde no formato do contrato: passagens reais (CM
 apps/agent          Python + FastAPI. O agente da aba Ask (Mission Guide): cartões de fatos (data/cards.json), busca, prompt, verificador e modo reserva. Ver O agente
 scripts/            Geração dos pacotes de imagem do globo (tile-packs.mjs), das imagens reais das cenas (scene_images.py, preview; gcov_crop.py, calibrada; gunw_crop.py, interferograma), da série de água do Taquari (water_series.py), da imagem óptica do dia do evento (optical_day.py), da lista de cidades da busca (places_data.py) e, para o laboratório, do contexto e das miniaturas da régua de cheia (hydrograph.py) e dos interferogramas (insar_fringes.py)
 apps/web            React + Vite + TypeScript. O front
+deploy/vm/          Caddyfile da VM da Azure que serve a demo pública (item 5 de docs/proximos-passos.md)
 docs/               Capturas de tela do README e a lista do que falta (proximos-passos.md)
 ```
 

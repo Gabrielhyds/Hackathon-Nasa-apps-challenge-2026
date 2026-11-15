@@ -1,0 +1,9 @@
+# Nexxus: o Caddy fica na frente do app (docker compose em ~/nexxus, com o front em 127.0.0.1:8080).
+# Ele grava o endereço real do visitante em X-Forwarded-For, que o agente usa no limite de perguntas por minuto.
+#
+# Para ligar o domínio e o HTTPS: com o registro A do domínio apontando para esta máquina, troque ":80" abaixo
+# pelo nome do domínio (por exemplo, nexxus.exemplo.com) e rode "sudo systemctl reload caddy". O Caddy tira o
+# certificado sozinho e passa a redirecionar HTTP para HTTPS.
+:80 {
+	reverse_proxy 127.0.0.1:8080
+}

@@ -23,12 +23,12 @@ Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask m
 
 ### 5. Ambiente público na VM da Azure (Mateus tem o acesso)
 
-- **Como está (15/11):** uma VM da Azure (Ubuntu 24.04, 2 vCPUs, 7,7 GB) serve a `main` com `docker compose up -d --build` em `~/nexxus`: página, API e agente, na porta 80 (`WEB_PORT=80` e `VITE_API_MODE=http` no `.env` de lá). De fora só a 80 responde; a 3000 e a 8090 ficam fechadas. O endereço é o IP da máquina, por HTTP: peça ao Mateus.
-- **Atualizar depois de um merge:** na VM, em `~/nexxus`, `git pull` e `sudo docker compose up -d --build` (o Docker lá pede `sudo`).
-- **Falta a chave do agente:** `GEMINI_API_KEY` está vazia no `.env` da VM, então a aba Ask responde no modo reserva (item 4).
-- **Falta o limite de perguntas, antes de pôr a chave:** o agente conta as perguntas por minuto pelo primeiro endereço de `X-Forwarded-For` (`_client_ip`, em `apps/agent/agent/main.py`), e o nginx repassa o que o visitante mandar nesse cabeçalho (`$proxy_add_x_forwarded_for`, em `apps/web/nginx.conf`): quem troca o valor a cada pedido não é limitado e gasta a cota do modelo. Na VM esse nginx é a ponta, então basta `proxy_set_header X-Forwarded-For $remote_addr;`; com outro proxy na frente, é ele que precisa gravar o endereço real.
-- **A decidir:** HTTPS e domínio (hoje o link da submissão seria um IP) e até quando a VM fica ligada, para cobrir o julgamento.
-- **Pronto quando:** o link abre de fora da rede do time com as cenas e as imagens reais, `GET /api/health` responde, uma resposta escrita pelo modelo foi vista na tela e o endereço está na submissão.
+- **Como está (15/11):** uma VM da Azure (Ubuntu 24.04, 2 vCPUs, 7,7 GB) serve a `main` com `docker compose up -d --build` em `~/nexxus`: página, API e agente. Na frente fica o Caddy da própria VM (`/etc/caddy/Caddyfile`, cópia em `deploy/vm/Caddyfile`), que atende a porta 80 e repassa para o front em `127.0.0.1:8080` (`WEB_PORT=127.0.0.1:8080` e `VITE_API_MODE=http` no `.env` de lá). De fora respondem só a 80 e a 443. O endereço ainda é o IP da máquina, por HTTP: peça ao Mateus. A chave do Gemini está no `.env` da VM e o agente responde com o modelo (visto pela API em 15/11; falta ver na tela, item 4).
+- **Limite de perguntas:** o Caddy grava o endereço real do visitante em `X-Forwarded-For` e descarta o que vier de fora. Conferido em 15/11: com o cabeçalho trocado a cada pedido, a vigésima pergunta do minuto volta 429. Sem o Caddy na frente o limite não vale, porque o nginx do front repassa o que o visitante mandar (`$proxy_add_x_forwarded_for`, em `apps/web/nginx.conf`): outro proxy na ponta precisa gravar o endereço real.
+- **Atualizar depois de um merge:** a VM não guarda credencial do GitHub, e `git pull` lá pede usuário e token. Sem digitar nada na VM: na máquina de quem tem o acesso, `git bundle create main.bundle <commit em que a VM está>..main` e `scp main.bundle nexxus:`; na VM, em `~/nexxus`, `git fetch ~/main.bundle main:refs/remotes/origin/main && git merge --ff-only origin/main`. Depois, `sudo docker compose up -d --build` (o Docker lá pede `sudo`).
+- **Falta o domínio e o HTTPS:** registro A do domínio para o IP da VM, trocar `:80` pelo nome do domínio no Caddyfile e `sudo systemctl reload caddy`; o Caddy tira o certificado sozinho. Depois da entrega, a Cloudflare entra na frente como proxy.
+- **A decidir:** até quando a VM fica ligada, para cobrir o julgamento.
+- **Pronto quando:** o link com o domínio abre por HTTPS de fora da rede do time com as cenas e as imagens reais, `GET /api/health` responde e o endereço está na submissão.
 
 ### 6. Números do Taquari nos textos (Laís)
 
