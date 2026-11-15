@@ -14,6 +14,8 @@ export interface ChatTurn {
   /** De onde saiu a resposta do agente; ausente na resposta de exemplo. */
   mode?: AskMode;
   isExample: boolean;
+  /** Idioma em que a pergunta foi feita, que é o da resposta: a leitura em voz alta usa a voz dele. */
+  lang: Lang;
 }
 
 /**
@@ -39,7 +41,7 @@ export function useChat(sceneIds: string[], lang: Lang) {
     const id = nextId.current++;
     const abort = new AbortController();
     controller.current = abort;
-    setTurns((all) => [...all, { id, question: q, answer: "", status: "streaming", citations: [], caveats: [], sources: [], isExample: false }]);
+    setTurns((all) => [...all, { id, question: q, answer: "", status: "streaming", citations: [], caveats: [], sources: [], isExample: false, lang: l }]);
     try {
       const response = await api.ask({ question: q, sceneIds: ids, history, lang: l }, {
         signal: abort.signal,

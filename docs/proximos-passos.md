@@ -118,6 +118,14 @@ Da mesma revisão de 15/11, por leitura. Nenhum muda o que a demo mostra.
 - `optical_day.py`: trata luminância abaixo de 4 no JPEG como sem dado.
 - `scene_images.py`: o comentário de `SCENES` "datas da escolha automática 6" está truncado desde o primeiro commit.
 
+### 28. Voz na aba Ask: o que falta conferir e o que ficou de fora (Mateus)
+
+O botão Ouvir lê a resposta com a voz do navegador (`lib/speech.ts`, `lib/useSpeech.ts`; ver o `CLAUDE.md`). Conferido em 15/11 no Chrome do Windows, em português (voz do sistema) e em inglês (voz do Google, pela rede): lê até o fim, para ao trocar de aba e a música baixa.
+
+- **Falta conferir:** o computador da demo (que vozes ele tem, nos dois idiomas, e sem internet), celular (Android e iPhone), Firefox e Safari, e a tela com leitor de tela: a resposta que cresce dentro de `aria-live="polite"` pode ser anunciada em pedaços.
+- **Ficou de fora:** pergunta por voz (`SpeechRecognition` só existe no Chrome, manda o áudio para o Google e precisa de internet); voz neural igual em toda máquina (Kokoro no navegador: Apache 2.0, tem português do Brasil, mas baixa dezenas de MB na primeira vez); voz do Gemini (cota gratuita de poucos pedidos por dia).
+- **Pronto quando:** as conferências acima foram feitas e o que não funcionar está escrito no `CLAUDE.md`.
+
 ## Descartado
 
 - **Harmony para recortar o GCOV:** a leitura parcial por HTTP do `gcov_crop.py` já faz isso.

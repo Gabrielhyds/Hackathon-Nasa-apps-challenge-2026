@@ -18,6 +18,7 @@ import { defaultWeights, rank, type Weights } from "./lib/ranking";
 import { trackFor } from "./lib/soundtrack";
 import { useChat } from "./lib/useChat";
 import { useSoundtrack } from "./lib/useSoundtrack";
+import { useSpeech } from "./lib/useSpeech";
 import type { Steps } from "./lib/series";
 import { buildUrlState, parseUrlState, type Lab as LabId, type Tab, type View } from "./lib/urlState";
 
@@ -99,7 +100,8 @@ export function App() {
   const context = useMemo(() => [...new Set([selectedId, ...picked].filter((id): id is string => Boolean(id)))], [selectedId, picked]);
   const chat = useChat(context, lang);
   // trilha de fundo: uma faixa para explorar e outra para os dados, com transição entre elas
-  const sound = useSoundtrack(trackFor({ intro, tab, audience, lab, opened, view }));
+  const speech = useSpeech();
+  const sound = useSoundtrack(trackFor({ intro, tab, audience, lab, opened, view }), speech.speaking !== null);
 
   const fullWeights = useMemo(() => ({ ...defaultWeights(criteria), ...weights }), [criteria, weights]);
   const ranked = useMemo(() => rank(scenes, criteria, fullWeights), [scenes, criteria, fullWeights]);
@@ -317,7 +319,7 @@ export function App() {
               failed={passesQuery.isError} example={API_MODE === "mock" ? "mock" : passesQuery.data?.some((p) => p.isExample) ? "fallback" : null} scenes={scenes}
               onRetry={() => passesQuery.refetch()} onOpenScene={openScene} />
           )}
-          {tab === "ask" && <AskPanel chat={chat} scenes={scenes} context={context} suggestions={t.ask.suggestions[audience]} onOpenScene={openScene} />}
+          {tab === "ask" && <AskPanel chat={chat} speech={speech} scenes={scenes} context={context} suggestions={t.ask.suggestions[audience]} onOpenScene={openScene} />}
         </div>
         <footer className="depth">
           <span id="depth-label">{t.aud.label}</span>
