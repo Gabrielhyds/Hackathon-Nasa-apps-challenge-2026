@@ -99,16 +99,16 @@ async def ask(question: str, lang: str | None = None, scene: str | None = None) 
 
     if not llm.available():
         return offline_answer(question, lang, hits)
+    if not cards:
+        # Sem cartão, a única resposta aceita é dizer que não sabe: nem pergunta ao modelo, que gastaria
+        # um pedido da cota por minuto numa resposta que seria jogada fora.
+        return _finish(NO_INFO[lang].format(t=TOPICS[lang]), lang, "no_info", [])
 
     try:
         raw = await llm.generate(SYSTEM_PROMPT, build_context(question, lang, cards, scene))
     except Exception as exc:  # rede, cota, tempo esgotado: cai para a reserva
         log.warning("modelo falhou, usando reserva: %s", exc)
         return offline_answer(question, lang, hits)
-
-    if not cards:
-        # Sem cartão, a única resposta aceita é dizer que não sabe.
-        return _finish(NO_INFO[lang].format(t=TOPICS[lang]), lang, "no_info", [])
 
     ids = cited_ids(raw, CARDS)
     used = [CARDS[i] for i in ids if CARDS[i] in cards] or [cards[0]]
