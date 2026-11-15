@@ -38,6 +38,7 @@ packages/contract   Formato dos dados (types.ts), dados de exemplo (fixtures/) e
 apps/api            NestJS. Responde no formato do contrato: passagens reais (CMR), cenas de exemplo com imagens reais (scene-images/) e ponte para o agente (agent.service.ts)
 scripts/            Geração dos pacotes de imagem do globo (tile-packs.mjs), das imagens reais das cenas (scene_images.py, preview; gcov_crop.py, calibrada; gunw_crop.py, interferograma), da série de água do Taquari (water_series.py), da imagem óptica do dia do evento (optical_day.py), da lista de cidades da busca (places_data.py) e, para o laboratório, do contexto e das miniaturas da régua de cheia (hydrograph.py) e dos interferogramas (insar_fringes.py)
 apps/web            React + Vite + TypeScript. O front
+deploy/space/       Demo num contêiner só (front e API) para o Hugging Face Spaces; publish.sh monta e envia
 docs/               Capturas de tela do README e a lista do que falta (proximos-passos.md)
 ```
 
