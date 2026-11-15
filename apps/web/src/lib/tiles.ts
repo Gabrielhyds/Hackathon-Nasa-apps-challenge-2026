@@ -16,10 +16,16 @@ const GIBS = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_Shad
 const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const SIZE = 256;
 
-/** Fonte do fundo (mundo inteiro) e a fonte de detalhe para quando se chega perto. */
-export function imagerySources(): { base: RasterSourceSpecification; detail: RasterSourceSpecification } {
+/**
+ * Fonte do fundo (mundo inteiro), a fonte de detalhe para quando se chega perto e o mundo num tile só.
+ * `world` fica por baixo de `base`: na visão do globo o MapLibre deixa de desenhar os tiles da borda e do polo
+ * (o globo saía com a base cortada reta e um lado achatado), e o tile único do zoom 0 nunca é descartado.
+ */
+export function imagerySources(): { world: RasterSourceSpecification; base: RasterSourceSpecification; detail: RasterSourceSpecification } {
   if (PACKS.length) registerPacks();
+  const tiles = [PACKS.length ? "nexxuspack://{z}/{x}/{y}" : GIBS];
   return {
+    world: { type: "raster", tiles, tileSize: SIZE, maxzoom: 0 },
     base: { type: "raster", tiles: [PACKS.length ? "nexxuspack://{z}/{x}/{y}" : GIBS], tileSize: SIZE, maxzoom: 8, attribution: "NASA GIBS · Blue Marble" },
     detail: { type: "raster", tiles: [ESRI], tileSize: SIZE, minzoom: 8, maxzoom: 17, attribution: "Esri, Maxar, Earthstar Geographics" },
   };

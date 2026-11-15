@@ -346,6 +346,7 @@ Everything the app shows is committed, so none of this is needed to run it. The 
 | `optical_day.py` | The optical image of the event day |
 | `places_data.py` | The offline place search data |
 | `tile-packs.mjs` | The offline globe imagery packs (`npm run tiles`) |
+| `sky-stars.mjs` | The star catalogue drawn behind the globe |
 
 ## Credits
 
@@ -353,6 +354,7 @@ Everything the app shows is committed, so none of this is needed to run it. The 
 - **Imagery:** NASA GIBS (Blue Marble, MODIS Aqua, HLS) and Esri World Imagery for close-up detail.
 - **Cloud cover:** VIIRS Corrected Reflectance (True Color) from the NOAA-20 satellite (NOAA and NASA), via NASA GIBS.
 - **Places and borders:** [GeoNames](https://www.geonames.org/) (CC BY 4.0), Natural Earth (public domain) and world-atlas; Open-Meteo Geocoding API as online fallback.
+- **Sky behind the globe:** star positions, brightness and colour from the Hipparcos catalogue (ESA), as packaged in [d3-celestial](https://github.com/ofrohn/d3-celestial) by Olaf Frohn (BSD 3-Clause). The stars are placed where they are in the sky at the time of the visit. The Milky Way glow is an illustration drawn along the real galactic plane, not a brightness measurement.
 - **Rain and discharge:** ERA5 and GloFAS, via Open-Meteo.
 - **Earthquake data:** USGS.
 - **Music:** [Exploration Theme](https://opengameart.org/content/exploration-theme) by Cleyton Kauffman and [Cosmic Navigation](https://opengameart.org/content/cosmic-navigation) by Synth-thetic, both public domain (CC0), from OpenGameArt.

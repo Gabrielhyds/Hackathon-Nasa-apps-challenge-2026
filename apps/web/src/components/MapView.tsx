@@ -16,6 +16,7 @@ import { syntheticSeries, type Outline } from "../lib/speckle";
 import { grayToDb, meanGray, pixelUnder, type Reading } from "../lib/probe";
 import { corners, hasOptical, opticalFrame, opticalImage } from "../lib/optical";
 import { releases } from "../lib/provenance";
+import { startSky } from "../lib/skyPaint";
 import { cloudSource, imagerySources, latestCloudDay } from "../lib/tiles";
 
 export interface MapHandle {
@@ -109,6 +110,8 @@ const sceneCorners = (s: Scene): [[number, number], [number, number], [number, n
 
 export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref) {
   const boxRef = useRef<HTMLDivElement>(null);
+  /** O céu: um canvas atrás do globo, com as estrelas e a Via Láctea. Ver lib/skyPaint.ts. */
+  const skyBackRef = useRef<HTMLCanvasElement>(null);
   const { t, f } = useI18n();
   const live = useRef({ ...props, t, f });
   live.current = { ...props, t, f };
@@ -127,6 +130,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   /** Para o giro. Se o laboratório abriu ou fechou durante o giro, a margem e o zoom vão de uma vez para o destino: parados no meio do caminho, ficariam errados. */
   function haltSpin() {
     spinning.current = false;
+    resumeSpin.current = null;
     const target = spinTarget.current, map = mapRef.current;
     spinTarget.current = null;
     if (target && map) map.jumpTo({ zoom: target.zoom, padding: { top: 64, right: target.right, bottom: 0, left: 0 } });
@@ -171,6 +175,10 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   const nearIdRef = useRef<string | null>(null);
   const walkRange = useRef<{ id: string; steps: Steps } | null>(null);
   const spinning = useRef(false);
+  /** Recomeça o giro; definida na montagem do mapa. */
+  const startSpin = useRef<() => void>(() => {});
+  /** Espera o voo de volta ao mundo terminar para o globo voltar a girar. Um toque no mapa antes disso cancela. */
+  const resumeSpin = useRef<(() => void) | null>(null);
   const swipeRaf = useRef(0);
   const bandRaf = useRef(0);
 
@@ -351,14 +359,16 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   useEffect(() => {
     const box = boxRef.current;
     if (!box) return;
-    const { base, detail } = imagerySources();
+    const { world, base, detail } = imagerySources();
     const style: StyleSpecification = {
       version: 8,
       projection: { type: "globe" },
       // brilho azulado na borda do globo, que some ao chegar perto
       sky: { "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 4, 1, 6, 0] },
-      sources: { base, detail },
+      sources: { world, base, detail },
       layers: [
+        // o mundo num tile só, por baixo: cobre a borda e o polo quando os tiles de cima faltam
+        { id: "world", type: "raster", source: "world", maxzoom: 5, paint: { "raster-fade-duration": 0, "raster-saturation": -0.15, "raster-brightness-max": 0.92 } },
         { id: "base", type: "raster", source: "base", paint: { "raster-fade-duration": 250, "raster-saturation": -0.15, "raster-brightness-max": 0.92 } },
         { id: "detail", type: "raster", source: "detail", minzoom: 8, paint: { "raster-opacity": ["interpolate", ["linear"], ["zoom"], 8, 0, 9, 1] } },
       ],
@@ -375,6 +385,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       return;
     }
     mapRef.current = map;
+    const stopSky = skyBackRef.current ? startSky(map, skyBackRef.current) : () => {};
     map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
     // em tela larga a folha cobre a direita do mapa: o centro útil fica deslocado para a esquerda
@@ -421,6 +432,11 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     };
     // quem mexe no mapa com a mão também desfaz a espera do `showPass`: a chegada seguinte à cena toca a varredura
     const stopSpin = () => { haltSpin(); passHold.current = null; };
+    startSpin.current = () => {
+      if (spinning.current || reduceMotion()) return;
+      spinning.current = true; last = performance.now();
+      cancelAnimationFrame(spinRaf); spinRaf = requestAnimationFrame(spin);
+    };
     for (const type of ["pointerdown", "wheel", "touchstart"]) box.addEventListener(type, stopSpin, { passive: true });
 
     map.on("load", () => {
@@ -482,6 +498,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     });
 
     return () => {
+      stopSky();
       cancelAnimationFrame(spinRaf); cancelAnimationFrame(bandRaf.current); cancelAnimationFrame(swipeRaf.current); cancelAnimationFrame(probeRaf.current);
       for (const type of ["pointerdown", "wheel", "touchstart"]) box.removeEventListener(type, stopSpin);
       narrow.removeEventListener("change", refit); window.removeEventListener("resize", refit);
@@ -824,6 +841,16 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     passHold.current = null;
     live.current.onHome?.();
     fly(() => map.flyTo({ center: HOME, zoom: homeZoom(box.clientWidth - (box.clientWidth > 900 ? sideWidth() : 0), box.clientHeight - 220), duration: 2000 }));
+    // de volta à visão do mundo, o globo gira sozinho de novo, como na abertura. Qualquer outro movimento ou toque
+    // no mapa passa por `haltSpin` e desfaz a espera; se o voo recomeçar (a margem mudou no meio), espera o seguinte
+    const resume = () => {
+      if (resumeSpin.current !== resume) return;
+      const c = map.getCenter();
+      if (Math.abs(c.lng - HOME[0]) < 1 && Math.abs(c.lat - HOME[1]) < 1 && map.getZoom() < 4) { resumeSpin.current = null; startSpin.current(); }
+      else map.once("moveend", resume);
+    };
+    resumeSpin.current = resume;
+    map.once("moveend", resume);
   }
   useImperativeHandle(ref, () => ({
     flyToScene(scene) { whenReady(() => {
@@ -900,6 +927,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   const audience = props.audience;
   return (
     <div className={near ? "map map--near" : "map"}>
+      <canvas ref={skyBackRef} className="map__sky" aria-hidden="true" />
       <div ref={boxRef} className="map__gl" role="application" aria-label={t.map.aria} />
       {!ready && !failed && <p className="map__status">{t.map.loading}</p>}
       {failed && <p className="map__status">{t.map.failed}</p>}
