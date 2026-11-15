@@ -397,7 +397,8 @@ export const pt: Dict = {
         opticalNear: (date: string, cloud: number) => `Satélites ópticos: uma visão em ${date}, ${cloud}% de nuvem ou sombra.`,
         opticalNone: "Satélites ópticos: nenhuma visão do vale em dois dias.",
         imageAlt: (date: string) => `Imagem de radar do vale em ${date}`,
-        imageNoteSharp: "Imagem HH calibrada desta passagem. Água lisa aparece escura.",
+        onMap: "No mapa: a imagem de radar desta passagem. Água lisa aparece escura.",
+        noMap: "O mapa não tem imagem desta passagem.",
       },
       checksLead: "Conferido com fontes independentes",
       gauge: {

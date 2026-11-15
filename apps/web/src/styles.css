@@ -512,8 +512,9 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 .hydro__frame { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #0A0A0A; }
 .hydro__frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .hydro__note { font-size: 11.5px; line-height: 1.4; color: var(--dim); }
+.hydro__note--on { color: var(--ice); }
 .hydro__when { display: grid; }
-.hydro__when b { font: 600 19px/1.2 var(--display); letter-spacing: -0.01em; }
+.hydro__when b { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font: 600 19px/1.2 var(--display); letter-spacing: -0.01em; }
 .hydro__when span { font: 400 11.5px/1.5 var(--data); color: var(--mute); }
 .hydro__figure { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
 .hydro__figure b { font: 700 32px/1 var(--display); letter-spacing: -0.02em; }
@@ -614,7 +615,18 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 
 /* painel do laboratório estreito (o lateral, em tela larga): as colunas de cada aba empilham */
 @container (max-width: 1040px) {
-  .hydro__main, .lab__intro { grid-template-columns: minmax(0, 1fr); }
+  .lab__intro { grid-template-columns: minmax(0, 1fr); }
+  /* régua de cheia: gráfico à esquerda e o cartão da passagem à direita; o texto do gráfico cresce para compensar a largura menor */
+  .hydro__main { grid-template-columns: minmax(0, 1fr) 252px; gap: 14px 18px; }
+  /* cartão estreito: fatos separados por fios, em vez de um bloco de linhas quebradas */
+  .hydro__facts { gap: 0; font-size: 12.5px; }
+  .hydro__facts li { padding: 7px 0; border-top: 1px solid var(--line); text-wrap: pretty; }
+  .hydro__note { padding-top: 7px; border-top: 1px solid var(--line); text-wrap: pretty; }
+  .hydro__transport .ghost { flex: 1; padding-left: 8px; padding-right: 8px; }
+  .hydro__axis { font-size: 17px; }
+  .hydro__gauge text { font-size: 16px; }
+  .hydro__pass-card { padding: 14px; gap: 9px; }
+  .hydro__figure b { font-size: 28px; }
   /* pulso: controles à esquerda e os sinais à direita, os dois mais estreitos, para ver o efeito sem rolar */
   .pulse-lab__main { grid-template-columns: 264px minmax(0, 1fr); gap: 14px 20px; }
   .knobs { gap: 12px; }
@@ -634,7 +646,9 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 }
 
 @container (max-width: 620px) {
-  .fringe-lab__main, .pulse-lab__main { grid-template-columns: minmax(0, 1fr); }
+  .fringe-lab__main, .pulse-lab__main, .hydro__main { grid-template-columns: minmax(0, 1fr); }
+  .hydro__axis { font-size: 11.5px; }
+  .hydro__gauge text { font-size: 11.5px; }
   .stages__out { grid-template-columns: minmax(0, 1fr); }
 }
 

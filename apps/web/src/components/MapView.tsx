@@ -27,6 +27,8 @@ export interface MapHandle {
   play(): void;
   setPol(pol: Polarization): void;
   setSensitivity(value: number): void;
+  /** A pedido da régua de cheia: mostra inteira no mapa a passagem dessa data, se a cena a tiver na série. */
+  showPass(scene: Scene, date: string): void;
   reset(): void;
 }
 
@@ -784,6 +786,16 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     play() { if (modeRef.current !== "swipe") chooseMode("swipe"); playSwipe(); },
     setPol(next) { choosePol(next); },
     setSensitivity(value) { chooseSensitivity(value); },
+    showPass(scene, date) { whenReady(() => {
+      const k = scene.acquisitions.findIndex((a) => a.date === date);
+      if (k < 0 || isInterferogram(scene)) return;
+      stopSwipe();
+      if (modeRef.current !== "swipe") chooseMode("swipe");
+      // a passagem pedida fica como a de depois, contra a anterior, com o divisor todo aberto nela; a primeira da série fica como a de antes
+      setSteps(scene, k > 0 ? [k - 1, k] : [0, 1]);
+      setSplit(k > 0 ? 0 : 1);
+      if (nearScene?.id !== scene.id) { spinning.current = false; frameScene(scene, 1600); }
+    }); },
     reset,
   }));
 

@@ -226,7 +226,8 @@ export function App() {
         </div>
         {lab ? (
           <Suspense fallback={<div className="lab" id="lab-panel" role="tabpanel" aria-labelledby="tab-lab"><p className="muted lab__wait">{t.scenes.loading}</p></div>}>
-            <Lab panel={lab} scene={hydroScene} loading={scenesQuery.isPending} failed={scenesQuery.isError} onRetry={() => scenesQuery.refetch()} onPanel={setLab} onClose={closeLab} />
+            <Lab panel={lab} scene={hydroScene} loading={scenesQuery.isPending} failed={scenesQuery.isError} onRetry={() => scenesQuery.refetch()} onPanel={setLab} onClose={closeLab}
+              onPass={(date) => { if (hydroScene) map.current?.showPass(hydroScene, date); }} />
           </Suspense>
         ) : (<>
         <div className="panel" key={tab} id="panel" role="tabpanel" aria-labelledby={`tab-${tab}`}>

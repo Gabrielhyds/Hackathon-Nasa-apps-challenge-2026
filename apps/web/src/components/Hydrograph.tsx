@@ -20,7 +20,7 @@ const RAIN_MAX = 80;
  * do nível do rio (`riverGauge`) e, quando há, o contexto independente (`floodContext`: chuva, óptico, OPERA).
  * Só para cena com `waterSeries`. O mapa OPERA fica fora do eixo: ele conta toda a água aberta, não só a nova.
  */
-export function Hydrograph({ scene }: { scene: Scene }) {
+export function Hydrograph({ scene, onPass }: { scene: Scene; /** A passagem escolhida mudou: o mapa mostra a imagem dela, se a cena a tiver. */ onPass?(date: string): void }) {
   const { t, f } = useI18n();
   const series = scene.waterSeries!, samples = series.samples, context = scene.floodContext;
   const peak = useMemo(() => peakSample(samples), [samples]);
@@ -30,6 +30,16 @@ export function Hydrograph({ scene }: { scene: Scene }) {
   /** Uma parte por vez: o gráfico, a conferência com fontes independentes ou o método. */
   const index = Math.max(0, samples.findIndex((s) => s.date === selected));
   const pass = samples[index];
+
+  // a passagem escolhida comanda o mapa; não ao abrir, para não mexer no par que a pessoa deixou na cena
+  const mounted = useRef(false), notify = useRef(onPass);
+  notify.current = onPass;
+  useEffect(() => {
+    if (!mounted.current) { mounted.current = true; return; }
+    notify.current?.(selected);
+  }, [selected]);
+  /** O mapa tem imagem desta passagem? Só das que estão na série da cena. */
+  const onMap = scene.acquisitions.some((a) => a.date === pass.date);
 
   // tocar: uma passagem por vez, do começo ao fim
   useEffect(() => {
@@ -75,7 +85,6 @@ export function Hydrograph({ scene }: { scene: Scene }) {
 
   const floor = referenceRange(samples, pass.track);
   // a imagem calibrada desta passagem, se ela é uma das que a cena compara e a API mandou a imagem real
-  const sharp = scene.acquisitions.find((a) => a.date === pass.date)?.images.HH ?? null;
   const peakSharp = scene.acquisitions.find((a) => a.date === peak.date)?.images.HH ?? null;
   const optical = context ? nearest(context.optical, pass.date) : null;
   const gap = context ? opticalGap(context, peak.date) : null;
@@ -176,12 +185,10 @@ export function Hydrograph({ scene }: { scene: Scene }) {
           </figcaption>
         </figure>
 
-        {/* só entra imagem quando há a calibrada da cena (as duas passagens que ela compara, com a API). O preview do
-            NISAR tem uns 150 pixels de lado: em qualquer tamanho de cartão parece ampliado, então não é mostrado aqui. */}
+        {/* o cartão não leva imagem: a passagem escolhida aparece no mapa ao lado, quando a cena a tem na série */}
         <aside className="hydro__pass-card" aria-live="polite">
-          {sharp && <div className="hydro__frame"><img src={sharp} alt={t.lab.hydro.pass.imageAlt(f.date(pass.date))} /></div>}
           <div className="hydro__when">
-            <b>{f.date(pass.date)}</b>
+            <b>{f.date(pass.date)}<span className="hydro__count">{index + 1} / {samples.length}</span></b>
             <span>{t.lab.hydro.pass.orbit(t.passes.direction[pass.direction], pass.track)}</span>
           </div>
           <p className="hydro__figure"><b>{f.num(pass.newWaterKm2, 1)} km²</b><span>{t.lab.hydro.pass.water}</span></p>
@@ -190,12 +197,11 @@ export function Hydrograph({ scene }: { scene: Scene }) {
             {pass.reference ? <li>{t.lab.hydro.pass.reference}</li> : floor && <li>{t.lab.hydro.pass.floor(f.num(floor.low, 1), f.num(floor.high, 1))}</li>}
             {context && <li>{optical && Math.abs(optical.days) <= 2 ? t.lab.hydro.pass.opticalNear(f.shortDate(optical.item.date), optical.item.cloudPct) : t.lab.hydro.pass.opticalNone}</li>}
           </ul>
-          {sharp && <p className="hydro__note">{t.lab.hydro.pass.imageNoteSharp}</p>}
+          <p className={onMap ? "hydro__note hydro__note--on" : "hydro__note"}>{onMap ? t.lab.hydro.pass.onMap : t.lab.hydro.pass.noMap}</p>
           <div className="hydro__transport">
             <button type="button" className="scrub__play" onClick={() => (playing ? setPlaying(false) : start())} aria-label={playing ? t.lab.hydro.pause : t.lab.hydro.play}>{playing ? "❚❚" : "▶"}</button>
             <button type="button" className="ghost" onClick={() => step(-1)} disabled={index === 0}>{t.lab.hydro.prev}</button>
             <button type="button" className="ghost" onClick={() => step(1)} disabled={index === samples.length - 1}>{t.lab.hydro.next}</button>
-            <span className="hydro__count">{index + 1} / {samples.length}</span>
           </div>
         </aside>
       </div>

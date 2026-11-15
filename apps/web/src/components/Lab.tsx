@@ -15,6 +15,8 @@ interface Props {
   failed: boolean;
   onRetry(): void;
   onPanel(panel: LabId): void;
+  /** A régua de cheia escolheu uma passagem: o mapa mostra a imagem dela. */
+  onPass?(date: string): void;
   onClose(): void;
 }
 
@@ -24,7 +26,7 @@ interface Props {
  * aba anterior.
  * O hidrograma mede a enchente passagem a passagem; as outras duas abrem o radar por dentro.
  */
-export function Lab({ panel, scene, loading, failed, onRetry, onPanel, onClose }: Props) {
+export function Lab({ panel, scene, loading, failed, onRetry, onPanel, onPass, onClose }: Props) {
   const { t } = useI18n();
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -42,7 +44,7 @@ export function Lab({ panel, scene, loading, failed, onRetry, onPanel, onClose }
         ))}
       </nav>
       <div className="lab__body" ref={body} tabIndex={-1} key={panel}>
-        {panel === "hydro" && (scene?.waterSeries ? <Hydrograph scene={scene} />
+        {panel === "hydro" && (scene?.waterSeries ? <Hydrograph scene={scene} onPass={onPass} />
           : failed ? (
             <div className="stack stack--tight">
               <p className="muted">{t.scenes.error}</p>

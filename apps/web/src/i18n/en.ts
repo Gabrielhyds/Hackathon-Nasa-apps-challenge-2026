@@ -395,7 +395,8 @@ export const en = {
         opticalNear: (date: string, cloud: number) => `Optical satellites: a view on ${date}, ${cloud}% cloud or cloud shadow.`,
         opticalNone: "Optical satellites: no view of the valley within two days.",
         imageAlt: (date: string) => `Radar image of the valley on ${date}`,
-        imageNoteSharp: "Calibrated HH image of this pass. Smooth water shows dark.",
+        onMap: "On the map: the radar image of this pass. Smooth water shows dark.",
+        noMap: "The map has no image of this pass.",
       },
       checksLead: "Checked against independent sources",
       gauge: {
