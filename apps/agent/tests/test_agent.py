@@ -288,6 +288,23 @@ def test_guard_aceita_sentido_do_chao_creditado_a_nasa():
     assert check_answer("Segundo a NASA, o chão andou até 60 cm para oeste.", cards) == []
 
 
+def test_guard_nao_confunde_nome_de_lugar_com_sentido_do_chao():
+    # "land" dentro de Groenlândia/Greenland/island/wetland e "sul" dentro de "resultado" não são o chão andando.
+    for card, frase in [
+        ("jakobshavn", "Em Jakobshavn, na Groenlândia, o sinal do radar subiu em alguns pontos e caiu em outros."),
+        ("jakobshavn", "In Greenland the radar signal went up in some places and down in others."),
+        ("kalimantan", "On Borneo island the signal went down in a few spots."),
+        ("pantanal", "In the Pantanal wetland the signal went up where the ground got wetter."),
+        ("campo_de_gelo_sul", "O gelo se moveu, e o resultado aparece na imagem."),
+    ]:
+        assert check_answer(frase, [core.CARDS[card]]) == [], frase
+    # o que a regra existe para barrar continua barrado
+    cards = [core.CARDS["venezuela"]]
+    assert check_answer("The ground moved west near the airport.", cards)
+    assert check_answer("O chão andou para o sul.", cards)
+    assert check_answer("The land surface went up near the coast.", cards)
+
+
 # ---------- Cota do modelo e respostas prontas ----------
 
 def test_cota_por_minuto_segura_o_modelo(monkeypatch):
