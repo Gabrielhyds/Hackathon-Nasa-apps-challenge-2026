@@ -26,64 +26,107 @@ export function imagerySources(): { base: RasterSourceSpecification; detail: Ras
 }
 
 /**
- * NUVENS DE AGORA: GeoColor do GOES-East, servido pelo GIBS. Imagem nova a cada 10 minutos, cerca de uma hora
- * depois da captura, só sobre as Américas e o Atlântico. Não existe no modo sem rede.
+ * NUVENS DO ÚLTIMO DIA: cor verdadeira do VIIRS (satélite NOAA-20), servida pelo GIBS. Uma imagem do mundo inteiro por
+ * dia, montada com as passagens diurnas (cada lugar é visto no começo da tarde, hora local). Não é ao vivo: o dia de
+ * hoje ainda está pela metade, então a tela usa o último dia completo. Não existe no modo sem rede.
  */
-const GOES = (time: string) => `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/${time}/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png`;
+const VIIRS = (day: string) => `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_NOAA20_CorrectedReflectance_TrueColor/default/${day}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`;
 
-const STEP = 10 * 60_000;
-/**
- * Tiles conferidos antes de usar uma hora: o mundo inteiro e a grade do zoom 3 que cobre as Américas. O GIBS publica
- * uma hora aos poucos, tile por tile, e às vezes pula uma hora inteira; poucos tiles conferidos deixavam passar isso.
- */
-const PROBES = ["0/0/0", ...[2, 3, 4, 5].flatMap((y) => [2, 3, 4, 5].map((x) => `3/${y}/${x}`))];
+/** Folga depois da meia-noite UTC até o dia anterior estar inteiro no GIBS: as últimas passagens levam horas para entrar. */
+const DAY_LAG_MS = 6 * 3_600_000;
 
-/** Horas a tentar, da mais nova para trás, de 10 em 10 minutos. Pura, para teste. */
-export function cloudTimeCandidates(latest: string, count = 6, skip: readonly string[] = []): string[] {
-  const start = Date.parse(latest);
+/** Dias a tentar (AAAA-MM-DD, UTC), do último completo para trás. Pura, para teste. */
+export function cloudDayCandidates(now: Date, count = 3, skip: readonly string[] = []): string[] {
+  const start = now.getTime() - DAY_LAG_MS;
   if (Number.isNaN(start)) return [];
   const out: string[] = [];
-  for (let i = 0; out.length < count && i < count + skip.length; i++) {
-    const time = new Date(start - i * STEP).toISOString().replace(/\.\d{3}Z$/, "Z");
-    if (!skip.includes(time)) out.push(time);
+  for (let i = 1; out.length < count && i <= count + skip.length; i++) {
+    const day = new Date(start - i * 86_400_000).toISOString().slice(0, 10);
+    if (!skip.includes(day)) out.push(day);
   }
   return out;
 }
 
-async function tilesExist(time: string, signal?: AbortSignal): Promise<boolean> {
-  const results = await Promise.all(PROBES.map((z) =>
-    // HEAD: só a resposta, sem baixar a imagem
-    fetch(GOES(time).replace("{z}/{y}/{x}", z), { method: "HEAD", signal, cache: "no-store" }).then((r) => r.ok, () => false)));
-  return results.every(Boolean);
-}
+/** Por quanto tempo o dia já conferido vale sem perguntar de novo ao GIBS. */
+const DAY_TTL_MS = 30 * 60_000;
+let knownDay: { at: number; day: Promise<string> } | null = null;
 
 /**
- * Hora (ISO, UTC) da imagem mais recente que já está publicada. O GIBS diz a hora mais nova no cabeçalho quando se
- * pede `default`, mas anuncia antes de todos os tiles dela existirem (404, às vezes 500). Por isso cada hora é
- * conferida em vários tiles e, se faltar algum, recua 10 minutos (até 2 horas). `skip` exclui horas que já falharam no mapa.
+ * Último dia (AAAA-MM-DD) cuja imagem já está publicada: confere o tile do mundo inteiro de cada candidato e recua
+ * um dia se faltar. `skip` exclui dias que já falharam no mapa. A resposta fica guardada por meia hora: o mapa pergunta
+ * logo depois de abrir, e quando alguém liga as nuvens o dia já está na mão, sem esperar essa ida ao servidor.
  */
-export async function latestCloudTime(signal?: AbortSignal, skip: readonly string[] = []): Promise<string> {
-  const response = await fetch(GOES("default").replace("{z}/{y}/{x}", "0/0/0"), { signal, cache: "no-store" });
-  const latest = response.headers.get("layer-time-actual");
-  if (!response.ok || !latest) throw new Error("Sem imagem recente do GOES-East");
-  for (const time of cloudTimeCandidates(latest, 12, skip)) {
-    if (await tilesExist(time, signal)) return time;
+export function latestCloudDay(skip: readonly string[] = []): Promise<string> {
+  if (!skip.length && knownDay && Date.now() - knownDay.at < DAY_TTL_MS) return knownDay.day;
+  const day = (async () => {
+    for (const candidate of cloudDayCandidates(new Date(), 3, skip)) {
+      // HEAD: só a resposta, sem baixar a imagem
+      const ok = await fetch(VIIRS(candidate).replace("{z}/{y}/{x}", "0/0/0"), { method: "HEAD", cache: "no-store", signal: AbortSignal.timeout(8000) }).then((r) => r.ok, () => false);
+      if (ok) return candidate;
+    }
+    throw new Error("Nenhuma imagem recente do VIIRS");
+  })();
+  const entry = { at: Date.now(), day };
+  knownDay = entry;
+  // falhou (sem rede): não guarda, a próxima tentativa pergunta de novo
+  day.catch(() => { if (knownDay === entry) knownDay = null; });
+  return day;
+}
+
+/** Latitude (graus) além da qual um tile pode ter a noite polar: abaixo disso o VIIRS sempre tem imagem de dia. */
+const POLAR_LAT = 45;
+
+/**
+ * Se o tile `z/y` chega perto de um polo e, por isso, pode ter pixels sem dado. Os outros (a maior parte do globo)
+ * vão para o mapa como vieram, sem passar pelo canvas. Pura, para teste.
+ */
+export function mayHaveNoData(z: number, y: number): boolean {
+  const lat = (row: number) => (Math.atan(Math.sinh(Math.PI * (1 - (2 * row) / 2 ** z))) * 180) / Math.PI;
+  return lat(y) > POLAR_LAT || lat(y + 1) < -POLAR_LAT;
+}
+
+/** Brilho (maior canal, 0 a 255) abaixo do qual o pixel é "sem dado", e a partir do qual é imagem inteira. */
+const NO_DATA: readonly [number, number] = [6, 20];
+
+/**
+ * Onde o VIIRS não tem imagem (a noite polar, a faixa ainda não coberta), o JPEG vem preto. Deixa esses pixels
+ * transparentes, com uma rampa curta para a borda não serrilhar, e o Blue Marble aparece por baixo em vez de um
+ * buraco preto no globo. Mexe só no canal alfa de `rgba`. Pura, para teste.
+ */
+export function clearNoData(rgba: Uint8ClampedArray): void {
+  const [lo, hi] = NO_DATA;
+  for (let i = 0; i < rgba.length; i += 4) {
+    const top = Math.max(rgba[i], rgba[i + 1], rgba[i + 2]);
+    if (top < hi) rgba[i + 3] = top <= lo ? 0 : Math.round((255 * (top - lo)) / (hi - lo));
   }
-  throw new Error("Nenhuma imagem recente do GOES-East completa");
 }
 
-/**
- * Onde as nuvens de agora existem: o GOES-East fica parado sobre as Américas e só enxerga essa faixa de longitudes.
- * Fora dela não há nuvem nenhuma na tela, e a legenda não pode dizer que há.
- */
-export const GOES_EAST_LON: readonly [number, number] = [-125, -20];
-export function inGoesEastView(lon: number): boolean {
-  const l = ((lon + 540) % 360) - 180;
-  return l >= GOES_EAST_LON[0] && l <= GOES_EAST_LON[1];
+let cloudsRegistered = false;
+function registerClouds() {
+  if (cloudsRegistered) return;
+  cloudsRegistered = true;
+  maplibregl.addProtocol("nexxusclouds", async (request, abort) => {
+    const [day, z, y, x] = request.url.slice("nexxusclouds://".length).split("/");
+    const response = await fetch(VIIRS(day).replace("{z}", z).replace("{y}", y).replace("{x}", x), { signal: abort.signal });
+    if (!response.ok) throw new Error(`Sem nuvens para ${z}/${y}/${x}`);
+    if (!mayHaveNoData(Number(z), Number(y))) return { data: await response.arrayBuffer() };
+    const bitmap = await createImageBitmap(await response.blob());
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height), ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) throw new Error("Sem canvas para as nuvens");
+    ctx.drawImage(bitmap, 0, 0);
+    bitmap.close();
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    clearNoData(pixels.data);
+    ctx.putImageData(pixels, 0, 0);
+    // a imagem já decodificada vai direto para o mapa: codificar em PNG e decodificar de novo custava mais que a conta
+    return { data: canvas.transferToImageBitmap() };
+  });
 }
 
-export const cloudSource = (time: string): RasterSourceSpecification =>
-  ({ type: "raster", tiles: [GOES(time)], tileSize: SIZE, maxzoom: 7, attribution: "GOES-East GeoColor (NOAA, CIRA) via NASA GIBS" });
+export function cloudSource(day: string): RasterSourceSpecification {
+  registerClouds();
+  return { type: "raster", tiles: [`nexxusclouds://${day}/{z}/{y}/{x}`], tileSize: SIZE, maxzoom: 8, attribution: "VIIRS (NOAA-20) · NASA GIBS" };
+}
 
 interface Pack { index: Record<string, [number, number]>; data: ArrayBuffer }
 /**

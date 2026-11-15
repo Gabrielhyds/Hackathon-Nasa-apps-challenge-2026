@@ -602,7 +602,7 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 .perf { --tint: 0.82; position: fixed; z-index: 40; left: var(--gap); top: 156px; width: 272px; padding: 12px 14px 12px; display: grid; gap: 8px; border-radius: 18px; font-size: 12.5px; }
 .perf--closed { width: auto; padding: 0; border-radius: 999px; }
 .perf--closed button { border: 0; background: none; padding: 8px 14px; font: 500 12px/1 var(--data); color: var(--soft); }
-/* o painel ocupa o lugar da legenda do botão Agora: aberto, a legenda vai para o lado dele; recolhido, para baixo */
+/* o painel ocupa o lugar da legenda do botão Nuvens: aberto, a legenda vai para o lado dele; recolhido, para baixo */
 @media (min-width: 901px) {
   .app:has(.perf) .map__caption { top: 202px; }
   .app:has(.perf:not(.perf--closed)) .map__caption { top: 158px; left: calc(var(--gap) + 272px + 10px); max-width: min(400px, calc(100% - 272px - 10px - 2 * var(--gap))); }
