@@ -163,11 +163,13 @@ Returns a `ScenesResponse`: `{ criteria, scenes }`. A scene, abridged:
   "polarizations": ["HH", "HV"],
   "acquisitions": [
     {
-      "date": "2026-07-11",
-      "images": { "HH": "/api/scene-images/taquari/before-HH.png?v=qypitv", "HV": "…" },
-      "granule": "NISAR_L2_PR_GCOV_025_053_D_103_4005_DHDH_A_20260711T213351_…",
+      "date": "2026-06-17",
+      "images": { "HH": "/api/scene-images/taquari/earlier-2026-06-17-HH.png?v=13kow1v", "HV": "…" },
+      "granule": "NISAR_L2_PR_GCOV_023_053_D_103_4005_DHDH_A_20260617T213352_…",
       "release": "provisional"
     },
+    { "date": "2026-06-29", "images": { "HH": "…", "HV": "…" }, "granule": "…", "release": "provisional" },
+    { "date": "2026-07-11", "images": { "HH": "…", "HV": "…" }, "granule": "…", "release": "provisional" },
     { "date": "2026-07-23", "images": { "HH": "…", "HV": "…" }, "granule": "…", "release": "provisional" }
   ],
   "basis": "documented-event",
@@ -181,7 +183,7 @@ Returns a `ScenesResponse`: `{ criteria, scenes }`. A scene, abridged:
 | Field | Meaning |
 |---|---|
 | `bbox` | `[west, south, east, north]`; the images are cropped to it |
-| `acquisitions` | The series of passes, oldest first (at least two). `images` has one URL per polarization; `granule` and `release` (`beta`, `provisional`, `validated`) identify the NASA product |
+| `acquisitions` | The series of passes, oldest first (at least two; four in the Taquari scene, which opens on the first against the last). `images` has one URL per polarization; `granule` and `release` (`beta`, `provisional`, `validated`) identify the NASA product |
 | `change` | Direction of the change measured in the calibrated pair |
 | `basis` | `documented-event` (the `sources` document it) or `interpretation` (no confirmed event) |
 | `imagery` | `gcov` for calibrated backscatter, `gunw` for interferometric phase |
