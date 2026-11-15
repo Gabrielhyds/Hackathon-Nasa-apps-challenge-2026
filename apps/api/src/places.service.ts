@@ -47,19 +47,30 @@ export class PlacesService {
       : countryCode ? searchPlaces(q, { ...scope, kind: "state", limit: 4 })
       : [...searchPlaces(q, { kind: "country", lang, limit: 2 }), ...searchPlaces(q, { kind: "state", lang, limit: 2 })];
     const local = searchPlaces(q, { ...scope, kind: "city", limit });
-    const cities = local.length ? local : (await this.onlineCities(q, lang, countryCode, adminKey, local)) ?? local;
+    const cities = local.length ? local : (await this.onlineCities(q, lang, countryCode, adminKey)) ?? local;
     return [...regions, ...cities].slice(0, limit);
   }
 
-  private async onlineCities(q: string, lang: Lang, countryCode: string | undefined, adminKey: string | undefined, local: Place[]): Promise<Place[] | null> {
+  /** Nomes pelos quais um estado pode vir na resposta online: o identificador e o nome dele nos dois idiomas. */
+  private stateNames(countryCode: string | undefined, adminKey: string): Set<string> {
+    const names = new Set([plain(adminKey)]);
+    if (!countryCode) return names;
+    for (const lang of ["en", "pt"] as const) {
+      const state = searchPlaces("", { kind: "state", lang, countryCode, limit: Infinity }).find((p) => p.adminKey === adminKey);
+      if (state) names.add(plain(state.name));
+    }
+    return names;
+  }
+
+  private async onlineCities(q: string, lang: Lang, countryCode: string | undefined, adminKey: string | undefined): Promise<Place[] | null> {
     if (!this.online) return null;
     try {
       const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=${countryCode ? 30 : 8}&language=${lang}&format=json${countryCode ? `&countryCode=${countryCode}` : ""}`;
       const res = await fetch(url, { signal: AbortSignal.timeout(2500) });
       if (!res.ok) return null;
       const data = (await res.json()) as { results?: OpenMeteoResult[] };
-      // nomes do estado aceitos no filtro: o identificador e o nome no idioma pedido
-      const stateNames = adminKey ? new Set([plain(adminKey), ...local.map((p) => plain(p.admin ?? ""))]) : null;
+      // nomes do estado aceitos no filtro: o identificador e o nome no idioma pedido (o Open-Meteo responde nele)
+      const stateNames = adminKey ? this.stateNames(countryCode, adminKey) : null;
       const hits = (data.results ?? [])
         .filter((r) => !countryCode || r.country_code?.toUpperCase() === countryCode)
         .filter((r) => !stateNames || stateNames.has(plain(r.admin1 ?? "")))
