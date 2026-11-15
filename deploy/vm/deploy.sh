@@ -1,5 +1,5 @@
 #!/bin/bash
-# Deploy na VM da Azure: atualiza ~/nexxus, sobe os serviços de novo e mostra o health.
+# Deploy na máquina da demo: atualiza ~/nexxus, sobe os serviços de novo e mostra o health.
 # Fica em ~/deploy.sh na VM. Mudou aqui: scp deploy/vm/deploy.sh nexxus:deploy.sh
 #
 # Uso, da máquina de quem tem acesso:
