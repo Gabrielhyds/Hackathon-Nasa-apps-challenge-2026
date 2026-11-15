@@ -226,7 +226,7 @@ export function App() {
       </main>
 
       <header className="hud">
-        <div className="brand"><h1><img src={logo} alt="Nexxus" width={560} height={146} /></h1><p>{t.cover.tagline}</p></div>
+        <div className="brand"><h1><img src={logo} alt="Nexxus" width={1120} height={291} /></h1><p>{t.cover.tagline}</p></div>
         <PlaceSearch key={searchReset} onPick={(p) => choosePlace(p, true)} />
         <div className="hud__right">
           {API_MODE === "mock" && <p className="badge" title={t.badge.exampleTitle}>{t.badge.example}</p>}
