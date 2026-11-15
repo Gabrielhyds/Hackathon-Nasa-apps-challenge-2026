@@ -150,6 +150,25 @@ def test_sem_cartao_nunca_usa_texto_do_modelo(monkeypatch):
     assert a.mode == "no_info" and "Brazil" not in a.text
 
 
+def test_contexto_do_modelo_diz_qual_cena_esta_aberta(monkeypatch):
+    from agent.prompt import build_context
+    cards = [core.CARDS["campinas"]]
+    assert "OPEN SCENE: Campinas, Brasil\n" in build_context("What changed here?", "en", cards, "campinas")
+    assert "OPEN SCENE" not in build_context("What changed here?", "en", cards, None)
+    assert "OPEN SCENE" not in build_context("What changed here?", "en", cards, "lugar-desconhecido")
+    # e a pergunta com cena aberta chega ao modelo com essa linha
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    visto = []
+
+    async def gen(system, user):
+        visto.append(user)
+        return "In Campinas the two passes look almost the same [campinas]."
+
+    monkeypatch.setattr(llm, "generate", gen)
+    run(core.ask("What changed here?", scene="campinas"))
+    assert visto and "OPEN SCENE: Campinas, Brasil" in visto[0]
+
+
 def test_modelo_area_alagada_cai_para_reserva(monkeypatch):
     fake_model(monkeypatch, "The flooded area was about 53 km² [taquari].")
     a = run(core.ask("How big was the Taquari flood?"))
