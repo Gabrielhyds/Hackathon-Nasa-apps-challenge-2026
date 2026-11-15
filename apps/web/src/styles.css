@@ -346,6 +346,13 @@ tbody th { font-weight: 400; color: var(--mute); }
 .turn h3 { justify-self: end; max-width: 88%; padding: 9px 14px; border-radius: 16px 16px 4px 16px; background: rgba(255, 255, 255, 0.13); font: 400 14.5px/1.4 var(--body); }
 .turn__text { white-space: pre-wrap; line-height: 1.5; color: var(--soft); text-wrap: pretty; }
 .turn__text--live::after { content: ""; display: inline-block; width: 7px; height: 15px; margin-left: 3px; border-radius: 2px; vertical-align: -2px; background: var(--ice); animation: blink 1s steps(2) infinite; }
+.turn__caveat { padding-left: 12px; border-left: 1px solid var(--line); font-size: 13.5px; line-height: 1.45; color: var(--soft); text-wrap: pretty; }
+.turn__caveat b { font-weight: 600; color: var(--ink); }
+.turn__sources { font-size: 13px; line-height: 1.4; }
+.turn__sources h4 { font: 500 11.5px/1.5 var(--data); color: var(--dim); }
+.turn__sources ul { display: grid; gap: 5px; margin: 2px 0 0; padding: 0; list-style: none; }
+.turn__sources a { color: var(--soft); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.turn__sources a:hover { color: var(--ink); }
 .pulse { animation: blink 1.4s ease-in-out infinite; }
 @keyframes blink { 50% { opacity: 0.25; } }
 .chat__foot { margin-top: auto; display: grid; gap: 8px; justify-items: start; }

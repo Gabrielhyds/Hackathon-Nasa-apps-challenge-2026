@@ -4,7 +4,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { scenes } from "@nexxus/contract";
 import type { Lang, Scene } from "@nexxus/contract";
-import { agentBody } from "./agent-context";
 import { readManifest, servedScenes } from "./scene-images";
 
 /** O arquivo que scripts/water_series.py grava: as passagens medidas, os parâmetros e as que ficaram de fora. */
@@ -129,14 +128,4 @@ test("cada leitura do rio tem fonte, cai dentro da série e bate com o resumo", 
   assert.deepEqual(en.map((r) => [r.date, r.time, r.levelM, r.trend, r.floodLevelM, r.source.url]),
     pt.map((r) => [r.date, r.time, r.levelM, r.trend, r.floodLevelM, r.source.url]));
   assert.ok(en.every((r, i) => r.place !== pt[i].place && r.source.title !== pt[i].source.title));
-});
-
-test("o agente recebe a série de água e as leituras do rio do Taquari, e só dele", () => {
-  const served = servedScenes("en");
-  const ask = (sceneIds: string[]) => agentBody({ question: "How much water?", sceneIds, lang: "en" }, served);
-  const s = ask(["taquari"]).scenes[0];
-  assert.deepEqual(s.waterSeries, taquari(served.scenes).waterSeries);
-  assert.deepEqual(s.riverGauge, taquari(served.scenes).riverGauge);
-  const other = JSON.stringify(ask(["sindh"]));
-  assert.equal(other.includes("waterSeries") || other.includes("riverGauge"), false);
 });

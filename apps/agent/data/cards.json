@@ -1,0 +1,1499 @@
+{
+  "versao": "2026-11-15b",
+  "nota": "Cartões do agente. Cada resposta só pode usar o que está aqui. Fontes conferidas em 15/11/2026 (NISAR: science.nasa.gov e nisar-docs.asf.alaska.edu; cheia do Taquari: Jornal do Comércio). Para trocar os números, edite este arquivo, não o prompt.",
+  "cards": [
+    {
+      "id": "taquari",
+      "tipo": "cena",
+      "base": "evento documentado",
+      "titulo": {
+        "pt": "Enchente do Taquari, RS (julho de 2026)",
+        "en": "Taquari River flood, Brazil (July 2026)"
+      },
+      "texto": {
+        "pt": "O rio Taquari passou da cota de inundação em 22/07/2026, a primeira cheia acima da cota no Rio Grande do Sul desde as enchentes de 2024. Documentos técnicos divulgados na noite de 21/07 previam que o rio não chegaria à cota. Em Lajeado o nível passou de 24 m na tarde de 22/07, com cinco municípios em alerta máximo: Lajeado, Encantado, Roca Sales, São Sebastião do Caí e Muçum. Nuvens cobriam o vale para os satélites ópticos, e o radar do NISAR atravessa nuvens. Comparando as passagens de 11/07 e 23/07/2026, o Nexxus mede cerca de 53 km² de água aberta nova (faixa de 49 a 56 km²) na noite seguinte ao pico do rio. Nas passagens de referência eram de 0,3 a 1,6 km²; quatro dias depois, 5 km².",
+        "en": "The Taquari River rose above flood stage on July 22, 2026, the first flood above that level in Rio Grande do Sul since the 2024 floods. Technical documents released the night of July 21 predicted the river would not reach flood stage. In Lajeado the level passed 24 m that afternoon, with five towns on top alert: Lajeado, Encantado, Roca Sales, São Sebastião do Caí and Muçum. Clouds hid the valley from optical satellites, and NISAR's radar sees through clouds. Comparing the July 11 and July 23, 2026 passes, Nexxus measures about 53 km² of new open water (range 49 to 56 km²) the evening after the river peaked. Reference passes showed 0.3 to 1.6 km²; four days later, 5 km²."
+      },
+      "ressalva": {
+        "pt": "É água aberta nova, não a área alagada total: água sob árvores ou entre prédios não aparece assim. Medida do time no GCOV calibrado do NISAR, lote PROVISIONAL (calibrado e validado só em alguns lugares). Cada estação de medição tem sua própria cota, por isso o nível de 24 m vale para Lajeado. O Nexxus não cita número de desabrigados, porque as fontes divergem.",
+        "en": "This is new open water, not the total flooded area: water under trees or between buildings does not show up this way. Team measurement on calibrated NISAR GCOV data, PROVISIONAL release (calibrated and validated only at some sites). Each gauge has its own flood stage, so the 24 m level is the one at Lajeado. Nexxus does not quote a number of displaced people, because sources disagree."
+      },
+      "fontes": [
+        {
+          "nome": "Jornal do Comércio, 22/07/2026 (nível de 24 m em Lajeado, cinco municípios em alerta)",
+          "url": "https://www.jornaldocomercio.com/geral/2026/07/1257206-cinco-municipios-superam-cota-de-inundacao-e-mais-de-450-pessoas-estao-desabrigadas.html"
+        },
+        {
+          "nome": "Jornal do Comércio, 24/07/2026 (primeira cheia acima da cota desde 2024)",
+          "url": "https://www.jornaldocomercio.com/jornal-cidades/2026/07/1257468-leite-visita-vale-do-taquari-e-admite-falha-na-comunicacao-de-alertas.html"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "taquari",
+        "lajeado",
+        "estrela",
+        "encantado",
+        "mucum",
+        "roca sales",
+        "rio grande do sul",
+        "rs",
+        "brasil",
+        "brazil",
+        "enchente",
+        "cheia",
+        "flood",
+        "flooding",
+        "inundacao",
+        "agua",
+        "water",
+        "53",
+        "km2",
+        "nuvem",
+        "nuvens",
+        "cloud",
+        "clouds",
+        "area alagada",
+        "flooded area",
+        "cota",
+        "flood stage",
+        "nivel do rio",
+        "river level",
+        "24 m",
+        "julho",
+        "july",
+        "vale do taquari"
+      ]
+    },
+    {
+      "id": "taquari_metodo",
+      "tipo": "fato",
+      "base": "método do time",
+      "titulo": {
+        "pt": "Como o Nexxus mede a água nova",
+        "en": "How Nexxus measures new water"
+      },
+      "texto": {
+        "pt": "A medida do Nexxus é a água aberta nova entre duas passagens da mesma órbita. Para cada ponto que antes era terra, o time exige queda de 3 dB ou mais no canal HH e brilho final abaixo de −12 dB; só esses pontos contam como água nova. As duas imagens usam a mesma escala fixa, com branco em 0 dB no HH e em −6 dB no HV, então a razão entre dois cinzas é razão de amplitude de verdade. A faixa de 49 a 56 km² vem de mexer nesses dois limites para cima e para baixo. A posição de cada ponto vem da grade do próprio arquivo GCOV, já corrigida do relevo.",
+        "en": "Nexxus measures new open water between two passes from the same orbit. For every spot that used to be land, the team requires an HH drop of 3 dB or more and a final brightness below −12 dB; only those spots count as new water. Both images use the same fixed scale, white at 0 dB in HH and at −6 dB in HV, so the ratio between two greys is a true amplitude ratio. The 49 to 56 km² range comes from moving those two thresholds up and down. Each spot's position comes from the GCOV file's own grid, already corrected for terrain."
+      },
+      "ressalva": {
+        "pt": "Método do time, não um produto oficial da NASA. Só compara datas da mesma órbita: passagens de órbitas diferentes olham o chão de outro ângulo e não se comparam assim.",
+        "en": "Team method, not an official NASA product. It only compares dates from the same orbit: passes from different orbits look at the ground from another angle and cannot be compared this way."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        },
+        {
+          "nome": "NASA Earthdata: What is SAR? (polarização e espalhamento)",
+          "url": "https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/sar"
+        }
+      ],
+      "palavras": [
+        "metodo",
+        "method",
+        "como mediu",
+        "how did you measure",
+        "como foi medido",
+        "limiar",
+        "threshold",
+        "3 db",
+        "12 db",
+        "db",
+        "decibel",
+        "hh",
+        "hv",
+        "escala",
+        "scale",
+        "margem",
+        "faixa",
+        "range",
+        "erro",
+        "error",
+        "incerteza",
+        "uncertainty",
+        "precisao",
+        "accuracy",
+        "49",
+        "56",
+        "agua aberta nova",
+        "new open water",
+        "pixel",
+        "calibrado",
+        "calibrated",
+        "mediu",
+        "mediram",
+        "medimos",
+        "medir",
+        "medido",
+        "measured",
+        "measure",
+        "measuring",
+        "calculou",
+        "calculado",
+        "criterio",
+        "regra",
+        "3 db",
+        "12 db"
+      ]
+    },
+    {
+      "id": "taquari_hidrograma",
+      "tipo": "cena",
+      "base": "medida do time sobre evento documentado",
+      "titulo": {
+        "pt": "Hidrograma de radar do Taquari",
+        "en": "Radar hydrograph of the Taquari"
+      },
+      "texto": {
+        "pt": "O Nexxus usa o NISAR como régua de cheia: mede a água aberta nova em cada passagem e desenha a curva ao longo do tempo. Somando as órbitas de ida e de volta, há uma passagem a cada 6 a 12 dias sobre o vale. O pulso é nítido: cerca de 1 km² de água nova nas semanas anteriores, 53 km² (faixa de 49 a 56 km²) na noite seguinte ao pico do rio em 22/07/2026 e 5 km² quatro dias depois. A conferência vem de três lados independentes: o nível do rio no jornal, as nuvens vistas pelo MODIS e pelo VIIRS em 22 e 23/07 e o mapa de água OPERA de 25/07/2026.",
+        "en": "Nexxus uses NISAR as a flood ruler: it measures new open water on every pass and draws the curve over time. Counting northbound and southbound orbits, there is a pass every 6 to 12 days over the valley. The pulse is sharp: about 1 km² of new water in the weeks before, 53 km² (range 49 to 56 km²) the evening after the river peaked on July 22, 2026, and 5 km² four days later. Three independent checks back it up: the river level in the newspaper, the clouds seen by MODIS and VIIRS on July 22 and 23, and the OPERA water map of July 25, 2026."
+      },
+      "ressalva": {
+        "pt": "A série tem 8 passagens e um buraco de dados entre 27/07 e 10/08/2026, informado pelo ASF. Não é vazão nem nível do rio: é área de água aberta nova vista pelo radar.",
+        "en": "The series has 8 passes and a data gap between July 27 and August 10, 2026, reported by ASF. It is not discharge or river level: it is the area of new open water seen by radar."
+      },
+      "fontes": [
+        {
+          "nome": "Jornal do Comércio, 22/07/2026 (nível de 24 m em Lajeado)",
+          "url": "https://www.jornaldocomercio.com/geral/2026/07/1257206-cinco-municipios-superam-cota-de-inundacao-e-mais-de-450-pessoas-estao-desabrigadas.html"
+        },
+        {
+          "nome": "NISAR: disponibilidade dos dados e buraco de 27/07 a 10/08/2026 (ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/availability-overview/"
+        },
+        {
+          "nome": "OPERA DSWx-S1 (PO.DAAC)",
+          "url": "https://podaac.jpl.nasa.gov/dataset/OPERA_L3_DSWX-S1_V1"
+        }
+      ],
+      "palavras": [
+        "hidrograma",
+        "hydrograph",
+        "grafico",
+        "graph",
+        "chart",
+        "curva",
+        "curve",
+        "serie",
+        "series",
+        "passagem a passagem",
+        "pass by pass",
+        "pico",
+        "peak",
+        "antes e depois",
+        "before and after",
+        "8 passagens",
+        "8 passes",
+        "regua",
+        "ruler",
+        "evolucao",
+        "over time",
+        "quando",
+        "when",
+        "passagem por passagem",
+        "pass by pass",
+        "cada passagem",
+        "each pass",
+        "por passagem",
+        "dia a dia",
+        "ao longo do tempo",
+        "linha do tempo",
+        "timeline",
+        "flood pass by pass",
+        "cheia passagem por passagem",
+        "enchente passagem por passagem"
+      ]
+    },
+    {
+      "id": "taquari_numeros_antigos",
+      "tipo": "regra",
+      "base": "decisão do time",
+      "titulo": {
+        "pt": "Números antigos do Taquari",
+        "en": "Old Taquari numbers"
+      },
+      "texto": {
+        "pt": "O único número válido para a cheia do Taquari é cerca de 53 km² de água aberta nova (49 a 56 km²). Os números antigos vinham de imagens de prévia, sem calibração, e foram descartados. O mapa de mudança da tela mostra cerca de 63 km², mas é outra medida: conta subida e queda do sinal e não mede água, por isso não se soma com os 53 km².",
+        "en": "The only valid number for the Taquari flood is about 53 km² of new open water (49 to 56 km²). The older numbers came from uncalibrated preview images and were dropped. The change map on screen shows about 63 km², but that is a different measure: it counts signal rises and drops and does not measure water, so it cannot be added to the 53 km²."
+      },
+      "ressalva": {
+        "pt": "Não somar o mapa de mudança com a medida de água.",
+        "en": "Do not add the change map to the water measure."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "57",
+        "46",
+        "45",
+        "63",
+        "numero",
+        "number",
+        "antigo",
+        "old",
+        "mapa de mudanca",
+        "change map",
+        "what changed",
+        "diferenca",
+        "difference",
+        "qual esta certo",
+        "which is right",
+        "errado",
+        "wrong",
+        "mudou o numero",
+        "contradicao"
+      ]
+    },
+    {
+      "id": "limites",
+      "tipo": "regra",
+      "base": "leitura do time sobre os próprios limites",
+      "titulo": {
+        "pt": "O que a medida não vê",
+        "en": "What the measurement misses"
+      },
+      "texto": {
+        "pt": "A medida tem limites claros. Água sob copa de árvore ou entre prédios não aparece como espelho escuro, então fica de fora. Solo muito molhado e algumas lavouras também derrubam o sinal e podem ser contados como água. Em 13 passagens de agosto a outubro de 2026 a medida sobe aos poucos, de 5 a 27 km², em manchas com forma de lavoura, com ou sem cheia na data; isso também aparece no dado calibrado, então não é erro de calibração. O mapa de mudança da tela conta subida e queda do sinal e não mede água: no Taquari marca cerca de 63 km², e em Chókwè marca muito mais área do que alagou. O Nexxus não faz previsão: ele mede o que já aconteceu, na data de cada passagem, e não diz se vai chover ou alagar de novo. Para alerta e evacuação valem os órgãos oficiais de defesa civil.",
+        "en": "The measurement has clear limits. Water under tree canopy or between buildings does not act as a dark mirror, so it is left out. Very wet soil and some farm fields also push the signal down and can be counted as water. In 13 passes from August to October 2026 the measure creeps up, from 5 to 27 km², in patches shaped like fields, with or without a flood on that date; this shows up in the calibrated data too, so it is not a calibration error. The change map on screen counts signal rises and drops and does not measure water: it marks about 63 km² at the Taquari, and at Chókwè it marks far more land than actually flooded. Nexxus does not forecast: it measures what already happened, on the date of each pass, and does not say whether it will rain or flood again. For warnings and evacuation, the official civil defense agencies are the authority."
+      },
+      "ressalva": {
+        "pt": "Leitura do time sobre os próprios limites, não de uma fonte externa. Nas imagens de prévia, antes do dado calibrado, Maceió aparecia 8 km fora do lugar; por isso o Nexxus só usa a grade do arquivo GCOV.",
+        "en": "The team's reading of its own limits, not an outside source. In the preview images, before the calibrated data, Maceió appeared 8 km off position; that is why Nexxus only uses the GCOV file's grid."
+      },
+      "fontes": [
+        {
+          "nome": "NASA Earthdata: What is SAR? (penetração e espalhamento por banda)",
+          "url": "https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/sar"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "limite",
+        "limites",
+        "limitation",
+        "limits",
+        "nao ve",
+        "miss",
+        "misses",
+        "falso positivo",
+        "false positive",
+        "lavoura",
+        "lavouras",
+        "farm",
+        "field",
+        "fields",
+        "crop",
+        "solo molhado",
+        "wet soil",
+        "arvore",
+        "arvores",
+        "tree",
+        "canopy",
+        "predio",
+        "building",
+        "urbano",
+        "urban",
+        "problema",
+        "problem",
+        "confiavel",
+        "reliable",
+        "duvida",
+        "27",
+        "780",
+        "63",
+        "subestima",
+        "underestimate",
+        "previsao",
+        "prever",
+        "prevê",
+        "preve",
+        "forecast",
+        "predict",
+        "prediction",
+        "futuro",
+        "future",
+        "vai alagar",
+        "will it flood",
+        "alerta",
+        "alert",
+        "warning",
+        "evacuacao",
+        "evacuation",
+        "defesa civil",
+        "civil defense",
+        "proxima cheia",
+        "next flood",
+        "em tempo real",
+        "real time",
+        "alertar",
+        "avisar",
+        "warn",
+        "warning",
+        "usar para alerta",
+        "serve para",
+        "780"
+      ]
+    },
+    {
+      "id": "chokwe",
+      "tipo": "cena",
+      "base": "evento documentado",
+      "titulo": {
+        "pt": "Cheia do Limpopo em Chókwè, Moçambique (janeiro de 2026)",
+        "en": "Limpopo flood at Chókwè, Mozambique (January 2026)"
+      },
+      "texto": {
+        "pt": "Semanas de chuva em dezembro de 2025 e janeiro de 2026 fizeram os rios Limpopo e Incomati transbordarem no sul de Moçambique. A NASA comparou as passagens do NISAR de 05/01 e 17/01/2026, com a mesma escala de cor, enquanto o satélite óptico Sentinel-2 só via nuvens. A imagem usa os canais HH e HV da banda L: HH em vermelho, HV em verde e a razão HV/HH em azul, então azul escuro é água aberta e magenta sugere floresta alagada. Segundo a NASA, a cheia desalojou mais de 600 mil pessoas, danificou 400 mil acres de lavoura e alagou 30 mil casas. No Nexxus aparece uma faixa escura de vários quilômetros ao longo do rio.",
+        "en": "Weeks of rain in December 2025 and January 2026 pushed the Limpopo and Incomati rivers over their banks in southern Mozambique. NASA compared the NISAR passes of January 5 and January 17, 2026 with the same color scale, while the optical Sentinel-2 satellite saw only clouds. The image uses L-band HH and HV: HH in red, HV in green and the HV/HH ratio in blue, so dark blue is open water and magenta suggests flooded forest. According to NASA, the flood displaced more than 600 thousand people, damaged 400 thousand acres of cropland and flooded 30 thousand homes. In Nexxus you see a dark band several kilometers wide along the river."
+      },
+      "ressalva": {
+        "pt": "As passagens de janeiro de 2026 estão no lote BETA do NISAR, ainda sem calibração completa. Não use o mapa de mudança nesta cena: ele marca terra que não alagou. Os números de impacto são da NASA, não medidos pelo time, e aqui o Nexxus não mede área de água.",
+        "en": "The January 2026 passes are in NISAR's BETA release, not yet fully calibrated. Do not use the change map on this scene: it marks land that did not flood. The impact numbers are NASA's, not measured by the team, and Nexxus does not measure a water area here."
+      },
+      "fontes": [
+        {
+          "nome": "NASA SVS 5661: NISAR Reveals Major Flooding in Mozambique",
+          "url": "https://svs.gsfc.nasa.gov/5661"
+        },
+        {
+          "nome": "NASA SVS 15087: Flooding in Southern Mozambique",
+          "url": "https://svs.gsfc.nasa.gov/15087/"
+        },
+        {
+          "nome": "NISAR: lotes BETA, PROVISIONAL e VALIDATED (ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/availability-overview/"
+        }
+      ],
+      "palavras": [
+        "chokwe",
+        "limpopo",
+        "incomati",
+        "macia",
+        "mocambique",
+        "mozambique",
+        "africa",
+        "cheia",
+        "flood",
+        "janeiro",
+        "january",
+        "sentinel-2",
+        "magenta",
+        "floresta alagada",
+        "flooded forest",
+        "beta"
+      ]
+    },
+    {
+      "id": "venezuela",
+      "tipo": "cena",
+      "base": "evento documentado",
+      "titulo": {
+        "pt": "Terremotos da Venezuela (junho de 2026)",
+        "en": "Venezuela earthquakes (June 2026)"
+      },
+      "texto": {
+        "pt": "Em 24/06/2026 um terremoto de magnitude 7,2 atingiu o norte da Venezuela, seguido em menos de um minuto por outro de 7,5, perto de San Felipe e Yumare. Foi a primeira vez que o sistema de Resposta Urgente do NISAR mapeou o deslocamento do chão num terremoto grande. A NASA comparou imagens de 13 e 18/06 (antes) com 25 e 30/06/2026 (depois). O Nexxus gera o interferograma dos pares 06 a 18/06 e 18 a 30/06: as faixas de cor aparecem só no par que atravessa os terremotos. Cada ciclo de cor vale cerca de 12 cm de mudança na distância até o satélite. Segundo a NASA, o deslocamento para oeste chegou a 60 cm perto do aeroporto ao norte de Caracas.",
+        "en": "On June 24, 2026, a magnitude 7.2 earthquake struck northern Venezuela, followed less than a minute later by a magnitude 7.5, near San Felipe and Yumare. It was the first time NISAR's Urgent Response system mapped ground displacement from a large earthquake. NASA compared images from June 13 and 18 (before) with June 25 and 30, 2026 (after). Nexxus builds the interferogram from the June 6-18 and June 18-30 pairs: color bands appear only in the pair that spans the earthquakes. Each color cycle is about 12 cm of change in distance to the satellite. According to NASA, westward displacement reached 60 cm near the airport north of Caracas."
+      },
+      "ressalva": {
+        "pt": "A medida do time é só em centímetros por ciclo de cor, sem dizer para que lado o chão andou; o valor de 60 cm e o sentido do movimento são da NASA. Os mapas da NASA são preliminares, feitos com órbita prevista. O NISAR olha o chão cerca de 40 graus fora da vertical, então mistura movimento horizontal e vertical. No Nexxus a ionosfera foi descontada, a troposfera não. Por enquanto esta cena só existe na API.",
+        "en": "The team's measure is only centimeters per color cycle, without saying which way the ground moved; the 60 cm figure and the direction are NASA's. NASA's maps are preliminary, made with predicted orbit data. NISAR looks at the ground about 40 degrees off vertical, so it mixes horizontal and vertical motion. In Nexxus the ionosphere was removed, the troposphere was not. For now this scene exists only in the API."
+      },
+      "fontes": [
+        {
+          "nome": "NASA Earth Observatory: Where Venezuela's Earthquakes Shifted the Ground",
+          "url": "https://science.nasa.gov/earth/earth-observatory/where-venezuelas-earthquakes-shifted-the-ground/"
+        },
+        {
+          "nome": "NISAR GUNW (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gunw/"
+        }
+      ],
+      "palavras": [
+        "venezuela",
+        "caracas",
+        "la guaira",
+        "san felipe",
+        "yumare",
+        "moron",
+        "terremoto",
+        "sismo",
+        "earthquake",
+        "quake",
+        "magnitude",
+        "interferograma",
+        "interferogram",
+        "franja",
+        "franjas",
+        "fringe",
+        "fringes",
+        "insar",
+        "deslocamento",
+        "displacement",
+        "chao",
+        "ground",
+        "12 cm",
+        "60 cm",
+        "falha",
+        "fault",
+        "resposta urgente",
+        "urgent response"
+      ]
+    },
+    {
+      "id": "sazonais",
+      "tipo": "cena",
+      "base": "leitura do time, sem evento confirmado",
+      "titulo": {
+        "pt": "Cenas de mudança sazonal",
+        "en": "Seasonal change scenes"
+      },
+      "texto": {
+        "pt": "Oito das dez cenas mostram mudança de estação, com duas passagens cada, de junho a novembro de 2026: Sindh (Paquistão), Lábrea (Amazônia), Jakobshavn (Groenlândia), Pantanal, Kalimantan (Bornéu), Campo de Gelo Sul (Patagônia), Campinas e Maceió. Em cada uma, o Nexxus mostra o antes e o depois na mesma escala e o sentido da mudança medido no par calibrado: onde o sinal do radar subiu e onde caiu. Campinas, Kalimantan e Lábrea quase não mudam entre as duas passagens. Nessas oito cenas o time não mediu área de água nem confirmou nenhum evento com fonte de fora.",
+        "en": "Eight of the ten scenes show seasonal change, with two passes each, from June to November 2026: Sindh (Pakistan), Lábrea (Amazon), Jakobshavn (Greenland), the Pantanal, Kalimantan (Borneo), the Southern Patagonian Ice Field, Campinas and Maceió. For each one, Nexxus shows before and after on the same scale and the direction of change measured on the calibrated pair: where the radar signal went up and where it went down. Campinas, Kalimantan and Lábrea barely change between the two passes. For these eight scenes the team measured no water area and confirmed no event with an outside source."
+      },
+      "ressalva": {
+        "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas por cena, não uma série: não dá para dizer o que houve entre elas.",
+        "en": "Team reading, with no event confirmed by an outside source. These are two dates per scene, not a series: they cannot say what happened in between."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR: amplitude e produtos (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/amplitude/"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "sindh",
+        "paquistao",
+        "pakistan",
+        "labrea",
+        "amazonia",
+        "amazon",
+        "jakobshavn",
+        "groenlandia",
+        "greenland",
+        "pantanal",
+        "kalimantan",
+        "borneo",
+        "campo de gelo",
+        "ice field",
+        "patagonia",
+        "campinas",
+        "maceio",
+        "sazonal",
+        "seasonal",
+        "estacao",
+        "season",
+        "geleira",
+        "glacier",
+        "seca",
+        "dry",
+        "cheia do pantanal",
+        "outras cenas",
+        "other scenes",
+        "10 cenas",
+        "ten scenes",
+        "esta cena",
+        "this scene",
+        "cena atual",
+        "current scene",
+        "o que mudou",
+        "what changed",
+        "antes e depois"
+      ]
+    },
+    {
+      "id": "sindh",
+      "tipo": "cena",
+      "base": "leitura do time, sem evento confirmado",
+      "titulo": {
+        "pt": "Cena de Sindh (Paquistão)",
+        "en": "Scene: Sindh (Pakistan)"
+      },
+      "texto": {
+        "pt": "Sindh (Paquistão) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Sindh (Pakistan) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+      },
+      "ressalva": {
+        "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
+        "en": "Team reading, with no event confirmed by an outside source. These are two dates, not a series: they cannot say what happened in between."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR: amplitude e produtos (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/amplitude/"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "sindh",
+        "paquistao",
+        "pakistan",
+        "indo",
+        "indus"
+      ]
+    },
+    {
+      "id": "labrea",
+      "tipo": "cena",
+      "base": "leitura do time, sem evento confirmado",
+      "titulo": {
+        "pt": "Cena de Lábrea (Amazônia)",
+        "en": "Scene: Lábrea (Amazon)"
+      },
+      "texto": {
+        "pt": "Lábrea (Amazônia) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Entre as duas passagens a cena quase não muda. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Lábrea (Amazon) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. Between the two passes this scene barely changes. For this scene the team measured no water area and there is no event confirmed by an outside source."
+      },
+      "ressalva": {
+        "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
+        "en": "Team reading, with no event confirmed by an outside source. These are two dates, not a series: they cannot say what happened in between."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR: amplitude e produtos (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/amplitude/"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "labrea",
+        "amazonia",
+        "amazon",
+        "floresta",
+        "forest"
+      ]
+    },
+    {
+      "id": "jakobshavn",
+      "tipo": "cena",
+      "base": "leitura do time, sem evento confirmado",
+      "titulo": {
+        "pt": "Cena de Jakobshavn (Groenlândia)",
+        "en": "Scene: Jakobshavn (Greenland)"
+      },
+      "texto": {
+        "pt": "Jakobshavn (Groenlândia) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Jakobshavn (Greenland) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+      },
+      "ressalva": {
+        "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
+        "en": "Team reading, with no event confirmed by an outside source. These are two dates, not a series: they cannot say what happened in between."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR: amplitude e produtos (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/amplitude/"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "jakobshavn",
+        "groenlandia",
+        "greenland",
+        "geleira",
+        "glacier",
+        "gelo",
+        "ice"
+      ]
+    },
+    {
+      "id": "pantanal",
+      "tipo": "cena",
+      "base": "leitura do time, sem evento confirmado",
+      "titulo": {
+        "pt": "Cena de Pantanal",
+        "en": "Scene: the Pantanal"
+      },
+      "texto": {
+        "pt": "Pantanal é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "the Pantanal is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+      },
+      "ressalva": {
+        "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
+        "en": "Team reading, with no event confirmed by an outside source. These are two dates, not a series: they cannot say what happened in between."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR: amplitude e produtos (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/amplitude/"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "pantanal",
+        "mato grosso",
+        "banhado",
+        "wetland",
+        "alagado"
+      ]
+    },
+    {
+      "id": "kalimantan",
+      "tipo": "cena",
+      "base": "leitura do time, sem evento confirmado",
+      "titulo": {
+        "pt": "Cena de Kalimantan (Bornéu)",
+        "en": "Scene: Kalimantan (Borneo)"
+      },
+      "texto": {
+        "pt": "Kalimantan (Bornéu) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Entre as duas passagens a cena quase não muda. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Kalimantan (Borneo) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. Between the two passes this scene barely changes. For this scene the team measured no water area and there is no event confirmed by an outside source."
+      },
+      "ressalva": {
+        "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
+        "en": "Team reading, with no event confirmed by an outside source. These are two dates, not a series: they cannot say what happened in between."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR: amplitude e produtos (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/amplitude/"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "kalimantan",
+        "borneo",
+        "indonesia"
+      ]
+    },
+    {
+      "id": "campo_de_gelo_sul",
+      "tipo": "cena",
+      "base": "leitura do time, sem evento confirmado",
+      "titulo": {
+        "pt": "Cena de Campo de Gelo Sul (Patagônia)",
+        "en": "Scene: the Southern Patagonian Ice Field"
+      },
+      "texto": {
+        "pt": "Campo de Gelo Sul (Patagônia) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "the Southern Patagonian Ice Field is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+      },
+      "ressalva": {
+        "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
+        "en": "Team reading, with no event confirmed by an outside source. These are two dates, not a series: they cannot say what happened in between."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR: amplitude e produtos (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/amplitude/"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "campo de gelo",
+        "campo de gelo sul",
+        "patagonia",
+        "patagonian ice field",
+        "chile",
+        "argentina"
+      ]
+    },
+    {
+      "id": "campinas",
+      "tipo": "cena",
+      "base": "leitura do time, sem evento confirmado",
+      "titulo": {
+        "pt": "Cena de Campinas (Brasil)",
+        "en": "Scene: Campinas (Brazil)"
+      },
+      "texto": {
+        "pt": "Campinas (Brasil) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Entre as duas passagens a cena quase não muda. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Campinas (Brazil) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. Between the two passes this scene barely changes. For this scene the team measured no water area and there is no event confirmed by an outside source."
+      },
+      "ressalva": {
+        "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
+        "en": "Team reading, with no event confirmed by an outside source. These are two dates, not a series: they cannot say what happened in between."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR: amplitude e produtos (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/amplitude/"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "campinas",
+        "sao paulo",
+        "nossa cidade",
+        "our city",
+        "minha cidade"
+      ]
+    },
+    {
+      "id": "maceio",
+      "tipo": "cena",
+      "base": "leitura do time, sem evento confirmado",
+      "titulo": {
+        "pt": "Cena de Maceió (Brasil)",
+        "en": "Scene: Maceió (Brazil)"
+      },
+      "texto": {
+        "pt": "Maceió (Brasil) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Maceió (Brazil) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+      },
+      "ressalva": {
+        "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
+        "en": "Team reading, with no event confirmed by an outside source. These are two dates, not a series: they cannot say what happened in between."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR: amplitude e produtos (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/amplitude/"
+        },
+        {
+          "nome": "NISAR GCOV (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gcov/"
+        }
+      ],
+      "palavras": [
+        "maceio",
+        "alagoas",
+        "litoral",
+        "coast"
+      ]
+    },
+    {
+      "id": "nisar",
+      "tipo": "fato",
+      "base": "fonte oficial",
+      "titulo": {
+        "pt": "O satélite NISAR",
+        "en": "The NISAR satellite"
+      },
+      "texto": {
+        "pt": "O NISAR é um satélite de radar da NASA e da ISRO, a agência espacial da Índia, lançado em 30/07/2025. Voa a 747 km de altura, em órbita polar que cruza o equador sempre no amanhecer e no anoitecer, e repete a mesma trilha a cada 12 dias; somando as passagens de ida e de volta, olha cada ponto em média a cada 6 dias. Cada faixa imageada tem 242 km de largura e o detalhe vai de 3 a 10 m, conforme o modo. Usa dois radares: banda L, com onda de 24 cm, e banda S, com onda de 9,4 cm. Como manda o próprio sinal, enxerga de dia, de noite e através de nuvens. A missão tem 3 anos de duração prevista.",
+        "en": "NISAR is a radar satellite from NASA and ISRO, India's space agency, launched on July 30, 2025. It flies 747 km up, in a polar orbit that always crosses the equator at dawn and dusk, and repeats the same track every 12 days; counting northbound and southbound passes, it looks at each point about every 6 days. Each imaged strip is 242 km wide and detail runs from 3 to 10 m, depending on the mode. It carries two radars: L-band with a 24 cm wave and S-band with a 9.4 cm wave. Because it sends its own signal, it sees day and night and through clouds. The mission has a 3 year baseline."
+      },
+      "ressalva": {
+        "pt": "",
+        "en": ""
+      },
+      "fontes": [
+        {
+          "nome": "NASA Science: NISAR Mission Overview (747 km, 12 dias, 6 dias, 3 a 10 m)",
+          "url": "https://science.nasa.gov/mission/nisar/mission-overview/"
+        },
+        {
+          "nome": "NASA Science: About the NISAR Satellite (faixa de 242 km, 24 cm e 9,4 cm)",
+          "url": "https://science.nasa.gov/mission/nisar/about-the-satellite"
+        }
+      ],
+      "palavras": [
+        "nisar",
+        "satelite",
+        "satellite",
+        "isro",
+        "india",
+        "nasa",
+        "orbita",
+        "orbit",
+        "747",
+        "altura",
+        "altitude",
+        "12 dias",
+        "12 days",
+        "6 dias",
+        "6 days",
+        "revisita",
+        "revisit",
+        "lancamento",
+        "launch",
+        "lancado",
+        "launched",
+        "banda l",
+        "l-band",
+        "banda s",
+        "s-band",
+        "24 cm",
+        "9,4",
+        "faixa",
+        "swath",
+        "242",
+        "resolucao",
+        "resolution",
+        "noite",
+        "night",
+        "missao",
+        "mission",
+        "repete",
+        "repeticao",
+        "frequencia",
+        "frequency",
+        "how often",
+        "quantos dias",
+        "sobre o mesmo lugar",
+        "same place",
+        "dawn",
+        "amanhecer",
+        "mesmo lugar",
+        "a cada quantos dias",
+        "o que e o nisar",
+        "what is nisar",
+        "sobre o nisar",
+        "about nisar",
+        "tell me about nisar",
+        "satelite nisar",
+        "nisar satellite",
+        "onda",
+        "wavelength",
+        "comprimento de onda",
+        "onda de 24 cm",
+        "24 cm wave",
+        "banda"
+      ]
+    },
+    {
+      "id": "radar_basico",
+      "tipo": "fato",
+      "base": "fonte oficial",
+      "titulo": {
+        "pt": "Como o radar vê a água",
+        "en": "How radar sees water"
+      },
+      "texto": {
+        "pt": "O radar manda um pulso de micro-ondas e mede o eco que volta. Água parada funciona como espelho: o sinal bate e vai embora para o lado, quase nada volta, e a água aparece escura. Solo, plantas e prédios espalham o sinal e parecem mais claros. Onda mais longa entra mais fundo: a banda L, de 24 cm, alcança galhos e troncos, enquanto ondas curtas param na copa. A polarização diz como a onda vibra na ida e na volta: o canal HH é sensível ao reflexo duplo, como tronco ou prédio dentro da água; o canal HV responde ao volume da copa; e o VV é o mais sensível a superfície rugosa, como solo nu ou água mexida.",
+        "en": "Radar sends a microwave pulse and measures the echo that comes back. Calm water acts like a mirror: the signal bounces away sideways, almost nothing returns, and water looks dark. Soil, plants and buildings scatter the signal and look brighter. A longer wave goes deeper: L-band, at 24 cm, reaches branches and trunks, while short waves stop at the canopy. Polarization describes how the wave vibrates going out and coming back: the HH channel is sensitive to double bounce, like a trunk or building standing in water; the HV channel responds to the volume of the canopy; and VV is the most sensitive to rough surfaces, like bare soil or choppy water."
+      },
+      "ressalva": {
+        "pt": "",
+        "en": ""
+      },
+      "fontes": [
+        {
+          "nome": "NASA Earthdata: What is SAR?",
+          "url": "https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/sar"
+        },
+        {
+          "nome": "NASA Earthdata: Earth Observation Data Basics",
+          "url": "https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/remote-sensing"
+        }
+      ],
+      "palavras": [
+        "radar",
+        "sar",
+        "como funciona",
+        "how does",
+        "how it works",
+        "eco",
+        "echo",
+        "escuro",
+        "dark",
+        "espelho",
+        "mirror",
+        "polarizacao",
+        "polarization",
+        "hh",
+        "hv",
+        "vv",
+        "espalhamento",
+        "scattering",
+        "reflexo duplo",
+        "double bounce",
+        "pulso",
+        "pulse",
+        "micro-ondas",
+        "microwave",
+        "atravessa",
+        "see through",
+        "por que a agua",
+        "why is water",
+        "vegetacao",
+        "vegetation",
+        "copa",
+        "canopy"
+      ]
+    },
+    {
+      "id": "fourier",
+      "tipo": "fato",
+      "base": "explicação do time",
+      "titulo": {
+        "pt": "Fourier, compressão de pulso e abertura sintética",
+        "en": "Fourier, pulse compression and synthetic aperture"
+      },
+      "texto": {
+        "pt": "O eco de um radar é fraco e espalhado no tempo. O NISAR manda um pulso cuja frequência varre uma faixa e, na volta, compara o eco com o pulso que mandou. Essa comparação, uma correlação feita com transformada de Fourier, junta a energia espalhada num pico estreito: o ganho é a banda vezes a duração do pulso. Por isso o detalhe da imagem não depende do tamanho da antena no sentido do voo: o satélite usa o próprio movimento como se tivesse uma antena de quilômetros, a abertura sintética que dá nome ao SAR. A mesma matemática alinha duas passagens, onda a onda, para gerar o interferograma.",
+        "en": "A radar echo is weak and spread out in time. NISAR sends a pulse whose frequency sweeps across a band and, on return, compares the echo with the pulse it sent. That comparison, a correlation done with a Fourier transform, gathers the spread energy into a narrow peak: the gain is bandwidth times pulse duration. That is why image detail does not depend on antenna size along the flight path: the satellite uses its own motion as if it had an antenna kilometers long, the synthetic aperture that gives SAR its name. The same math lines up two passes, wave by wave, to build the interferogram."
+      },
+      "ressalva": {
+        "pt": "Explicação do time em palavras simples, para a página e o vídeo. O Nexxus não processa o sinal bruto: usa os produtos já formados pela NASA.",
+        "en": "The team's plain-words explanation, for the project page and the video. Nexxus does not process raw signal: it uses the products NASA already formed."
+      },
+      "fontes": [
+        {
+          "nome": "NASA Earthdata: What is SAR?",
+          "url": "https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/sar"
+        },
+        {
+          "nome": "NASA ARSET: treinamentos de SAR",
+          "url": "https://appliedsciences.nasa.gov/get-involved/training"
+        }
+      ],
+      "palavras": [
+        "fourier",
+        "transformada",
+        "transform",
+        "compressao de pulso",
+        "pulse compression",
+        "correlacao",
+        "correlation",
+        "banda",
+        "bandwidth",
+        "abertura sintetica",
+        "synthetic aperture",
+        "antena",
+        "antenna",
+        "chirp",
+        "ganho",
+        "gain",
+        "fisica",
+        "physics",
+        "matematica",
+        "math",
+        "por dentro",
+        "inside",
+        "como forma a imagem",
+        "how is the image formed"
+      ]
+    },
+    {
+      "id": "interferometria",
+      "tipo": "fato",
+      "base": "fonte oficial",
+      "titulo": {
+        "pt": "Como o radar mede o chão se mexendo",
+        "en": "How radar measures ground motion"
+      },
+      "texto": {
+        "pt": "Duas passagens sobre o mesmo lugar podem ser comparadas onda a onda. Se o chão se aproximou ou se afastou do satélite, a onda chega adiantada ou atrasada, e a diferença vira faixas de cor no interferograma. Com onda de 24 cm, que faz o caminho de ida e volta, cada ciclo de cor vale cerca de 12 cm de mudança na distância até o satélite. A NASA diz que essa medida chega ao nível do centímetro, e que a banda L do NISAR é sensível a deformação lenta de até 4 mm por ano em grandes áreas. O que o interferograma mede é distância até o satélite, não altura: o NISAR olha cerca de 40 graus fora da vertical, então mistura movimento horizontal e vertical.",
+        "en": "Two passes over the same place can be compared wave by wave. If the ground moved toward or away from the satellite, the wave arrives early or late, and the difference becomes color bands in the interferogram. With a 24 cm wave traveling out and back, each color cycle is about 12 cm of change in distance to the satellite. NASA says this measurement reaches the centimeter level, and that NISAR's L-band is sensitive to slow deformation as small as 4 mm per year over large areas. What the interferogram measures is distance to the satellite, not height: NISAR looks about 40 degrees off vertical, so it mixes horizontal and vertical motion."
+      },
+      "ressalva": {
+        "pt": "O valor de 12 cm vem de meia onda de 24 cm, cálculo do time. O Nexxus não diz para que lado o chão andou.",
+        "en": "The 12 cm value comes from half of the 24 cm wave, a team calculation. Nexxus does not say which way the ground moved."
+      },
+      "fontes": [
+        {
+          "nome": "NASA Science: About the NISAR Satellite (4 mm por ano, onda de 24 cm)",
+          "url": "https://science.nasa.gov/mission/nisar/about-the-satellite"
+        },
+        {
+          "nome": "NASA Earthdata: What is SAR? (InSAR ao nível do centímetro)",
+          "url": "https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/sar"
+        },
+        {
+          "nome": "NISAR GUNW (NISAR Data User Guide, ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/gunw/"
+        }
+      ],
+      "palavras": [
+        "interferograma",
+        "interferogram",
+        "interferometria",
+        "interferometry",
+        "franja",
+        "franjas",
+        "fringe",
+        "fringes",
+        "insar",
+        "ciclo de cor",
+        "color cycle",
+        "fase",
+        "phase",
+        "deformacao",
+        "deformation",
+        "12 cm",
+        "4 mm",
+        "afundamento",
+        "subsidence",
+        "mede o chao",
+        "ground motion",
+        "quanto andou",
+        "how much moved"
+      ]
+    },
+    {
+      "id": "dados_nisar",
+      "tipo": "fato",
+      "base": "fonte oficial",
+      "titulo": {
+        "pt": "Onde ficam os dados do NISAR",
+        "en": "Where NISAR data lives"
+      },
+      "texto": {
+        "pt": "Os dados do NISAR são gratuitos e abertos, guardados no ASF, o arquivo de radar da NASA, e saem em três graus de maturidade. BETA: amostra em 23/01/2026 e mais de 100 mil produtos em 27/02/2026, para passagens de 17/10/2025 a 20/01/2026, sem calibração completa. PROVISIONAL, em 20/07/2026: calibrado e validado em alguns lugares, para passagens a partir de 17/06/2026. VALIDATED, em 06/11/2026: calibrado e validado, níveis 0 a 2, para passagens a partir de 21/10/2026. O Nexxus usa o GCOV, que traz o brilho do radar já corrigido do relevo, e o GUNW, que traz o interferograma. Para achar as imagens há o Earthdata Search e o ASF Vertex. Para baixar o arquivo inteiro é preciso uma conta Earthdata, gratuita; o catálogo de passagens não pede login.",
+        "en": "NISAR data is free and open, kept at ASF, NASA's radar archive, and comes out in three maturity levels. BETA: a sample on January 23, 2026 and over 100 thousand products on February 27, 2026, for passes from October 17, 2025 to January 20, 2026, not fully calibrated. PROVISIONAL, on July 20, 2026: calibrated and validated at some sites, for passes from June 17, 2026 on. VALIDATED, on November 6, 2026: calibrated and validated, levels 0 to 2, for passes from October 21, 2026 on. Nexxus uses GCOV, which gives radar brightness already corrected for terrain, and GUNW, which gives the interferogram. To find the images there are Earthdata Search and ASF Vertex. Downloading a whole file needs a free Earthdata account; the pass catalog needs no login."
+      },
+      "ressalva": {
+        "pt": "Há um buraco permanente de dados entre 27/07 e 10/08/2026, e o ASF avisa que em 2027 um reprocessamento vai substituir as versões antigas. As cenas do Taquari estão no lote PROVISIONAL; as de Chókwè, no BETA.",
+        "en": "There is a permanent data gap between July 27 and August 10, 2026, and ASF warns that a 2027 reprocessing campaign will supersede the older versions. The Taquari scenes are in the PROVISIONAL release; the Chókwè ones are BETA."
+      },
+      "fontes": [
+        {
+          "nome": "NISAR Data User Guide: disponibilidade e maturidade (ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/availability-overview/"
+        },
+        {
+          "nome": "NISAR Data User Guide (ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/"
+        },
+        {
+          "nome": "ASF Data Search Vertex",
+          "url": "https://search.asf.alaska.edu/"
+        },
+        {
+          "nome": "NASA Earthdata Search",
+          "url": "https://search.earthdata.nasa.gov/search"
+        }
+      ],
+      "palavras": [
+        "dados",
+        "data",
+        "asf",
+        "gcov",
+        "gunw",
+        "rslc",
+        "download",
+        "baixar",
+        "baixo",
+        "aberto",
+        "open",
+        "gratis",
+        "free",
+        "beta",
+        "provisional",
+        "validated",
+        "validado",
+        "calibrado",
+        "calibrated",
+        "maturidade",
+        "maturity",
+        "vertex",
+        "earthdata search",
+        "catalogo",
+        "catalog",
+        "onde baixo",
+        "where do i get",
+        "licenca",
+        "license",
+        "buraco",
+        "gap",
+        "reprocessamento",
+        "reprocessing",
+        "login",
+        "account",
+        "cadastro",
+        "senha",
+        "token",
+        "earthdata"
+      ]
+    },
+    {
+      "id": "passagens",
+      "tipo": "fato",
+      "base": "fonte oficial",
+      "titulo": {
+        "pt": "Passagens do NISAR sobre qualquer lugar",
+        "en": "NISAR passes over any place"
+      },
+      "texto": {
+        "pt": "A aba Passes mostra passagens reais do NISAR sobre qualquer lugar do mundo. Elas vêm do catálogo CMR da NASA, que não pede login e traz data, hora, órbita, quadro e o contorno de cada passagem. Para ver quando o satélite passou não é preciso conta; para baixar a imagem inteira, sim, com uma conta Earthdata gratuita. O time baixa só o recorte que precisa, lendo pela internet apenas os blocos do arquivo GCOV que cobrem a área; cada arquivo tem de 0,9 a 7 GB.",
+        "en": "The Passes tab shows real NISAR passes over any place in the world. They come from NASA's CMR catalog, which needs no login and gives the date, time, orbit, frame and outline of every pass. Seeing when the satellite passed needs no account; downloading the full image does, with a free Earthdata account. The team downloads only the crop it needs, reading over the internet just the blocks of the GCOV file that cover the area; each file is 0.9 to 7 GB."
+      },
+      "ressalva": {
+        "pt": "Datas e órbitas vêm do catálogo da NASA, não de cálculo do time. Só faz sentido comparar duas passagens da mesma órbita.",
+        "en": "Dates and orbits come from NASA's catalog, not from a team calculation. Only two passes from the same orbit can be compared."
+      },
+      "fontes": [
+        {
+          "nome": "NASA CMR: catálogo de metadados",
+          "url": "https://www.earthdata.nasa.gov/about/science-system-description/eosdis-components/common-metadata-repository"
+        },
+        {
+          "nome": "ASF Data Search Vertex",
+          "url": "https://search.asf.alaska.edu/"
+        }
+      ],
+      "palavras": [
+        "passagem",
+        "passagens",
+        "pass",
+        "passes",
+        "quando passa",
+        "when does it pass",
+        "minha cidade",
+        "my city",
+        "qualquer lugar",
+        "any place",
+        "cmr",
+        "orbita",
+        "orbit",
+        "quadro",
+        "frame",
+        "contorno",
+        "footprint",
+        "login",
+        "account",
+        "earthdata",
+        "aba passes",
+        "passes tab",
+        "passa",
+        "passou",
+        "sobrevoa",
+        "horario",
+        "hora",
+        "data",
+        "quando o nisar",
+        "precisa de conta",
+        "need an account",
+        "sem login"
+      ]
+    },
+    {
+      "id": "outras_fontes",
+      "tipo": "fato",
+      "base": "fonte oficial",
+      "titulo": {
+        "pt": "Outros dados usados",
+        "en": "Other data used"
+      },
+      "texto": {
+        "pt": "Para conferir o radar, o Nexxus usa imagens de nuvem dos sensores ópticos MODIS e VIIRS, servidas pelo GIBS da NASA, que também dá o fundo do globo. Usa também o mapa de água OPERA DSWx-S1, feito com o radar C-SAR dos satélites Sentinel-1, da agência espacial europeia (ESA). Esse mapa tem pixel de 30 m, pega corpos d'água maiores que 3 hectares e com pelo menos 200 m de largura, e repete a cada 6 a 12 dias. Como é radar, funciona com nuvem e de noite.",
+        "en": "To cross-check the radar, Nexxus uses cloud images from the MODIS and VIIRS optical sensors, served by NASA's GIBS, which also provides the globe background. It also uses the OPERA DSWx-S1 water map, made with the C-SAR radar on the Sentinel-1 satellites, from the European Space Agency (ESA). That map has 30 m pixels, catches water bodies larger than 3 hectares and at least 200 m wide, and repeats every 6 to 12 days. Being radar, it works through clouds and at night."
+      },
+      "ressalva": {
+        "pt": "O OPERA DSWx-S1 usa dados Copernicus Sentinel modificados (ESA, agência parceira), não dados da NASA. A camada do NISAR no GIBS tem telhas quebradas e ficou fora do Nexxus.",
+        "en": "OPERA DSWx-S1 contains modified Copernicus Sentinel data (ESA, a partner agency), not NASA data. The NISAR layer in GIBS has broken tiles and was left out of Nexxus."
+      },
+      "fontes": [
+        {
+          "nome": "NASA GIBS",
+          "url": "https://www.earthdata.nasa.gov/gibs"
+        },
+        {
+          "nome": "OPERA DSWx-S1 (PO.DAAC)",
+          "url": "https://podaac.jpl.nasa.gov/dataset/OPERA_L3_DSWX-S1_V1"
+        }
+      ],
+      "palavras": [
+        "modis",
+        "viirs",
+        "gibs",
+        "opera",
+        "dswx",
+        "sentinel",
+        "sentinel-1",
+        "esa",
+        "optico",
+        "optical",
+        "globo",
+        "globe",
+        "conferencia",
+        "cross-check",
+        "validacao",
+        "validation",
+        "outros dados",
+        "other data",
+        "mapa de agua",
+        "water map",
+        "30 m",
+        "hectares",
+        "nuvem no mapa",
+        "other nasa data",
+        "outros dados da nasa",
+        "dados da nasa",
+        "nasa data",
+        "que dados",
+        "which data",
+        "fontes de dados"
+      ]
+    },
+    {
+      "id": "parceiros",
+      "tipo": "fato",
+      "base": "fonte oficial",
+      "titulo": {
+        "pt": "Outros radares e agências parceiras",
+        "en": "Other radars and partner agencies"
+      },
+      "texto": {
+        "pt": "O NISAR não é o único radar olhando a Terra. A ESA opera o Sentinel-1, de banda C, que o Nexxus usa de forma indireta pelo mapa de água OPERA. A agência espacial canadense, CSA, tem a missão RADARSAT Constellation, com três satélites, e o arquivo aberto do RADARSAT-1, lançado em novembro de 1995, voltados a vigilância marítima, desastres e ecossistemas. A agência argentina CONAE tem o SAOCOM, que é de banda L como o NISAR, com catálogo próprio e cadastro gratuito. Dados dessas agências parceiras são bem-vindos no desafio, mas o Nexxus mantém os dados da NASA como base.",
+        "en": "NISAR is not the only radar watching Earth. ESA operates Sentinel-1, a C-band radar, which Nexxus uses indirectly through the OPERA water map. Canada's space agency, CSA, has the RADARSAT Constellation Mission, with three satellites, and the open RADARSAT-1 archive, launched in November 1995, aimed at maritime surveillance, disasters and ecosystems. Argentina's CONAE has SAOCOM, which is L-band like NISAR, with its own catalog and free registration. Data from these partner agencies is welcome in the challenge, but Nexxus keeps NASA data as its base."
+      },
+      "ressalva": {
+        "pt": "O Nexxus não usa dados da CSA nem da CONAE hoje; ficam como próximo passo.",
+        "en": "Nexxus does not use CSA or CONAE data today; they are listed as a next step."
+      },
+      "fontes": [
+        {
+          "nome": "CSA: RADARSAT Constellation Mission (dados abertos)",
+          "url": "https://donnees-data.asc-csa.gc.ca/en/dataset/rcm"
+        },
+        {
+          "nome": "CSA: RADARSAT-1 (arquivo aberto)",
+          "url": "https://donnees-data.asc-csa.gc.ca/en/dataset/radarsat1"
+        },
+        {
+          "nome": "CONAE: catálogo SAOCOM",
+          "url": "https://catalogos.conae.gov.ar/catalogo/catalogoSatSaocomInfo.html"
+        }
+      ],
+      "palavras": [
+        "radarsat",
+        "rcm",
+        "csa",
+        "canada",
+        "saocom",
+        "conae",
+        "argentina",
+        "sentinel-1",
+        "esa",
+        "europa",
+        "europe",
+        "outro satelite",
+        "other satellite",
+        "outro radar",
+        "other radar",
+        "parceiro",
+        "partner",
+        "comparar satelites",
+        "alem do nisar",
+        "besides nisar"
+      ]
+    },
+    {
+      "id": "aprender_sar",
+      "tipo": "fato",
+      "base": "fonte oficial",
+      "titulo": {
+        "pt": "Onde aprender radar e SAR",
+        "en": "Where to learn radar and SAR"
+      },
+      "texto": {
+        "pt": "Quem quiser aprender radar pode começar pelo material oficial da NASA: as páginas 'Intro to SAR' e 'Intro to Remote Sensing' do Earthdata, os treinamentos gratuitos do programa ARSET, em inglês e espanhol, e as StoryMaps do NISAR, com casos de enchente, incêndio, afundamento de terreno, mancha de óleo e movimento de geleira. Para mexer nos dados, o guia do usuário do NISAR no ASF explica cada produto, e as buscas Earthdata Search e ASF Vertex acham as imagens. Os NISAR Applications White Papers resumem aplicações em duas páginas cada.",
+        "en": "Anyone who wants to learn radar can start with NASA's own material: the Earthdata pages 'Intro to SAR' and 'Intro to Remote Sensing', the free ARSET trainings in English and Spanish, and the NISAR StoryMaps, with cases on floods, wildfires, land subsidence, oil slicks and glacier motion. To work with the data, the NISAR Data User Guide at ASF explains each product, and Earthdata Search and ASF Vertex find the images. The NISAR Applications White Papers summarize applications in two pages each."
+      },
+      "ressalva": {
+        "pt": "São materiais da própria NASA; o Nexxus só aponta o caminho.",
+        "en": "These are NASA's own materials; Nexxus only points the way."
+      },
+      "fontes": [
+        {
+          "nome": "NASA Earthdata: Intro to SAR",
+          "url": "https://www.earthdata.nasa.gov/learn/earth-observation-data-basics/sar"
+        },
+        {
+          "nome": "NASA ARSET: treinamentos",
+          "url": "https://appliedsciences.nasa.gov/get-involved/training"
+        },
+        {
+          "nome": "NISAR StoryMaps (JPL)",
+          "url": "https://nisar.jpl.nasa.gov/applications/arcgis-storymaps/"
+        },
+        {
+          "nome": "NISAR Applications White Papers (JPL)",
+          "url": "https://nisar.jpl.nasa.gov/applications/societal-benefit/"
+        },
+        {
+          "nome": "NISAR Data User Guide (ASF)",
+          "url": "https://nisar-docs.asf.alaska.edu/"
+        }
+      ],
+      "palavras": [
+        "aprender",
+        "learn",
+        "estudar",
+        "study",
+        "curso",
+        "course",
+        "treinamento",
+        "training",
+        "arset",
+        "storymap",
+        "storymaps",
+        "tutorial",
+        "material",
+        "iniciante",
+        "beginner",
+        "por onde comecar",
+        "where do i start",
+        "white paper",
+        "documentacao",
+        "documentation",
+        "uavsar",
+        "aprendo",
+        "aprende",
+        "aprendendo",
+        "learning",
+        "entender",
+        "understand",
+        "livro",
+        "book",
+        "video",
+        "aula"
+      ]
+    },
+    {
+      "id": "ranking",
+      "tipo": "regra",
+      "base": "aviso do time",
+      "titulo": {
+        "pt": "Notas do ranking",
+        "en": "Ranking scores"
+      },
+      "texto": {
+        "pt": "As notas do ranking na tela são de exemplo, para mostrar como a interface funciona. Não são medidas científicas e não devem ser citadas como resultado.",
+        "en": "The ranking scores on screen are examples, to show how the interface works. They are not scientific measurements and should not be quoted as a result."
+      },
+      "ressalva": {
+        "pt": "Valores de exemplo.",
+        "en": "Example values."
+      },
+      "fontes": [],
+      "palavras": [
+        "ranking",
+        "nota",
+        "notas",
+        "score",
+        "scores",
+        "pontuacao",
+        "classificacao",
+        "top",
+        "lista",
+        "ordem"
+      ]
+    },
+    {
+      "id": "nexxus",
+      "tipo": "fato",
+      "base": "projeto",
+      "titulo": {
+        "pt": "O que é o Nexxus",
+        "en": "What Nexxus is"
+      },
+      "texto": {
+        "pt": "O Nexxus é o projeto de um time de Campinas, no Brasil, para o desafio Dancing with the SARs do NASA Space Apps 2026. Ele traz 10 cenas de radar do NISAR com antes e depois na mesma escala, acha todas as passagens do NISAR sobre qualquer lugar pelo catálogo da NASA, desenha o hidrograma de radar da cheia do Taquari e responde perguntas citando a fonte. Cada cena mostra a base, se é evento documentado ou leitura do time, as fontes conferidas e a ressalva.",
+        "en": "Nexxus is a project by a team from Campinas, Brazil, for the Dancing with the SARs challenge at NASA Space Apps 2026. It shows 10 NISAR radar scenes before and after on the same scale, finds every NISAR pass over any place using NASA's catalog, draws the radar hydrograph of the Taquari flood, and answers questions with sources. Every scene shows its basis, whether a documented event or a team reading, the checked sources and the caveat."
+      },
+      "ressalva": {
+        "pt": "",
+        "en": ""
+      },
+      "fontes": [],
+      "palavras": [
+        "nexxus",
+        "projeto",
+        "project",
+        "time",
+        "team",
+        "campinas",
+        "space apps",
+        "desafio",
+        "challenge",
+        "dancing with the sars",
+        "app",
+        "o que voce faz",
+        "what can you do",
+        "what do you do",
+        "quem e voce",
+        "who are you",
+        "ola",
+        "oi",
+        "hello",
+        "hi",
+        "ajuda",
+        "help"
+      ]
+    },
+    {
+      "id": "uso_ia",
+      "tipo": "fato",
+      "base": "projeto",
+      "titulo": {
+        "pt": "Uso de IA",
+        "en": "Use of AI"
+      },
+      "texto": {
+        "pt": "Este assistente usa um modelo de linguagem, o Gemini do Google, só para escrever as respostas em palavras simples, sempre a partir dos cartões de fatos do Nexxus. O servidor confere cada resposta e cola as fontes e a ressalva; se o modelo escrever um número que não está nos cartões, a resposta é descartada e entra o texto do próprio cartão. O time também usou o Claude, da Anthropic, na pesquisa, no código e nos textos. Nenhuma imagem do Nexxus foi gerada por IA: todas vêm de dados de satélite.",
+        "en": "This assistant uses a language model, Google's Gemini, only to write answers in plain words, always from Nexxus fact cards. The server checks every answer and attaches the sources and the caveat; if the model writes a number that is not in the cards, the answer is dropped and the card's own text is used instead. The team also used Anthropic's Claude for research, code and writing. No Nexxus image was generated by AI: they all come from satellite data."
+      },
+      "ressalva": {
+        "pt": "",
+        "en": ""
+      },
+      "fontes": [],
+      "palavras": [
+        "ia",
+        "ai",
+        "inteligencia artificial",
+        "artificial intelligence",
+        "gemini",
+        "claude",
+        "modelo",
+        "model",
+        "llm",
+        "chatgpt",
+        "gerado",
+        "generated",
+        "alucina",
+        "hallucinate",
+        "inventa",
+        "make up",
+        "confiar",
+        "trust",
+        "como voce funciona",
+        "how do you work",
+        "assistente",
+        "assistant",
+        "make things up",
+        "inventa coisas",
+        "invencao",
+        "mentira",
+        "verdade",
+        "confia",
+        "checagem",
+        "verificacao",
+        "guard"
+      ]
+    }
+  ]
+}

@@ -14,9 +14,13 @@ Os números atuais estão só no `CLAUDE.md` (O que ainda é exemplo, Imagens de
 
 ### 4. Agente real (Vitor)
 
-- Definir `AGENT_URL` e ajustar `callAgent` (Ligar o agente, no `CLAUDE.md`). O pedido do Vitor no `HANDOFF.md` descreve o prompt e as 20 perguntas de teste.
-- O corpo que a API manda ao agente é montado em `apps/api/src/agent-context.ts`, e o comentário de `agentBody` explica cada campo. Além da pergunta e da conversa vão `criteria` (com `isExample`: as notas são inventadas) e, por cena, `basis`, `sources`, `caveat`, `imagery`, `imageryDetails` e `passes` (data, granule e versão do produto); no Taquari, também `waterSeries` (água aberta nova por passagem, com o método) e `riverGauge` (nível do rio, com fonte); na cena de interferograma, `pairs` e `cycleCm` no lugar de `change` e `passes`.
-- O prompt precisa dizer o que fazer com eles: citar a fonte, repetir a ressalva, não tratar nota de exemplo como medida, não somar a água nova com os km² do mapa de mudança e, no interferograma, só falar em centímetros por ciclo de cor.
+Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask mostra resposta, ressalva, fontes e cenas citadas (O agente, no `CLAUDE.md`). Falta:
+
+- Pôr `GEMINI_API_KEY` no `.env` da máquina da demo e conferir no navegador uma resposta escrita pelo modelo (a integração foi vista na tela só no modo reserva, sem chave).
+- Gerar e commitar `apps/agent/data/respostas_prontas.json` (`python scripts/aquecer.py`, com a chave), para as perguntas prováveis não gastarem cota.
+- No modo reserva, com uma cena aberta, pergunta fora do assunto ("Qual a capital da França?") devolve o cartão da cena em vez de "não sei": o bônus da cena aberta em `retrieve` (`agent/knowledge.py`) vale mesmo sem nenhum termo em comum.
+- O agente não recebe a conversa anterior: pergunta de seguimento ("e por quê?") é respondida sem o contexto. Decidir se vale mandar o histórico.
+- Os fatos das cenas existem em dois lugares, a fixture e os cartões. Conferir um contra o outro a cada mudança.
 
 ### 5. Publicar o ambiente (dono a definir)
 

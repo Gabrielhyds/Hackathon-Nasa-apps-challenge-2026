@@ -101,6 +101,7 @@ With Node 20 or newer you can also run it directly: `npm install`, then `npm run
 ```
 packages/contract   the data contract: TypeScript types, fixtures and example generators
 apps/api            NestJS API: scenes, real NISAR passes, place search, scene images and the agent bridge
+apps/agent          Python + FastAPI agent behind the Ask tab: fact cards, retrieval, prompt, answer check and fallback
 apps/web            React + TypeScript + Vite front end
 scripts/            data generators: calibrated scene images, water series, interferograms, offline tile packs
 docs/               screenshots and the task list (in Portuguese)
@@ -133,7 +134,7 @@ Base URL: `http://localhost:3000/api` (behind the front end's nginx: `/api`). JS
 { "ok": true, "data": "example", "passes": "nisar", "agent": "example" }
 ```
 
-`passes` tells where the last pass list came from (the NASA catalog or example data); `agent` is `connected` when `AGENT_URL` is set, `example` otherwise.
+`passes` tells where the last pass list came from (the NASA catalog or example data); `agent` is `connected` when the API has an agent to call (the default in Docker), `example` otherwise.
 
 ### `GET /scenes`
 
@@ -250,11 +251,13 @@ curl -X POST "http://localhost:3000/api/ask" \
 {
   "answer": "Lower Taquari Valley tells the clearest story among the selected scenes…",
   "citations": [{ "sceneId": "taquari" }],
-  "isExample": true
+  "caveats": ["This is new open water, not the total flooded area…"],
+  "sources": [{ "title": "NISAR GCOV (NISAR Data User Guide, ASF)", "url": "https://nisar-docs.asf.alaska.edu/gcov/" }],
+  "mode": "model"
 }
 ```
 
-`isExample` is `true` when the answer did not come from a model. With `AGENT_URL` set, the API forwards `{ question, history, lang, criteria, scenes }` to the agent (the scenes as `GET /scenes` serves them, without image URLs) and expects `{ answer, citations }` back.
+The answer comes from the agent in `apps/agent`, which answers only from its own checked fact cards and appends the caveats and sources itself. `mode` is `model` (written by the model and checked), `offline` (sentences taken straight from the fact cards, when there is no key, no quota or the model answer failed the check) or `no_info` (outside what the agent knows). The API forwards `{ question, lang, scene }` (the first of `sceneIds`) and gets `{ answer, caveats, sources, cards, mode }` back. With the agent turned off (`AGENT_URL=off`) the answer is example text with `isExample: true`, and no `caveats`, `sources` or `mode`.
 
 ### `POST /ask/stream`
 
@@ -282,7 +285,8 @@ Copy `.env.example` to `.env` at the repository root. Docker Compose reads it; a
 |---|---|---|
 | `VITE_API_MODE` | `http` | `http` reads from the API; `mock` uses example data in the browser |
 | `VITE_API_URL` | `/api` | API address as seen by the browser |
-| `AGENT_URL` | empty | Endpoint of the agent. Empty: the Ask tab answers with example text |
+| `GEMINI_API_KEY` | empty | Gemini key for the agent. Empty: the agent answers from its fact cards, without the model |
+| `AGENT_URL` | empty | Empty: the agent of this repository (`apps/agent`), started by Docker. Another URL: that agent. `off`: the Ask tab answers with example text |
 | `AGENT_API_KEY` | empty | Key sent to the agent, if it needs one |
 | `PASSES_ONLINE` | `1` | `0` turns off the NASA catalog query and serves example passes |
 | `PLACES_ONLINE` | `1` | `0` turns off the online geocoder fallback |
@@ -325,7 +329,7 @@ The app labels example data on screen wherever it appears.
 | Rain and discharge in the flood ruler | Reanalysis (ERA5) and model (GloFAS), not measurements at the river |
 | Pulse compression | Simulation with NISAR L-band parameters |
 | Scene scores | Example |
-| Agent answers | Example text until an agent is connected |
+| Agent answers | Real: the agent answers from checked fact cards, with sources. Example text only with the agent turned off |
 
 ## Regenerating the data
 
