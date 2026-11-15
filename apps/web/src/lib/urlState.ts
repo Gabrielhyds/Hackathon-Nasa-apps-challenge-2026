@@ -5,7 +5,7 @@ import type { Steps } from "./series";
 /**
  * ESTADO NO ENDEREÇO. O que está aberto na tela vai para a query string, para um link levar
  * outra pessoa (ou uma cena do vídeo) direto ao mesmo ponto:
- *   ?scene=labrea&view=change&pol=HV&steps=1,4&compare=labrea,sindh&tab=ask&lang=pt&aud=teach&lab=fringes&perf=1&place=-22.9,-47.1,Campinas
+ *   ?scene=labrea&view=change&pol=HV&steps=1,4&compare=labrea,sindh&tab=ask&lang=pt&aud=analyze&lab=fringes&perf=1&place=-22.9,-47.1,Campinas
  * Só entra no endereço o que difere do padrão, então a página inicial continua com endereço limpo.
  */
 export type Tab = "scenes" | "passes" | "ask";

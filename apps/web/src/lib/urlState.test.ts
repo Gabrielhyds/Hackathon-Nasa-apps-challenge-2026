@@ -10,10 +10,12 @@ describe("estado no endereço", () => {
     expect(parseUrlState(buildUrlState(state))).toEqual(state);
   });
   it("guarda o público, menos o padrão", () => {
-    expect(buildUrlState({ aud: "teach" })).toBe("?aud=teach");
+    expect(buildUrlState({ aud: "analyze" })).toBe("?aud=analyze");
     expect(buildUrlState({ aud: "explore" })).toBe("");
     expect(parseUrlState("?aud=analyze")).toEqual({ aud: "analyze" });
     expect(parseUrlState("?aud=todos")).toEqual({});
+    // o nível Aula saiu: link antigo cai no Simples
+    expect(parseUrlState("?aud=teach")).toEqual({});
   });
   it("guarda o painel do laboratório aberto", () => {
     expect(buildUrlState({ lab: "fringes" })).toBe("?lab=fringes");

@@ -17,13 +17,12 @@ import { RadarDiagram } from "./RadarDiagram";
 type View = "swipe" | "change" | "optical";
 
 /**
- * As seções da folha em cada nível de detalhe. No Simples a folha é uma história curta, sem seções. Na Aula e nos
- * Dados, uma seção por vez: quem ensina vai da história à atividade; quem analisa, da leitura à medida e à origem.
+ * As seções da folha em cada nível de detalhe. No Simples a folha é uma história curta, sem seções; um botão no fim
+ * dela abre a atividade da turma, que volta para a história. Nos Dados, uma seção por vez: leitura, medida e origem.
  */
-type Section = "story" | "activity" | "how" | "measure" | "origin";
+type Section = "story" | "activity" | "measure" | "origin";
 const SECTIONS: Record<Audience, Section[]> = {
   explore: [],
-  teach: ["story", "activity", "how"],
   analyze: ["story", "measure", "origin"],
 };
 
@@ -57,7 +56,8 @@ export function SceneSheet(props: Props) {
   const entry = ranked.find((r) => r.scene.id === selectedId);
   if (!entry) return <p className="muted">{t.sheet.none}</p>;
   const { scene } = entry;
-  const shown: Section = sections.includes(section) ? section : "story";
+  // a atividade não é uma seção do menu: abre pelo botão do Simples
+  const shown: Section = sections.includes(section) || (audience === "explore" && section === "activity") ? section : "story";
   const first = scene.acquisitions[0].date, last = scene.acquisitions[scene.acquisitions.length - 1].date;
   const days = daysBetween(first, last), laps = Math.round(days / NISAR.repeatDays);
   const real = Boolean(scene.acquisitions[0].images[scene.polarizations[0] ?? "HH"]);
@@ -149,6 +149,9 @@ export function SceneSheet(props: Props) {
           <p className="reading">{scene.summary}</p>
           {basis}
           {audience === "explore" && (phase ? phaseBlock : whatBlock)}
+          {audience === "explore" && !phase && (
+            <button type="button" className="action action--quiet" onClick={() => setSection("activity")}>{t.sheet.next.activity}</button>
+          )}
           {audience !== "explore" && sections[1] && (
             <button type="button" className="action action--next" onClick={() => setSection(sections[1])}>{phase ? t.sheet.nextPhase : t.sheet.next[sections[1]]}</button>
           )}
@@ -157,27 +160,20 @@ export function SceneSheet(props: Props) {
 
       {shown === "activity" && (phase ? phaseBlock : (
         <>
+          <button type="button" className="link" onClick={() => setSection("story")}>{t.sheet.backToStory}</button>
           <Activity key={scene.id} scene={scene} analysis={analysis} view={view} onView={onView} onPlay={props.onPlay} onPol={props.onPol} />
           <p className="copy">
             <button type="button" className="action action--quiet" onClick={copyLink}>{t.sheet.copy}</button>
             <span role="status">{copy === "done" ? t.sheet.copied : copy === "failed" ? t.sheet.copyFailed : ""}</span>
           </p>
-        </>
-      ))}
-
-      {shown === "how" && (
-        <>
-          <section className="block">
-            <h3 className="block__lead">{t.sheet.howLead}</h3>
+          {/* como o radar vê: recolhido no fim da atividade, para quem quiser a explicação */}
+          <details className="fold">
+            <summary>{t.sheet.howLead}</summary>
             <RadarDiagram />
             <button type="button" className="action action--quiet" onClick={() => onLab("pulse")}>{t.lab.teaser.physics}</button>
-          </section>
-          <section className="block">
-            <h3 className="block__lead">{t.sheet.glossaryLead}</h3>
-            <dl className="glossary">{t.passes.terms.map((x) => (<div key={x.term}><dt>{x.term}</dt><dd>{x.text}</dd></div>))}</dl>
-          </section>
+          </details>
         </>
-      )}
+      ))}
 
       {shown === "measure" && (phase ? phaseBlock : (
         <Measure scene={scene} analysis={analysis} view={view} onView={onView} onSensitivity={props.onSensitivity} />

@@ -25,14 +25,21 @@ interface Props {
 }
 
 /**
- * Carrossel de cenas na base da tela: um cartão por cena, com a imagem de radar. Primeiro os eventos documentados,
- * depois as mudanças sazonais, cada grupo com o seu rótulo. Sem nota no cartão: as notas são de exemplo e ficam na
- * folha, dentro do ranking.
+ * Carrossel de cenas na base da tela: um cartão por cena, com a imagem de radar. Abre só com os eventos documentados;
+ * as mudanças sazonais ficam atrás do cartão "Mais cenas", que as abre e recolhe e faz as vezes de rótulo do grupo.
+ * Se a cena aberta é uma delas (por um link, pelo mapa ou pelo agente), o grupo abre sozinho. Sem nota no cartão:
+ * as notas são de exemplo.
  */
 export function SceneIndex({ ranked, selectedId, hoverId, onSelect, onHover }: Props) {
   const { t } = useI18n();
   const { events, others } = eventsFirst(ranked);
   const list = useRef<HTMLOListElement>(null);
+  // sem evento documentado não há o que pôr na frente: mostra tudo, sem o cartão de abrir
+  const foldable = events.length > 0 && others.length > 0;
+  const [expanded, setExpanded] = useState(false);
+  const selectedIsOther = others.some((r) => r.scene.id === selectedId);
+  useEffect(() => { if (selectedIsOther) setExpanded(true); }, [selectedIsOther]);
+  const showOthers = !foldable || expanded;
   // há cartões escondidos de cada lado? Decide se as setas aparecem
   const [more, setMore] = useState({ left: false, right: false });
   useEffect(() => {
@@ -47,7 +54,7 @@ export function SceneIndex({ ranked, selectedId, hoverId, onSelect, onHover }: P
     const watch = new ResizeObserver(check);
     watch.observe(el);
     return () => { el.removeEventListener("scroll", check); watch.disconnect(); };
-  }, [ranked.length]);
+  }, [ranked.length, showOthers]);
   /** Anda uns três cartões para o lado pedido. */
   const move = (side: 1 | -1) => list.current?.scrollBy({ left: side * Math.max(320, list.current.clientWidth * 0.6), behavior: reduceMotion() ? "auto" : "smooth" });
   const card = ({ scene }: RankedScene) => (
@@ -68,10 +75,15 @@ export function SceneIndex({ ranked, selectedId, hoverId, onSelect, onHover }: P
       {more.left && <button type="button" className="strip__more strip__more--left" aria-label={t.cover.earlier} title={t.cover.earlier} onClick={() => move(-1)}>‹</button>}
       {more.right && <button type="button" className="strip__more strip__more--right" aria-label={t.cover.later} title={t.cover.later} onClick={() => move(1)}>›</button>}
       <ol ref={list}>
-        {events.length > 0 && <li className="strip__label" aria-hidden="true"><span>{t.cover.events}</span></li>}
         {events.map(card)}
-        {others.length > 0 && <li className="strip__label" aria-hidden="true"><span>{t.cover.seasonal}</span></li>}
-        {others.map(card)}
+        {foldable && (
+          <li>
+            <button type="button" className="card card--more" aria-expanded={expanded} onClick={() => setExpanded((on) => !on)}>
+              <span className="card__text"><b>{expanded ? t.cover.seasonalGroup : t.cover.more}</b><i>{expanded ? t.cover.fewer : t.cover.moreCount(others.length)}</i></span>
+            </button>
+          </li>
+        )}
+        {showOthers && others.map(card)}
       </ol>
     </nav>
   );

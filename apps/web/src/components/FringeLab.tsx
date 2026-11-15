@@ -50,7 +50,6 @@ export function FringeLab() {
   const [pair, setPair] = useState<PairId>("quake");
   const [ends, setEnds] = useState<[Point, Point]>(PRESETS.main);
   /** Uma parte por vez: a régua sobre o interferograma, ou como ler o que ela conta. */
-  const [part, setPart] = useState<"ruler" | "read">("ruler");
   const phases: Record<PairId, Uint8Array | null> = { before: usePhase(URLS.before), quake: usePhase(URLS.quake) };
   const canvas = useRef<HTMLCanvasElement>(null);
   const svg = useRef<SVGSVGElement>(null);
@@ -114,11 +113,7 @@ export function FringeLab() {
         <p className="lab__lead">{t.lab.brief.fringes(f.num(CYCLE_CM, 0))}</p>
       </header>
 
-      <nav className="sections sections--lab" aria-label={t.lab.sectionsAria}>
-        {(["ruler", "read"] as const).map((id) => <button key={id} type="button" aria-pressed={part === id} onClick={() => setPart(id)}>{t.lab.sections[id]}</button>)}
-      </nav>
-
-      <div className="fringe-lab__main" hidden={part !== "ruler"}>
+      <div className="fringe-lab__main">
         <figure className="fringe-map">
           <div className="fringe-map__stage">
             <canvas ref={canvas} width={W} height={H} role="img" aria-label={t.lab.fringes.mapAria(f.date(PAIRS[pair].first), f.date(PAIRS[pair].second))} />
@@ -182,13 +177,12 @@ export function FringeLab() {
         </div>
       </div>
 
-      {part === "read" && (
-        <section className="checks">
+      <details className="fold">
+        <summary>{t.lab.sections.read}</summary>
           <p className="lab__lead">{t.lab.fringes.lead(f.num(CYCLE_CM, 0))}</p>
           <ul className="notes notes--grid">{t.lab.fringes.notes(f.num(CYCLE_CM * 2, 0), f.num(CYCLE_CM, 0)).map((line) => <li key={line}>{line}</li>)}</ul>
           <p className="meta">{t.lab.fringes.source}</p>
-        </section>
-      )}
+      </details>
     </div>
   );
 }

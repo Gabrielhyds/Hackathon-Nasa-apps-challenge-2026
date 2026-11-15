@@ -91,7 +91,8 @@ export function PulseLab() {
   const [separation, setSeparation] = useState(30);
   const [seed, setSeed] = useState(4);
   /** Uma parte por vez: a simulação, ou a conta por dentro (os números e o passo pela frequência). */
-  const [part, setPart] = useState<"sim" | "inside">("sim");
+  // "A conta por dentro" é um bloco recolhido no fim: aberto, a simulação acima também mostra o passo da frequência e as medidas completas
+  const [inside, setInside] = useState(false);
   const params = { bandwidthMHz: band, durationUs: duration, snrDb: snr, separationM: separation, seed };
   const sim = useMemo(() => timed("pulse", () => simulatePulse(params)), [band, duration, snr, separation, seed]); // eslint-disable-line react-hooks/exhaustive-deps
   const fig = pulseFigures(params);
@@ -110,10 +111,6 @@ export function PulseLab() {
         <div><p className="lab__kicker">{t.lab.pulse.kicker}</p><h2 className="lab__title">{t.lab.pulse.title}</h2></div>
         <p className="lab__lead">{t.lab.brief.pulse}</p>
       </header>
-
-      <nav className="sections sections--lab" aria-label={t.lab.sectionsAria}>
-        {(["sim", "inside"] as const).map((id) => <button key={id} type="button" aria-pressed={part === id} onClick={() => setPart(id)}>{t.lab.sections[id]}</button>)}
-      </nav>
 
       <div className="pulse-lab__main">
         <div className="knobs">
@@ -138,9 +135,8 @@ export function PulseLab() {
             <input id="knob-sep" type="range" min={0} max={80} step={1} value={separation} onChange={(e) => setSeparation(Number(e.target.value))} />
           </div>
           <button type="button" className="ghost" onClick={() => setSeed((s) => s + 1)}>{t.lab.pulse.noise}</button>
-          {part === "inside" && <p className="meta">{t.lab.pulse.modes}</p>}
 
-          <dl className={part === "inside" ? "figures" : "figures figures--brief"}>
+          <dl className={inside ? "figures" : "figures figures--brief"}>
             <div><dt>{t.lab.pulse.figures.gain}</dt><dd><b>{f.num(Math.round(fig.gain))}×</b> {t.lab.pulse.figures.gainDb(f.num(fig.gainDb, 1))}</dd></div>
             <div><dt>{t.lab.pulse.figures.sharp}</dt><dd><b>{meters(fig.pulseLengthM)} → {meters(fig.resolutionM)}</b></dd></div>
             <div><dt>{t.lab.pulse.figures.snr}</dt><dd><b>{signed(snr)} dB → {signed(Math.round(out))} dB</b> {t.lab.pulse.figures.snrTheory(signed(Math.round(snr + fig.gainDb)))}</dd></div>
@@ -157,7 +153,7 @@ export function PulseLab() {
             <h3>{t.lab.pulse.steps.echo}<small>{t.lab.pulse.steps.echoNote}</small></h3>
             <Trace data={sim.echo} over={sim.clean} kind="wave" tone="mute" label={t.lab.pulse.steps.echo} />
           </li>
-          {part === "inside" && <li>
+          {inside && <li>
             <h3>{t.lab.pulse.steps.freq}<small>{t.lab.pulse.steps.freqNote}</small></h3>
             <Trace data={sim.spectrumEcho} over={sim.spectrumPulse} overOwnScale kind="power" tone="mute" label={t.lab.pulse.steps.freq} height={64} />
           </li>}
@@ -174,7 +170,12 @@ export function PulseLab() {
         </ol>
       </div>
       <p className="lab__verdict">{separation === 0 ? t.lab.pulse.verdictOne : separation > fig.resolutionM * 1.3 ? t.lab.pulse.verdictSplit(meters(separation), meters(fig.resolutionM)) : t.lab.pulse.verdictMerged(meters(separation), meters(fig.resolutionM))}</p>
-      {part === "inside" && <><p className="lab__lead">{t.lab.pulse.lead}</p><p className="meta">{t.lab.pulse.why}</p></>}
+      <details className="fold" open={inside} onToggle={(e) => setInside(e.currentTarget.open)}>
+        <summary>{t.lab.sections.inside}</summary>
+        <p className="lab__lead">{t.lab.pulse.lead}</p>
+        <p className="meta">{t.lab.pulse.modes}</p>
+        <p className="meta">{t.lab.pulse.why}</p>
+      </details>
     </div>
   );
 }

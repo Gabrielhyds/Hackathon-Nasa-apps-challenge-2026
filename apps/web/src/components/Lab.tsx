@@ -15,14 +15,18 @@ interface Props {
   failed: boolean;
   onRetry(): void;
   onPanel(panel: LabId): void;
+  /** A régua de cheia escolheu uma passagem: o mapa mostra a imagem dela. */
+  onPass?(date: string): void;
   onClose(): void;
 }
 
 /**
- * O laboratório: uma folha de vidro por cima do mapa com as três peças que vão além do antes e depois.
+ * O laboratório: o conteúdo da aba Laboratório da folha, que alarga enquanto ela está aberta, com as três peças que
+ * vão além do antes e depois. O mapa, a caixa do divisor e o carrossel continuam à vista à esquerda. Esc volta para a
+ * aba anterior.
  * O hidrograma mede a enchente passagem a passagem; as outras duas abrem o radar por dentro.
  */
-export function Lab({ panel, scene, loading, failed, onRetry, onPanel, onClose }: Props) {
+export function Lab({ panel, scene, loading, failed, onRetry, onPanel, onPass, onClose }: Props) {
   const { t } = useI18n();
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -33,17 +37,14 @@ export function Lab({ panel, scene, loading, failed, onRetry, onPanel, onClose }
   useEffect(() => { body.current?.scrollTo({ top: 0 }); body.current?.focus({ preventScroll: true }); }, [panel]);
 
   return (
-    <section className="lab glass" role="dialog" aria-label={t.lab.aria}>
-      <header className="lab__bar">
-        <div className="tabs lab__tabs" role="tablist" aria-label={t.lab.aria}>
-          {LABS.map((id) => (
-            <button key={id} type="button" role="tab" id={`lab-${id}`} aria-selected={panel === id} aria-controls="lab-body" onClick={() => onPanel(id)}>{t.lab.tabs[id]}</button>
-          ))}
-        </div>
-        <button type="button" className="ghost lab__close" onClick={onClose}>{t.lab.close}</button>
-      </header>
-      <div className="lab__body" id="lab-body" ref={body} role="tabpanel" aria-labelledby={`lab-${panel}`} tabIndex={-1} key={panel}>
-        {panel === "hydro" && (scene?.waterSeries ? <Hydrograph scene={scene} />
+    <div className="lab" id="lab-panel" role="tabpanel" aria-labelledby="tab-lab">
+      <nav className="sections lab__tools" aria-label={t.lab.aria}>
+        {LABS.map((id) => (
+          <button key={id} type="button" aria-pressed={panel === id} onClick={() => onPanel(id)}>{t.lab.tabs[id]}</button>
+        ))}
+      </nav>
+      <div className="lab__body" ref={body} tabIndex={-1} key={panel}>
+        {panel === "hydro" && (scene?.waterSeries ? <Hydrograph scene={scene} onPass={onPass} />
           : failed ? (
             <div className="stack stack--tight">
               <p className="muted">{t.scenes.error}</p>
@@ -53,6 +54,6 @@ export function Lab({ panel, scene, loading, failed, onRetry, onPanel, onClose }
         {panel === "pulse" && <PulseLab />}
         {panel === "fringes" && <FringeLab />}
       </div>
-    </section>
+    </div>
   );
 }

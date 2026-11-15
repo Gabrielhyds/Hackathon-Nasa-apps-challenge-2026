@@ -104,11 +104,18 @@ button { cursor: pointer; }
 .map__live i { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--dim); vertical-align: 1px; }
 .map__live[aria-pressed="true"] { background: var(--fill); color: var(--ink); }
 .map__live[aria-pressed="true"] i { background: var(--ice); box-shadow: 0 0 0 4px rgba(92, 225, 255, 0.2); }
-.map__readout { padding: 0 12px 0 10px; font: 500 12px/1 var(--data); color: var(--mute); }
-.map__readout:empty { display: none; }
 .map__caption { position: absolute; z-index: 3; left: var(--gap); top: 158px; max-width: min(400px, calc(100% - 2 * var(--gap))); padding: 14px 16px; font-size: 13.5px; line-height: 1.45; color: var(--soft); }
 .map__caption b { display: block; font: 600 15.5px/1.25 var(--display); color: var(--ink); margin-bottom: 4px; }
-.map__hint { position: absolute; z-index: 3; left: var(--gap); right: calc(var(--story) + 2 * var(--gap)); bottom: 132px; text-align: center; font-size: 13.5px; color: var(--mute); text-shadow: 0 0 10px #000; pointer-events: none; text-wrap: balance; }
+/* dicas do globo: a de arrastar, numa pílula centralizada acima do globo; a de clicar, junto do ponteiro */
+.map__hint { position: absolute; z-index: 3; left: var(--gap); right: calc(var(--story) + 2 * var(--gap)); top: 142px; text-align: center; pointer-events: none; animation: rise 0.5s var(--ease) 0.6s backwards; }
+.map__hint span { display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px 6px 10px; border-radius: 999px; background: rgba(13, 18, 28, 0.72); border: 1px solid var(--line); font-size: 13px; line-height: 1.3; color: var(--soft); }
+.map__hint i { font-style: normal; font-size: 15px; line-height: 1; color: var(--ice); }
+.map__hint b { display: none; font-weight: 400; }
+.map__hint b::before { content: "·"; margin-right: 8px; color: var(--dim); }
+/* sem ponteiro (toque) não há dica seguindo o dedo: a pílula diz as duas coisas */
+@media (hover: none) { .map__hint span { flex-wrap: wrap; justify-content: center; border-radius: 16px; } .map__hint b { display: inline; } }
+.map__tip { position: absolute; z-index: 3; left: 0; top: 0; padding: 5px 10px; border-radius: 999px; background: rgba(13, 18, 28, 0.86); border: 1px solid var(--line); font-size: 12.5px; line-height: 1.3; color: var(--ink); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.18s; }
+@media (hover: none) { .map__tip { display: none; } }
 
 /* pino de cena: um ponto de luz. O MapLibre posiciona o botão; a animação fica nos filhos. */
 .pin { all: unset; position: absolute; width: 28px; height: 28px; cursor: pointer; }
@@ -187,9 +194,8 @@ input[type="range"]:active::-webkit-slider-thumb { scale: 1.2; }
 .strip:has(.strip__more--left) ol { -webkit-mask-image: linear-gradient(90deg, transparent, #000 90px); mask-image: linear-gradient(90deg, transparent, #000 90px); }
 .strip:has(.strip__more--left):has(.strip__more--right) ol { -webkit-mask-image: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); mask-image: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); }
 /* rótulo de cada grupo do carrossel, de pé, na altura do cartão: não pode fazer a faixa crescer para cima do player */
-.strip__label { display: flex; align-items: center; height: 96px; padding: 0 1px 0 8px; animation: none; }
-.strip__label:first-child { padding-left: 0; }
-.strip__label span { writing-mode: vertical-rl; rotate: 180deg; max-height: 96px; font: 500 10.5px/1.25 var(--data); color: var(--soft); text-align: center; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8); }
+.card--more { width: 128px; background: rgba(255, 255, 255, 0.07); border-style: dashed; }
+.card--more::before { display: none; }
 .card { position: relative; display: block; width: 152px; height: 96px; border: 1px solid var(--line); border-radius: 16px; padding: 0; overflow: hidden; background: #111 center / cover; text-align: left; transition: transform 0.22s var(--ease), border-color 0.2s, box-shadow 0.2s; }
 .card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(5, 7, 12, 0.05) 30%, rgba(5, 7, 12, 0.88)); }
 .card__text { position: absolute; left: 11px; right: 11px; bottom: 9px; display: grid; }
@@ -202,6 +208,11 @@ input[type="range"]:active::-webkit-slider-thumb { scale: 1.2; }
 /* ---------- painel da cena ---------- */
 .story { position: absolute; z-index: 6; top: 76px; right: var(--gap); bottom: var(--gap); width: var(--story); display: flex; flex-direction: column; overflow: hidden; animation: rise 0.6s var(--ease) 0.1s backwards; }
 .tabs { flex: none; display: flex; gap: 2px; margin: 12px 12px 0; padding: 3px; border-radius: 999px; background: var(--fill); }
+/* cada aba numa moldura, para a do lugar levar o × de fechar ao lado do rótulo */
+.tabs__item { flex: 1; min-width: 0; display: flex; position: relative; }
+.tabs__item--closable > [role="tab"] { padding-left: 6px; padding-right: 26px; }
+.tabs .tabs__close { position: absolute; right: 5px; top: 50%; translate: 0 -50%; flex: none; width: 22px; height: 22px; padding: 0 0 2px; border-radius: 50%; font-size: 20px; line-height: 1; color: var(--soft); }
+.tabs .tabs__close:hover { background: rgba(255, 255, 255, 0.18); color: var(--ink); }
 .tabs button { flex: 1; border: 0; background: none; border-radius: 999px; padding: 8px 10px; font-size: 14px; line-height: 1.2; font-weight: 500; color: var(--soft); transition: background-color 0.18s, color 0.18s; }
 .tabs button:hover { color: var(--ink); }
 .tabs button[aria-selected="true"] { background: rgba(255, 255, 255, 0.15); color: var(--ink); }
@@ -374,7 +385,7 @@ tbody th { font-weight: 400; color: var(--mute); }
 .hero__body { font-size: 18px; line-height: 1.5; color: var(--soft); max-width: 52ch; text-wrap: pretty; }
 .hero__go { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
 .app--intro .stage::after { content: ""; position: absolute; z-index: 6; inset: 0; background: linear-gradient(90deg, rgba(5, 7, 12, 0.9), rgba(5, 7, 12, 0.35) 55%, rgba(5, 7, 12, 0)), linear-gradient(0deg, rgba(5, 7, 12, 0.7), rgba(5, 7, 12, 0) 45%); pointer-events: none; }
-.app--intro .story, .app--intro .strip, .app--intro .player, .app--intro .map__hint, .app--intro .map__tools, .app--intro .search, .app--intro .pin, .app--intro .maplibregl-ctrl-bottom-left { opacity: 0; pointer-events: none; visibility: hidden; }
+.app--intro .story, .app--intro .strip, .app--intro .player, .app--intro .map__hint, .app--intro .map__tip, .app--intro .map__tools, .app--intro .search, .app--intro .pin, .app--intro .maplibregl-ctrl-bottom-left { opacity: 0; pointer-events: none; visibility: hidden; }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
 /* ---------- vidro líquido ----------
@@ -430,10 +441,19 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
  * Uma folha de vidro grande por cima do mapa. Mesmas regras de cor: frio (--ice) é dado e seleção,
  * quente (--amber) é o que aconteceu no chão (a cheia, o alvo de verdade, o epicentro).
  */
-.lab { --tint: 0.84; position: absolute; z-index: 9; inset: 76px var(--gap) var(--gap); display: flex; flex-direction: column; overflow: hidden; animation: rise 0.45s var(--ease) backwards; }
-.lab__bar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 0; }
-.lab__tabs { margin: 0; flex: 0 1 560px; }
-.lab__body { flex: 1; min-height: 0; overflow-y: auto; padding: 22px clamp(18px, 3vw, 40px) 34px; outline: 0; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+/* painel lateral largo: fica no lugar da folha, e quem se alinha por --story (divisor, carrossel, dica) encolhe junto. A largura é espelhada em MapView.tsx (labPanelWidth) */
+@media (min-width: 901px) {
+  .app--lab { --story: min(60vw, 960px); }
+  .story { transition: width 0.4s var(--ease); }
+  /* as abas não esticam com a folha: ficam do tamanho que têm na folha normal */
+  .app--lab .story > .tabs { align-self: flex-start; width: 432px; max-width: calc(100% - 24px); }
+}
+/* gráficos pedem um fundo mais fechado que o texto da cena */
+.app--lab .story { --tint: 0.84; }
+.lab { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.lab__tools { flex: none; align-self: flex-start; margin: 12px 12px 0; width: min(calc(100% - 24px), 520px); }
+.lab__wait { padding: 22px; }
+.lab__body { container-type: inline-size; flex: 1; min-height: 0; overflow-y: auto; padding: 22px clamp(18px, 3vw, 40px) 34px; outline: 0; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
 .lab__body > * { max-width: 1320px; margin: 0 auto; display: grid; gap: 22px; align-content: start; animation: rise 0.45s var(--ease) backwards; }
 .lab__intro { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 12px 40px; align-items: end; }
 .lab__intro > div { display: grid; gap: 8px; }
@@ -442,8 +462,6 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 .lab__lead { font-size: 15.5px; line-height: 1.5; color: var(--soft); text-wrap: pretty; }
 .lab__sub { font: 600 20px/1.2 var(--display); letter-spacing: -0.01em; }
 .lab__verdict { padding: 14px 18px; border-radius: 16px; background: rgba(92, 225, 255, 0.09); box-shadow: inset 0 1px 0 rgba(92, 225, 255, 0.25); font-size: 15.5px; line-height: 1.45; color: var(--ink); text-wrap: pretty; }
-.ghost--lab { border-color: rgba(92, 225, 255, 0.5); color: var(--ice); }
-.ghost--lab:hover, .ghost--lab[aria-pressed="true"] { border-color: var(--ice); color: var(--ink); }
 .ghost:disabled { color: var(--dim); cursor: not-allowed; }
 .notes { display: grid; gap: 8px; font-size: 13.5px; line-height: 1.45; color: var(--mute); }
 .notes li { padding-left: 14px; position: relative; text-wrap: pretty; }
@@ -499,8 +517,9 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 .hydro__frame { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #0A0A0A; }
 .hydro__frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .hydro__note { font-size: 11.5px; line-height: 1.4; color: var(--dim); }
+.hydro__note--on { color: var(--ice); }
 .hydro__when { display: grid; }
-.hydro__when b { font: 600 19px/1.2 var(--display); letter-spacing: -0.01em; }
+.hydro__when b { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font: 600 19px/1.2 var(--display); letter-spacing: -0.01em; }
 .hydro__when span { font: 400 11.5px/1.5 var(--data); color: var(--mute); }
 .hydro__figure { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
 .hydro__figure b { font: 700 32px/1 var(--display); letter-spacing: -0.02em; }
@@ -599,6 +618,45 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 .perf__foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--dim); }
 .perf__note { font-size: 11px; line-height: 1.4; color: var(--dim); }
 
+/* painel do laboratório estreito (o lateral, em tela larga): as colunas de cada aba empilham */
+@container (max-width: 1040px) {
+  .lab__intro { grid-template-columns: minmax(0, 1fr); }
+  /* régua de cheia: gráfico à esquerda e o cartão da passagem à direita; o texto do gráfico cresce para compensar a largura menor */
+  .hydro__main { grid-template-columns: minmax(0, 1fr) 252px; gap: 14px 18px; }
+  /* cartão estreito: fatos separados por fios, em vez de um bloco de linhas quebradas */
+  .hydro__facts { gap: 0; font-size: 12.5px; }
+  .hydro__facts li { padding: 7px 0; border-top: 1px solid var(--line); text-wrap: pretty; }
+  .hydro__note { padding-top: 7px; border-top: 1px solid var(--line); text-wrap: pretty; }
+  .hydro__transport .ghost { flex: 1; padding-left: 8px; padding-right: 8px; }
+  .hydro__axis { font-size: 17px; }
+  .hydro__gauge text { font-size: 16px; }
+  .hydro__pass-card { padding: 14px; gap: 9px; }
+  .hydro__figure b { font-size: 28px; }
+  /* pulso: controles à esquerda e os sinais à direita, os dois mais estreitos, para ver o efeito sem rolar */
+  .pulse-lab__main { grid-template-columns: 264px minmax(0, 1fr); gap: 14px 20px; }
+  .knobs { gap: 12px; }
+  .knob .pills { flex-wrap: nowrap; }
+  .knob .pills button { padding-left: 6px; padding-right: 6px; font-size: 11.5px; white-space: nowrap; }
+  .knob output { white-space: nowrap; }
+  .stages { gap: 8px; }
+  .checks__grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  /* franjas: o interferograma e a leitura da régua lado a lado, os dois um pouco menores, para ler sem rolar */
+  .fringe-lab__main { grid-template-columns: minmax(0, 1.55fr) minmax(230px, 1fr); gap: 16px 20px; }
+  .fringe-map { max-width: none; }
+  .fringe-read__big { min-height: 0; padding: 12px 14px; }
+  .fringe-read__big b { font-size: 44px; }
+  /* no painel o título é menor, para a ferramenta caber na primeira tela */
+  .lab__title { font-size: 30px; }
+  .lab__body > * { gap: 16px; }
+}
+
+@container (max-width: 620px) {
+  .fringe-lab__main, .pulse-lab__main, .hydro__main { grid-template-columns: minmax(0, 1fr); }
+  .hydro__axis { font-size: 11.5px; }
+  .hydro__gauge text { font-size: 11.5px; }
+  .stages__out { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* ---------- tela estreita: mapa em cima, o resto empilhado ---------- */
 @media (max-width: 900px) {
   html, body, #root { height: auto; }
@@ -610,7 +668,7 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
   .stage { position: relative; order: 2; height: 68vh; min-height: 420px; }
   .map__tools { top: 12px; left: 12px; }
   .map__caption { top: 92px; left: 12px; }
-  .map__hint { left: 12px; right: 12px; bottom: 14px; }
+  .map__hint { left: 12px; right: 12px; top: 58px; }
   .maplibregl-ctrl-bottom-left { top: 58px; }
   .player { position: absolute; left: 12px; right: 12px; bottom: 12px; width: auto; translate: none; padding: 12px 14px; }
   .strip { position: relative; order: 3; right: auto; padding: 10px var(--gap) 4px; }
@@ -620,8 +678,7 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
   .hero { position: absolute; top: 90px; bottom: auto; }
   .app--intro .stage { height: 86vh; }
   .perf { left: 8px; top: auto; bottom: 8px; }
-  .lab { position: fixed; inset: 0; border-radius: 0; z-index: 30; }
-  .lab__tabs button { padding: 8px 6px; font-size: 13px; }
+  .lab__body { overflow: visible; }
   .hydro__main, .pulse-lab__main, .fringe-lab__main, .checks__grid, .lab__intro { grid-template-columns: minmax(0, 1fr); }
   .fringe-map { max-width: none; }
   .hydro__pass-card { grid-template-columns: 140px minmax(0, 1fr); align-items: start; }
@@ -683,7 +740,6 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 @media (prefers-reduced-motion: reduce) { .activity__card { animation: none; } }
 
 /* laboratório: uma parte por vez em cada aba, com as mesmas seções da folha */
-.sections--lab { justify-self: start; width: min(100%, 460px); }
 .fringe-lab__main[hidden] { display: none; }
 /* na simulação ficam só os dois números que respondem aos controles; os outros dois estão em "a conta por dentro" */
 .figures--brief div:nth-child(n + 3) { display: none; }
