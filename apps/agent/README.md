@@ -19,7 +19,7 @@ No Nexxus ele é o serviço `agent` do Docker Compose da raiz e atende a aba Ask
    - fala de outra cena quando o front diz qual está aberta (`scene`).
    Links escritos pelo modelo são apagados.
 4. **Fontes e ressalvas são coladas pelo servidor**, a partir dos cartões. O modelo não consegue inventar link nem esquecer a ressalva.
-5. **Respostas prontas:** as perguntas mais prováveis já vêm respondidas em `data/respostas_prontas.json` (geradas por `scripts/aquecer.py`) e entram no cache ao subir o servidor. Elas não gastam cota do modelo.
+5. **Respostas prontas:** as perguntas mais prováveis já vêm respondidas em `data/respostas_prontas.json` (geradas por `scripts/aquecer.py`) e são carregadas ao subir o servidor, à parte do cache: nunca são descartadas. Elas não gastam cota do modelo.
 6. **Modo reserva:** sem chave, sem rede, modelo lento (8 s por tentativa, 15 s no total), cota estourada ou resposta reprovada → responde com as frases do próprio cartão que falam da pergunta. A aba Ask nunca fica muda.
 
 Pergunta fora do assunto → "O Nexxus não tem essa informação" e a lista do que ele sabe.
@@ -69,7 +69,7 @@ Para a aba Ask do front: chame `POST /api/ask` e mostre `answer`, depois `caveat
 
 **A chave está na camada gratuita: 15 pedidos por minuto por modelo** (5 no `3.8-flash`). O plano é seguir assim, sem Vertex AI, com três folgas somadas:
 
-1. **Respostas prontas.** `python scripts/aquecer.py` gera `data/respostas_prontas.json` com as perguntas do banco e as de cada cena, já conferidas. O servidor carrega no cache ao subir, e o `/api/health` mostra quantas são. Essas perguntas respondem na hora e **não gastam cota**. Rode de novo a cada mudança em `data/cards.json`.
+1. **Respostas prontas.** `python scripts/aquecer.py` gera `data/respostas_prontas.json` com as perguntas do banco e as de cada cena, já conferidas. O servidor carrega ao subir, e o `/api/health` mostra quantas são. Essas perguntas respondem na hora e **não gastam cota**. Rode de novo a cada mudança em `data/cards.json`.
 2. **Conta em casa.** O agente só chama o modelo se couber em `GEMINI_RPM` pedidos por minuto (12, com folga sobre os 15). Estourou? Vai direto para o modo reserva, sem gastar uma ida à rede. Se mesmo assim vier um 429, aquele modelo fica de molho por `GEMINI_PAUSA_429_S` segundos.
 3. **Fila de modelos.** Cada modelo tem a sua própria cota por minuto, então 404, 503 ou 429 fazem o agente passar para o próximo da fila em `agent/llm.py` (`flash-lite` → `3.1-flash-lite` → `3.5-flash`). Na prática, o teto por minuto soma.
 - `aiohttp>=3.11` é obrigatório: com a versão antiga o erro de rede virava `AttributeError` e escondia a causa.

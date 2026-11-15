@@ -22,7 +22,7 @@ log = logging.getLogger("nexxus.main")
 
 RAIZ = Path(__file__).resolve().parent.parent
 STATIC = RAIZ / "static"
-# Respostas geradas antes do evento (scripts/aquecer.py). Entram no cache ao subir o servidor,
+# Respostas geradas antes do evento (scripts/aquecer.py). São carregadas ao subir o servidor,
 # então as perguntas mais prováveis não gastam cota do modelo durante a demo.
 PRONTAS = RAIZ / "data" / "respostas_prontas.json"
 RATE_PER_MIN = int(os.getenv("RATE_PER_MIN", "20"))
@@ -46,6 +46,8 @@ class AskIn(BaseModel):
 
 _hits: dict[str, deque] = defaultdict(deque)
 _cache: OrderedDict[str, dict] = OrderedDict()
+# As respostas prontas ficam à parte do cache: não disputam lugar com as perguntas novas e nunca são descartadas.
+_prontas: dict[str, dict] = {}
 
 
 def _chave(question: str, lang: str, scene: str | None) -> str:
@@ -57,7 +59,7 @@ def _chave(question: str, lang: str, scene: str | None) -> str:
 
 
 def _carregar_prontas() -> int:
-    """Põe no cache as respostas já geradas. Falha em silêncio: é só uma folga de cota."""
+    """Carrega as respostas já geradas. Falha em silêncio: é só uma folga de cota."""
     if not PRONTAS.exists():
         return 0
     try:
@@ -83,9 +85,9 @@ def _carregar_prontas() -> int:
         if not isinstance(resposta, dict) or not isinstance(item.get("question"), str) \
                 or resposta.get("lang") not in ("pt", "en") or not isinstance(resposta.get("answer"), str):
             continue
-        _cache[_chave(item["question"], resposta["lang"], item.get("scene"))] = resposta
+        _prontas[_chave(item["question"], resposta["lang"], item.get("scene"))] = resposta
         n += 1
-    log.info("%d respostas prontas no cache (modelo %s)", n, dados.get("modelo", "?"))
+    log.info("%d respostas prontas carregadas (modelo %s)", n, dados.get("modelo", "?"))
     return n
 
 
@@ -125,6 +127,8 @@ async def api_ask(body: AskIn, req: Request) -> dict:
     # A chave usa o idioma já resolvido: pergunta sem "lang" aproveita a resposta pronta.
     lang = body.lang if body.lang in ("pt", "en") else detect_lang(body.question)
     key = _chave(body.question, lang, body.scene)
+    if key in _prontas:
+        return _prontas[key]
     if key in _cache:
         _cache.move_to_end(key)
         return _cache[key]

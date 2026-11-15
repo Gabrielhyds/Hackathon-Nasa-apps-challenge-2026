@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 from agent import core, llm
 from agent.guard import check_answer
 from agent.knowledge import SCENE_CARDS, retrieve
-from agent.main import app, _cache, _hits
+from agent.main import app, _cache, _hits, _prontas
 
 QUESTIONS = json.loads((Path(__file__).parent / "perguntas.json").read_text(encoding="utf-8"))
 FORBIDDEN_TEXT = ["57 km", "46,7", "46.7", "45,6", "780 km"]
@@ -28,6 +28,7 @@ def offline(monkeypatch):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("GOOGLE_GENAI_USE_VERTEXAI", raising=False)
     _cache.clear()
+    _prontas.clear()
     _hits.clear()
 
 
@@ -438,6 +439,33 @@ def test_respostas_prontas_entram_no_cache(tmp_path, monkeypatch):
     c = TestClient(app)
     # Sem "lang" na chamada: a chave usa o idioma detectado, então a resposta pronta serve.
     r = c.post("/api/ask", json={"question": "O que é o NISAR?"}).json()
+    assert r["mode"] == "model" and r["answer"] == pronta["answer"]
+
+
+def test_respostas_prontas_nao_saem_quando_o_cache_enche(tmp_path, monkeypatch):
+    import json as _json
+    import agent.main as m
+    pronta = {
+        "answer": "Resposta guardada antes do evento.",
+        "lang": "pt", "mode": "model", "cards": ["nisar"], "sources": [], "caveats": [],
+        "text": "Resposta guardada antes do evento.",
+    }
+    arquivo = tmp_path / "respostas_prontas.json"
+    arquivo.write_text(_json.dumps({
+        "modelo": "teste", "cards_versao": core.CARDS_VERSAO,
+        "respostas": [{"question": "O que é o NISAR?", "lang": "pt", "scene": None, "resposta": pronta}],
+    }), encoding="utf-8")
+    monkeypatch.setattr(m, "PRONTAS", arquivo)
+    monkeypatch.setattr(m, "CACHE_SIZE", 3)
+    monkeypatch.setattr(m, "RATE_PER_MIN", 1000)
+    assert m._carregar_prontas() == 1
+
+    c = TestClient(app)
+    # Perguntas novas enchem o cache e descartam as mais antigas; a resposta pronta não está nele.
+    for i in range(8):
+        assert c.post("/api/ask", json={"question": f"O que é o radar de abertura sintética, versão {i}?", "lang": "pt"}).status_code == 200
+    assert len(m._cache) <= 3
+    r = c.post("/api/ask", json={"question": "O que é o NISAR?", "lang": "pt"}).json()
     assert r["mode"] == "model" and r["answer"] == pronta["answer"]
 
 
