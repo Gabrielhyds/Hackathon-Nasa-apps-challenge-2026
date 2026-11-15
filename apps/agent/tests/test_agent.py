@@ -1,6 +1,7 @@
 """Testes do agente. Rodam sem internet: o modelo é substituído por respostas falsas."""
 import asyncio
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -449,3 +450,11 @@ def test_http_limite_por_minuto(monkeypatch):
     c = TestClient(app)
     codes = [c.post("/api/ask", json={"question": f"What is NISAR {i}?"}).status_code for i in range(5)]
     assert codes[:3] == [200, 200, 200] and 429 in codes[3:]
+
+
+def test_texto_dos_cartoes_comeca_com_maiuscula():
+    # O modo reserva responde com as frases do cartão: a primeira letra aparece na tela.
+    for card in core.CARDS.values():
+        for lang in ("pt", "en"):
+            for frase in re.split(r"(?<=[.!?])\s+", card.texto[lang]):
+                assert not frase[:1].islower(), f"{card.id} ({lang}): {frase[:50]}"
