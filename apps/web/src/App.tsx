@@ -202,6 +202,7 @@ export function App() {
             sideFolded={folded}
             scenes={scenes}
             selectedId={selectedId}
+            titledId={tab === "scenes" && lab === null ? selectedId : null}
             hoverId={hoverId}
             place={place}
             passes={passesQuery.data}
