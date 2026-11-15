@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { foldName } from "@nexxus/contract";
-import { PlacesService, stateName } from "./places.service";
+import { PlacesService } from "./places.service";
 
 process.env.PLACES_ONLINE = "0";
 const places = new PlacesService();
@@ -44,13 +44,31 @@ test("acha nomes com letras que não são acento, digitados sem elas", async () 
   assert.equal(foldName("São Paulo"), "sao paulo");
 });
 
-test("o nome do estado no idioma pedido sai do identificador, para o filtro da busca na rede", () => {
-  assert.equal(stateName("Bavaria", "DE", "pt"), "Baviera");
-  assert.equal(stateName("Bavaria", "DE", "en"), "Bavaria");
-  assert.equal(stateName("Nowhere", "DE", "pt"), "Nowhere");
-});
-
 test("países e territórios que faltavam entram na busca", async () => {
   const hits = await places.search("Tuvalu", { kind: "country", lang: "en" });
   assert.equal(hits[0]?.countryCode, "TV");
+});
+
+test("povoado fora da lista, dentro de um estado: a busca online aceita o nome do estado no idioma pedido", async () => {
+  process.env.PLACES_ONLINE = "1";
+  const online = new PlacesService();
+  process.env.PLACES_ONLINE = "0";
+  const realFetch = globalThis.fetch;
+  try {
+    for (const [lang, admin1] of [["pt", "Baviera"], ["en", "Bavaria"]] as const) {
+      // o Open-Meteo devolve o estado no idioma pedido; o identificador do estado na busca é o nome em inglês
+      globalThis.fetch = (async () => new Response(JSON.stringify({
+        results: [{ name: "Xyzdorf", latitude: 48, longitude: 11, admin1, country: "Germany", country_code: "DE" }],
+      }))) as typeof fetch;
+      const hits = await online.search("Xyzdorf", { kind: "city", lang, countryCode: "DE", adminKey: "Bavaria" });
+      assert.deepEqual(hits.map((p) => p.name), ["Xyzdorf"], lang);
+    }
+    // cidade de outro estado continua de fora
+    globalThis.fetch = (async () => new Response(JSON.stringify({
+      results: [{ name: "Xyzdorf", latitude: 51, longitude: 9, admin1: "Hessen", country: "Germany", country_code: "DE" }],
+    }))) as typeof fetch;
+    assert.deepEqual(await online.search("Xyzdorf", { kind: "city", lang: "pt", countryCode: "DE", adminKey: "Bavaria" }), []);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });

@@ -14,11 +14,6 @@ interface OpenMeteoResult {
 
 interface Query { kind: PlaceKind | "all"; lang: Lang; countryCode?: string; adminKey?: string }
 
-/** Nome de um estado no idioma pedido, a partir do identificador (`adminKey`, o nome em inglês); o próprio identificador se a lista não o tiver. */
-export function stateName(adminKey: string, countryCode: string | undefined, lang: Lang): string {
-  return searchPlaces(adminKey, { kind: "state", lang, countryCode, limit: 50 }).find((p) => p.adminKey === adminKey)?.name ?? adminKey;
-}
-
 /**
  * Busca de lugares.
  * Países e estados vêm da lista embutida (Natural Earth). Cidades vêm da lista completa do GeoNames, lida ao subir:
@@ -57,6 +52,17 @@ export class PlacesService {
     return [...regions, ...cities].slice(0, limit);
   }
 
+  /** Nomes pelos quais um estado pode vir na resposta online: o identificador e o nome dele nos dois idiomas. */
+  private stateNames(countryCode: string | undefined, adminKey: string): Set<string> {
+    const names = new Set([foldName(adminKey)]);
+    if (!countryCode) return names;
+    for (const lang of ["en", "pt"] as const) {
+      const state = searchPlaces("", { kind: "state", lang, countryCode, limit: Infinity }).find((p) => p.adminKey === adminKey);
+      if (state) names.add(foldName(state.name));
+    }
+    return names;
+  }
+
   private async onlineCities(q: string, lang: Lang, countryCode: string | undefined, adminKey: string | undefined): Promise<Place[] | null> {
     if (!this.online) return null;
     try {
@@ -64,8 +70,8 @@ export class PlacesService {
       const res = await fetch(url, { signal: AbortSignal.timeout(2500) });
       if (!res.ok) return null;
       const data = (await res.json()) as { results?: OpenMeteoResult[] };
-      // nomes do estado aceitos no filtro: o identificador (o nome em inglês) e o nome no idioma pedido, que é o que o Open-Meteo devolve
-      const stateNames = adminKey ? new Set([adminKey, stateName(adminKey, countryCode, lang)].map(foldName)) : null;
+      // nomes do estado aceitos no filtro: o identificador (o nome em inglês) e o nome nos dois idiomas; o Open-Meteo responde no idioma pedido
+      const stateNames = adminKey ? this.stateNames(countryCode, adminKey) : null;
       const hits = (data.results ?? [])
         .filter((r) => !countryCode || r.country_code?.toUpperCase() === countryCode)
         .filter((r) => !stateNames || stateNames.has(foldName(r.admin1 ?? "")))
