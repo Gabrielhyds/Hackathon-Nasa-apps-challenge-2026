@@ -26,12 +26,14 @@ export const MIN_COHERENCE = 0.35;
 
 /**
  * Lê a fase ao longo de uma linha. Em cada passo faz a média complexa de uma janela (2·win + 1)² e soma as
- * diferenças de fase entre passos vizinhos, sempre pelo caminho mais curto (menos de meia volta por passo).
+ * diferenças de fase entre amostras confiáveis vizinhas, sempre pelo caminho mais curto (menos de meia volta por
+ * passo). Trecho de ruído ou sem dado é pulado: a soma começa na primeira amostra confiável e não anda nos buracos.
  */
 export function readTransect(phase: Uint8Array | Uint8ClampedArray, width: number, height: number, from: Point, to: Point, win = 2): Transect {
   const lengthPx = Math.hypot(to.x - from.x, to.y - from.y), n = Math.max(2, Math.round(lengthPx) + 1);
   const cycles = new Float32Array(n), wrapped = new Float32Array(n), coherence = new Float32Array(n);
-  let prev = 0, sum = 0;
+  // `prev` é a fase da última amostra confiável; antes da primeira, não há de onde contar
+  let prev = NaN, sum = 0;
   for (let i = 0; i < n; i++) {
     const cx = Math.round(from.x + ((to.x - from.x) * i) / (n - 1)), cy = Math.round(from.y + ((to.y - from.y) * i) / (n - 1));
     let re = 0, im = 0, count = 0;
@@ -49,9 +51,12 @@ export function readTransect(phase: Uint8Array | Uint8ClampedArray, width: numbe
     const turn = Math.atan2(im, re) / (2 * Math.PI);
     coherence[i] = count ? Math.hypot(re, im) / count : 0;
     wrapped[i] = (turn + 1) % 1;
-    if (i > 0) { let d = turn - prev; d -= Math.round(d); sum += d; }
+    // amostra de ruído ou sem dado não entra na soma: a contagem fica parada e retoma na próxima confiável
+    if (coherence[i] >= MIN_COHERENCE) {
+      if (!Number.isNaN(prev)) { let d = turn - prev; d -= Math.round(d); sum += d; }
+      prev = turn;
+    }
     cycles[i] = sum;
-    prev = turn;
   }
   return { cycles, wrapped, coherence, lengthPx };
 }

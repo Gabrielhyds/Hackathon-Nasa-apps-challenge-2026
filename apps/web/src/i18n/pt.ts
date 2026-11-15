@@ -489,7 +489,7 @@ export const pt: Dict = {
       readingLabel: (km: string) => `As pontas ficam a ${km} km uma da outra. A contagem inclui a atmosfera e não diz para que lado o chão andou.`,
       unreliable: "Esta linha cruza mar ou ruído, onde o eco não se repete de uma passagem para a outra. Leve a régua para a terra.",
       profileAria: "Franjas contadas ao longo da régua",
-      profileNote: "Ao longo da régua. Cada linha horizontal é uma franja.",
+      profileNote: "Ao longo da régua. Cada linha horizontal é uma franja; tracejado onde o sinal é ruído.",
       compareCalm: (fringes: string) => `A mesma linha nos 12 dias de calma antes: ${fringes} franjas, sem terremoto. Esse tanto é atmosfera: leia como margem de erro.`,
       compareQuake: (fringes: string) => `A mesma linha atravessando o terremoto: ${fringes} franjas.`,
       presetsAria: "Linhas prontas",

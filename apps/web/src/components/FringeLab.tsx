@@ -93,17 +93,20 @@ export function FringeLab() {
     if (!transect) return null;
     const turns = Array.from(transect.cycles), lo = Math.min(0, ...turns), hi = Math.max(0, ...turns), span = Math.max(1, hi - lo);
     const px = (i: number) => (i / (turns.length - 1)) * PW, py = (v: number) => 8 + ((hi - v) / span) * (PH - 16);
-    // um traço por trecho confiável; os buracos são ruído
-    const runs: string[] = [];
-    let run: string[] = [];
+    // um traço cheio por trecho confiável e, entre dois trechos, uma ligação tracejada por cima do ruído.
+    // Ruído ou falta de dado nas pontas da régua fica em branco: ali não há o que ler
+    const runs: [number, number][][] = [];
+    let run: [number, number][] = [];
     turns.forEach((v, i) => {
-      if (transect.coherence[i] >= MIN_COHERENCE) run.push(`${px(i).toFixed(1)},${py(v).toFixed(1)}`);
-      else if (run.length) { runs.push(run.join(" ")); run = []; }
+      if (transect.coherence[i] >= MIN_COHERENCE) run.push([px(i), py(v)]);
+      else if (run.length) { runs.push(run); run = []; }
     });
-    if (run.length) runs.push(run.join(" "));
+    if (run.length) runs.push(run);
+    const text = (points: [number, number][]) => points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+    const bridges = runs.slice(1).map((next, k) => text([runs[k][runs[k].length - 1], next[0]]));
     const lines: number[] = [];
     for (let v = Math.ceil(lo); v <= hi + 1e-6; v += 1) lines.push(py(v));
-    return { runs, lines };
+    return { runs: runs.map(text), bridges, lines };
   }, [transect]);
 
   return (
@@ -162,6 +165,7 @@ export function FringeLab() {
           {profile && (
             <svg className="fringe-profile" viewBox={`0 0 ${PW} ${PH}`} role="img" aria-label={t.lab.fringes.profileAria}>
               {profile.lines.map((yy, i) => <line key={i} x1="0" x2={PW} y1={yy} y2={yy} />)}
+              {profile.bridges.map((points, i) => <polyline key={`b${i}`} className="fringe-profile__noise" points={points} />)}
               {profile.runs.map((points, i) => <polyline key={i} points={points} />)}
             </svg>
           )}
