@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TABLE_RATIOS, changeHistogram, dbToRatio, ratioToDb, thresholdTable } from "./analysis";
+import { NEGLIGIBLE_KM2, TABLE_RATIOS, changeHistogram, dbToRatio, negligibleArea, ratioToDb, thresholdTable } from "./analysis";
 import { DEFAULT_SENSITIVITY, ratioFor, sensitivityFor } from "./change";
 
 // metade dos pixels não muda, um quarto cai 5 dB e um quarto sobe 3 dB
@@ -34,5 +34,18 @@ describe("medidas do par de passagens", () => {
     for (const s of [0, 0.3, 0.8, 1]) expect(sensitivityFor(ratioFor(s))).toBeCloseTo(s, 6);
     expect(sensitivityFor(5)).toBe(0);
     expect(sensitivityFor(1)).toBe(1);
+  });
+});
+
+describe("negligibleArea", () => {
+  it("vale para o que a tela arredondaria para zero, e só para isso", () => {
+    expect(negligibleArea(0)).toBe(true);
+    expect(negligibleArea(0.04)).toBe(true);
+    expect(negligibleArea(NEGLIGIBLE_KM2)).toBe(false);
+    expect(negligibleArea(0.6)).toBe(false);
+    expect(negligibleArea(1430)).toBe(false);
+  });
+  it("valor que não é número conta como nada", () => {
+    expect(negligibleArea(Number.NaN)).toBe(true);
   });
 });
