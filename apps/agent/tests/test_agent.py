@@ -236,15 +236,6 @@ def test_cota_por_minuto_segura_o_modelo(monkeypatch):
     assert a.mode == "model" and chamou
 
 
-def test_sem_cota_cai_para_reserva(monkeypatch):
-    import time as _t
-    monkeypatch.setenv("GEMINI_API_KEY", "teste")
-    # Todos os modelos em pausa por 429: generate nem tenta a rede.
-    monkeypatch.setattr(llm, "_bloqueado_ate", {m: _t.monotonic() + 60 for m in llm.FALLBACKS})
-    a = run(core.ask("What is NISAR?"))
-    assert a.mode == "offline" and a.sources
-
-
 def test_modelo_lento_passa_a_vez_para_o_proximo(monkeypatch):
     import asyncio as _a
     import collections as _c
@@ -266,6 +257,15 @@ def test_modelo_lento_passa_a_vez_para_o_proximo(monkeypatch):
     monkeypatch.setattr(llm, "_bloqueado_ate", {})
     assert run(llm.generate("sistema", "pergunta")) == "NISAR flies 747 km up [nisar]."
     assert tentados == llm.FALLBACKS[:2]
+
+
+def test_sem_cota_cai_para_reserva(monkeypatch):
+    import time as _t
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    # Todos os modelos em pausa por 429: generate nem tenta a rede.
+    monkeypatch.setattr(llm, "_bloqueado_ate", {m: _t.monotonic() + 60 for m in llm.FALLBACKS})
+    a = run(core.ask("What is NISAR?"))
+    assert a.mode == "offline" and a.sources
 
 
 def test_respostas_prontas_entram_no_cache(tmp_path, monkeypatch):
