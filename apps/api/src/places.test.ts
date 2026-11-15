@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PlacesService } from "./places.service";
+import { foldName } from "@nexxus/contract";
+import { PlacesService, stateName } from "./places.service";
 
 process.env.PLACES_ONLINE = "0";
 const places = new PlacesService();
@@ -30,6 +31,23 @@ test("lista as cidades de um estado sem texto, até cem", async () => {
   const amapa = await places.search("", { kind: "city", lang: "pt", countryCode: "BR", adminKey: "Amapá" });
   assert.ok(amapa.length >= 10 && amapa.length <= 100);
   assert.ok(amapa.every((p) => p.kind === "city" && p.countryCode === "BR"));
+});
+
+test("acha nomes com letras que não são acento, digitados sem elas", async () => {
+  // ł, ı, ø e ß não se desfazem na decomposição de acentos; o apóstrofo curvo ninguém digita
+  for (const [typed, name, cc] of [["Lodz", "Łódź", "PL"], ["Diyarbakir", "Diyarbakır", "TR"], ["Tromso", "Tromsø", "NO"], ["Giessen", "Gießen", "DE"], ["N'Djamena", "N’Djamena", "TD"]]) {
+    const hits = await places.search(typed, { kind: "city", lang: "en" });
+    assert.ok(hits.some((p) => p.countryCode === cc && foldName(p.name) === foldName(name)), `${typed}: ${hits.map((p) => p.name).join(", ")}`);
+  }
+  assert.equal(foldName("Łódź"), "lodz");
+  assert.equal(foldName("Gießen"), "giessen");
+  assert.equal(foldName("São Paulo"), "sao paulo");
+});
+
+test("o nome do estado no idioma pedido sai do identificador, para o filtro da busca na rede", () => {
+  assert.equal(stateName("Bavaria", "DE", "pt"), "Baviera");
+  assert.equal(stateName("Bavaria", "DE", "en"), "Bavaria");
+  assert.equal(stateName("Nowhere", "DE", "pt"), "Nowhere");
 });
 
 test("países e territórios que faltavam entram na busca", async () => {
