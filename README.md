@@ -354,6 +354,7 @@ Everything the app shows is committed, so none of this is needed to run it. The 
 - **Places and borders:** [GeoNames](https://www.geonames.org/) (CC BY 4.0), Natural Earth (public domain) and world-atlas; Open-Meteo Geocoding API as online fallback.
 - **Rain and discharge:** ERA5 and GloFAS, via Open-Meteo.
 - **Earthquake data:** USGS.
+- **Music:** [Exploration Theme](https://opengameart.org/content/exploration-theme) by Cleyton Kauffman and [Cosmic Navigation](https://opengameart.org/content/cosmic-navigation) by Synth-thetic, both public domain (CC0), from OpenGameArt.
 - **Type:** Archivo.
 
 This project is not affiliated with or endorsed by NASA.

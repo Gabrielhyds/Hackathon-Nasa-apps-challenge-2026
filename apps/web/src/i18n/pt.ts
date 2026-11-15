@@ -12,6 +12,12 @@ const SCALE_REFS: Record<ScaleRef, [string, string]> = {
 export const pt: Dict = {
   badge: { example: "Dados de exemplo", exampleTitle: "Lugares e datas reais do NISAR, duas enchentes documentadas e mudanças sazonais, notas inventadas para montar a interface." },
   language: "Idioma",
+  sound: {
+    label: "Som",
+    on: "Música ligada. Ela muda quando a tela passa da história para os dados. Exploration Theme, de Cleyton Kauffman, e Cosmic Navigation, de Synth-thetic, as duas em domínio público (CC0).",
+    off: "Música desligada. Exploration Theme, de Cleyton Kauffman, e Cosmic Navigation, de Synth-thetic, as duas em domínio público (CC0).",
+    failed: "A música não carregou. Clique para tentar de novo.",
+  },
   intro: {
     open: "Sobre",
     aria: "O que é o Nexxus e por onde começar",

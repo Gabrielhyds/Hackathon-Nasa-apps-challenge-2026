@@ -15,7 +15,9 @@ import { LANGS, useI18n } from "./i18n";
 import { AUDIENCES, saveAudience, savedAudience, type Audience } from "./lib/audience";
 import { recordSinceStart } from "./lib/perf";
 import { defaultWeights, rank, type Weights } from "./lib/ranking";
+import { trackFor } from "./lib/soundtrack";
 import { useChat } from "./lib/useChat";
+import { useSoundtrack } from "./lib/useSoundtrack";
 import type { Steps } from "./lib/series";
 import { buildUrlState, parseUrlState, type Lab as LabId, type Tab, type View } from "./lib/urlState";
 
@@ -81,6 +83,8 @@ export function App() {
   // o agente responde sobre a cena aberta e as marcadas para comparar
   const context = useMemo(() => [...new Set([selectedId, ...picked].filter((id): id is string => Boolean(id)))], [selectedId, picked]);
   const chat = useChat(context, lang);
+  // trilha de fundo: uma faixa para explorar e outra para os dados, com transição entre elas
+  const sound = useSoundtrack(trackFor({ intro, tab, audience, lab, opened, view }));
 
   const fullWeights = useMemo(() => ({ ...defaultWeights(criteria), ...weights }), [criteria, weights]);
   const ranked = useMemo(() => rank(scenes, criteria, fullWeights), [scenes, criteria, fullWeights]);
@@ -202,6 +206,15 @@ export function App() {
         <div className="hud__right">
           {API_MODE === "mock" && <p className="badge" title={t.badge.exampleTitle}>{t.badge.example}</p>}
           <button type="button" className="ghost" aria-pressed={intro} onClick={() => (intro ? closeIntro() : setIntro(true))}>{t.cover.about}</button>
+          <button type="button" className="ghost sound" aria-pressed={sound.on && !sound.failed} title={sound.failed ? t.sound.failed : sound.on ? t.sound.on : t.sound.off} onClick={sound.toggle}>
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path d="M2 6h2.5L8 3v10L4.5 10H2z" fill="currentColor" />
+              {sound.on && !sound.failed
+                ? <path d="M10.5 5.5a3.5 3.5 0 0 1 0 5M12.5 3.5a6.5 6.5 0 0 1 0 9" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                : <path d="M10.5 6l4 4M14.5 6l-4 4" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />}
+            </svg>
+            {t.sound.label}
+          </button>
           <div className="lang" role="group" aria-label={t.language}>
             {LANGS.map((l) => (
               <button key={l.id} type="button" aria-pressed={lang === l.id} onClick={() => setLang(l.id)}>{l.label}</button>

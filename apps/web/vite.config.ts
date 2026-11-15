@@ -30,8 +30,8 @@ export default defineConfig({
     // dentro do Docker em Windows e macOS o aviso de arquivo alterado não chega; VITE_POLL=1 liga a checagem periódica
     watch: process.env.VITE_POLL ? { usePolling: true, interval: 300 } : undefined,
   },
-  // NEXXUS_PREVIEW=1: um arquivo só, sem módulos, com as fontes embutidas. Ver scripts/preview-build.mjs.
+  // NEXXUS_PREVIEW=1: um arquivo só, sem módulos, com as fontes e a trilha de fundo embutidas (as outras imagens, até 400 kB). Ver scripts/preview-build.mjs.
   build: process.env.NEXXUS_PREVIEW
-    ? { chunkSizeWarningLimit: 8000, assetsInlineLimit: 400_000, modulePreload: false, rollupOptions: { output: { format: "iife", inlineDynamicImports: true } } }
+    ? { chunkSizeWarningLimit: 8000, assetsInlineLimit: (file: string, content: Buffer) => /\.mp3$/.test(file) || content.length < 400_000, modulePreload: false, rollupOptions: { output: { format: "iife", inlineDynamicImports: true } } }
     : { chunkSizeWarningLimit: 1500 },
 });

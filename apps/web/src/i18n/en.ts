@@ -10,6 +10,12 @@ const SCALE_REFS: Record<ScaleRef, string> = {
 export const en = {
   badge: { example: "Example data", exampleTitle: "Real places and NISAR dates; two documented floods and seasonal changes; scores invented to build the interface." },
   language: "Language",
+  sound: {
+    label: "Sound",
+    on: "Music on. It changes when the screen goes from story to data. Exploration Theme by Cleyton Kauffman and Cosmic Navigation by Synth-thetic, both public domain (CC0).",
+    off: "Music off. Exploration Theme by Cleyton Kauffman and Cosmic Navigation by Synth-thetic, both public domain (CC0).",
+    failed: "The music did not load. Click to try again.",
+  },
   intro: {
     open: "About",
     aria: "What Nexxus is and where to start",
