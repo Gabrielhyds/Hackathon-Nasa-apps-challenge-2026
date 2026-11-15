@@ -42,7 +42,9 @@ export const en = {
     loading: "Loading the map…",
     failed: "The map did not load. Reload the page.",
     world: "See the world",
-    hint: "Drag to turn the globe, scroll to zoom. Click any spot to see when the satellite passed over it. Open a scene to compare two passes here.",
+    hintDrag: "Drag to turn the globe",
+    hintClick: "Click to see when the satellite passed here",
+    hintTouch: "Tap any spot to see when the satellite passed there",
     before: "Before",
     after: "After",
     swipeAria: "Divider between the before pass and the after pass",
@@ -348,7 +350,6 @@ export const en = {
   lab: {
     open: "Radar lab",
     aria: "Radar lab: flood ruler, pulse compression and fringe ruler",
-    close: "Close",
     tabs: { hydro: "Flood ruler", pulse: "Inside the pulse", fringes: "Fringe ruler" },
     sections: {
       method: "Method", inside: "Inside the math", read: "How to read it",

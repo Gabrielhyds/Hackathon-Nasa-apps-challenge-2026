@@ -44,7 +44,9 @@ export const pt: Dict = {
     loading: "Carregando o mapa…",
     failed: "O mapa não carregou. Recarregue a página.",
     world: "Ver o mundo",
-    hint: "Arraste para girar o globo, role para ampliar. Clique em qualquer ponto para ver quando o satélite passou ali. Abra uma cena para comparar duas passagens aqui.",
+    hintDrag: "Arraste para girar o globo",
+    hintClick: "Clique para ver quando o satélite passou aqui",
+    hintTouch: "Toque num ponto para ver quando o satélite passou ali",
     before: "Antes",
     after: "Depois",
     swipeAria: "Divisor entre a passagem de antes e a de depois",
@@ -350,7 +352,6 @@ export const pt: Dict = {
   lab: {
     open: "Laboratório",
     aria: "Laboratório do radar: régua de cheia, compressão de pulso e régua de franjas",
-    close: "Fechar",
     tabs: { hydro: "Régua de cheia", pulse: "Por dentro do pulso", fringes: "Régua de franjas" },
     sections: {
       method: "Método", inside: "A conta por dentro", read: "Como ler",

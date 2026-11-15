@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Place, Polarization } from "@nexxus/contract";
 import { API_MODE, api } from "./api";
@@ -133,6 +133,7 @@ export function App() {
     if (intro) closeIntro();
     setSelectedId(id);
     setOpened(true);
+    setLab(null);
     setTab("scenes");
     move((m) => m.flyToScene(scene));
     requestAnimationFrame(() => document.querySelector(`[data-scene="${id}"]`)?.scrollIntoView({ block: "nearest" }));
@@ -140,6 +141,7 @@ export function App() {
   function choosePlace(next: Place, fly: boolean) {
     if (intro) closeIntro();
     setPlace(next);
+    setLab(null);
     setTab("passes");
     if (fly) move((m) => m.flyToPlace(next));
   }
@@ -154,13 +156,17 @@ export function App() {
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id].slice(-3)));
   };
 
+  // a aba do laboratório vem logo antes da conversa: depois do lugar, se ele estiver na fileira; senão, depois da cena
+  const beforeLab: Tab = place !== null || tab === "passes" ? "passes" : "scenes";
+
   return (
-    <div className={intro ? "app app--intro" : "app"} data-aud={audience}>
+    <div className={[intro ? "app app--intro" : "app", lab ? "app--lab" : ""].join(" ").trim()} data-aud={audience}>
       <main className="stage">
         <Suspense fallback={<div className="map"><p className="map__status">{t.map.loading}</p></div>}>
           <MapView
             ref={attachMap}
             audience={audience}
+            labOpen={lab !== null}
             scenes={scenes}
             selectedId={selectedId}
             hoverId={hoverId}
@@ -187,7 +193,6 @@ export function App() {
         <PlaceSearch onPick={(p) => choosePlace(p, true)} />
         <div className="hud__right">
           {API_MODE === "mock" && <p className="badge" title={t.badge.exampleTitle}>{t.badge.example}</p>}
-          <button type="button" className="ghost ghost--lab" aria-pressed={lab !== null} onClick={() => (lab ? closeLab() : openLab("hydro"))}>{t.lab.open}</button>
           <button type="button" className="ghost" aria-pressed={intro} onClick={() => (intro ? closeIntro() : setIntro(true))}>{t.cover.about}</button>
           <div className="lang" role="group" aria-label={t.language}>
             {LANGS.map((l) => (
@@ -206,13 +211,24 @@ export function App() {
         <div className="tabs" role="tablist" aria-label={t.tabs.aria}>
           {/* a aba do lugar só existe depois que alguém escolhe um lugar, pela busca ou no mapa */}
           {TABS.filter((id) => id !== "passes" || place !== null || tab === "passes").map((id) => (
-            <button key={id} type="button" role="tab" id={`tab-${id}`} aria-selected={tab === id} aria-controls="panel" onClick={() => setTab(id)}>
-              {t.tabs[id]}
-              {id === "passes" && passesQuery.data && passesQuery.data.length > 0 && <span>{passesQuery.data.length}</span>}
-              {id === "ask" && chat.turns.length > 0 && <span>{chat.turns.length}</span>}
-            </button>
+            <Fragment key={id}>
+              <button type="button" role="tab" id={`tab-${id}`} aria-selected={lab === null && tab === id} aria-controls="panel" onClick={() => { closeLab(); setTab(id); }}>
+                {t.tabs[id]}
+                {id === "passes" && passesQuery.data && passesQuery.data.length > 0 && <span>{passesQuery.data.length}</span>}
+                {id === "ask" && chat.turns.length > 0 && <span>{chat.turns.length}</span>}
+              </button>
+              {/* o laboratório é uma aba como as outras, antes da conversa: aberta, a folha alarga */}
+              {id !== "ask" && id === beforeLab && (
+                <button type="button" role="tab" id="tab-lab" aria-selected={lab !== null} aria-controls="lab-panel" onClick={() => { if (!lab) openLab("hydro"); }}>{t.lab.open}</button>
+              )}
+            </Fragment>
           ))}
         </div>
+        {lab ? (
+          <Suspense fallback={<div className="lab" id="lab-panel" role="tabpanel" aria-labelledby="tab-lab"><p className="muted lab__wait">{t.scenes.loading}</p></div>}>
+            <Lab panel={lab} scene={hydroScene} loading={scenesQuery.isPending} failed={scenesQuery.isError} onRetry={() => scenesQuery.refetch()} onPanel={setLab} onClose={closeLab} />
+          </Suspense>
+        ) : (<>
         <div className="panel" key={tab} id="panel" role="tabpanel" aria-labelledby={`tab-${tab}`}>
           {tab === "scenes" && (
             scenesQuery.isPending ? <p className="muted">{t.scenes.loading}</p>
@@ -242,14 +258,10 @@ export function App() {
             ))}
           </div>
         </footer>
+        </>)}
       </aside>
 
       {LINK.perf && <PerfPanel />}
-      {lab && (
-        <Suspense fallback={<section className="lab glass" role="dialog" aria-label={t.lab.aria}><p className="map__status">{t.scenes.loading}</p></section>}>
-          <Lab panel={lab} scene={hydroScene} loading={scenesQuery.isPending} failed={scenesQuery.isError} onRetry={() => scenesQuery.refetch()} onPanel={setLab} onClose={closeLab} />
-        </Suspense>
-      )}
     </div>
   );
 }

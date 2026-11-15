@@ -57,6 +57,8 @@ interface Props {
   onAnalysis?(analysis: MapAnalysis | null): void;
   /** O usuário voltou para a visão do mundo inteiro. */
   onHome?(): void;
+  /** O laboratório está aberto: um painel largo cobre a direita no lugar da folha, e o centro útil do mapa vai mais para a esquerda. */
+  labOpen?: boolean;
 }
 
 /** Cores desenhadas no mapa. Espelham os tokens de styles.css; o mapa não lê variáveis CSS. */
@@ -69,6 +71,8 @@ const NEAR_FROM = 4.4, NEAR_FULL = 5.4;
 const SWIPE_BOX = 290;
 /** Largura do painel de vidro mais a margem, em pixels. Espelha --story e --gap de styles.css. */
 const SHEET = 432;
+/** Largura do painel do laboratório em tela larga. Espelha `--lab-panel` de styles.css: min(60vw, 960px). */
+const labPanelWidth = (viewport: number) => Math.min(viewport * 0.6, 960);
 /** Tempo para a faixa da órbita atravessar o lugar escolhido. */
 const BAND_MS = 1100;
 /** Lado, em pixels, da imagem de radar de cada cena desenhada no mapa. */
@@ -101,6 +105,13 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   const live = useRef({ ...props, t, f });
   live.current = { ...props, t, f };
 
+  /** O laboratório está aberto agora; lido na criação do mapa, que acontece uma vez só. */
+  const labRef = useRef(props.labOpen ?? false);
+  labRef.current = props.labOpen ?? false;
+  /** Quanto da direita do mapa está coberto: a folha normal ou o painel largo do laboratório. */
+  const sideWidth = () => (labRef.current ? labPanelWidth(window.innerWidth) + 32 : SHEET);
+  /** Para onde o giro inicial leva a margem e o zoom, aos poucos. O giro reposiciona o mapa a cada quadro e cancelaria uma animação comum. */
+  const spinTarget = useRef<{ right: number; zoom: number } | null>(null);
   const mapRef = useRef<GlMap | null>(null);
   const pins = useRef(new Map<string, Pin>());
   const spot = useRef<{ marker: Marker; label: HTMLElement } | null>(null);
@@ -151,6 +162,10 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   const [liveFailed, setLiveFailed] = useState(false);
   /** Sinal sob o ponteiro na cena em foco, nas duas passagens do par. Só no dado calibrado. */
   const [probe, setProbe] = useState<{ before: Reading; after: Reading } | null>(null);
+  /** Dicas do globo, cada uma perto do que descreve: a de arrastar some no primeiro arrasto; a de clicar segue o ponteiro até o primeiro clique. */
+  const [dragHint, setDragHint] = useState(true);
+  const [clickHint, setClickHint] = useState(true);
+  const tipRef = useRef<HTMLSpanElement>(null);
   const [ripple, setRipple] = useState<{ x: number; y: number; id: number } | null>(null);
 
   // ---------- imagens de radar de cada cena ----------
@@ -322,7 +337,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     try {
       const size = box.getBoundingClientRect();
       map = new maplibregl.Map({
-        container: box, style, center: HOME, zoom: homeZoom(size.width - (size.width > 900 ? SHEET : 0), size.height - 220), minZoom: 0.6, maxZoom: 16,
+        container: box, style, center: HOME, zoom: homeZoom(size.width - (size.width > 900 ? sideWidth() : 0), size.height - 220), minZoom: 0.6, maxZoom: 16,
         attributionControl: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, renderWorldCopies: false,
       });
     } catch {
@@ -334,7 +349,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
     // em tela larga a folha cobre a direita do mapa: o centro útil fica deslocado para a esquerda
     const narrow = window.matchMedia("(max-width: 900px)");
-    const fit = () => map.setPadding(narrow.matches ? { top: 0, right: 0, bottom: 0, left: 0 } : { top: 64, right: SHEET, bottom: 0, left: 0 });
+    const fit = () => map.setPadding(narrow.matches ? { top: 0, right: 0, bottom: 0, left: 0 } : { top: 64, right: sideWidth(), bottom: 0, left: 0 });
     fit();
     narrow.addEventListener("change", fit);
 
@@ -343,8 +358,15 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     spinning.current = !reduceMotion();
     const spin = (now: number) => {
       if (!spinning.current) return;
-      const c = map.getCenter();
-      map.jumpTo({ center: [c.lng + (now - last) * SPIN, c.lat] });
+      const c = map.getCenter(), center: [number, number] = [c.lng + (now - last) * SPIN, c.lat];
+      const target = spinTarget.current;
+      if (target) {
+        // o laboratório abriu ou fechou durante o giro: margem e zoom chegam ao destino sem parar de girar
+        const k = 1 - Math.exp(-(now - last) / 130), right = map.getPadding().right ?? 0, zoom = map.getZoom();
+        const done = Math.abs(target.right - right) < 0.5 && Math.abs(target.zoom - zoom) < 0.002;
+        map.jumpTo({ center, zoom: done ? target.zoom : zoom + (target.zoom - zoom) * k, padding: { top: 64, right: done ? target.right : right + (target.right - right) * k, bottom: 0, left: 0 } });
+        if (done) spinTarget.current = null;
+      } else map.jumpTo({ center });
       last = now;
       spinRaf = requestAnimationFrame(spin);
     };
@@ -380,7 +402,16 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       setNearScene((prev) => (prev?.id === focus?.id ? prev : focus));
     });
     // leitura em dB sob o ponteiro: no máximo uma por quadro, e só muda a tela quando o valor muda
+    map.on("dragstart", () => setDragHint(false));
     map.on("mousemove", (e) => {
+      // a dica de clicar acompanha o ponteiro: só na visão do mundo, sobre o globo e sem botão apertado; escrita direto no elemento, sem redesenhar a tela
+      const tip = tipRef.current;
+      if (tip) {
+        const back = map.project(e.lngLat), onGlobe = Math.hypot(back.x - e.point.x, back.y - e.point.y) <= 3;
+        const show = onGlobe && e.originalEvent.buttons === 0 && map.getZoom() < 4;
+        tip.style.opacity = show ? "1" : "0";
+        if (show) tip.style.transform = `translate(${e.point.x + 16}px, ${e.point.y + 18}px)`;
+      }
       cancelAnimationFrame(probeRaf.current);
       const { lng, lat } = e.lngLat.wrap();
       probeRaf.current = requestAnimationFrame(() => {
@@ -388,12 +419,13 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
         setProbe((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
       });
     });
-    map.on("mouseout", () => { cancelAnimationFrame(probeRaf.current); setProbe(null); });
+    map.on("mouseout", () => { cancelAnimationFrame(probeRaf.current); setProbe(null); if (tipRef.current) tipRef.current.style.opacity = "0"; });
     map.on("click", (e) => {
       // fora do globo o clique cai num ponto que não volta para o mesmo lugar da tela
       const back = map.project(e.lngLat);
       if (Math.hypot(back.x - e.point.x, back.y - e.point.y) > 3) return;
       setRipple({ x: e.point.x, y: e.point.y, id: Date.now() });
+      setClickHint(false);
       live.current.onPickPoint(e.lngLat.lat, e.lngLat.wrap().lng);
       // de longe a faixa da órbita mal aparece: chega mais perto do ponto escolhido
       if (map.getZoom() < 4) map.flyTo({ center: e.lngLat, zoom: 4.6, duration: 1600 });
@@ -732,7 +764,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     if (!map || !box) return;
     spinning.current = false;
     live.current.onHome?.();
-    map.flyTo({ center: HOME, zoom: homeZoom(box.clientWidth - (box.clientWidth > 900 ? SHEET : 0), box.clientHeight - 220), duration: 2000 });
+    map.flyTo({ center: HOME, zoom: homeZoom(box.clientWidth - (box.clientWidth > 900 ? sideWidth() : 0), box.clientHeight - 220), duration: 2000 });
   }
   useImperativeHandle(ref, () => ({
     flyToScene(scene) { whenReady(() => {
@@ -770,6 +802,24 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nearScene, pol, sensitivity, imageVersion, stepsVersion, ready]);
+
+  // painel do laboratório aberto ou fechado: o mapa desliza para manter a cena à vista na parte que sobra
+  const labOpen = props.labOpen ?? false;
+  const padded = useRef(false);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || window.matchMedia("(max-width: 900px)").matches) return;
+    // ao abrir a página a margem já foi posta na criação do mapa: animar aqui cortaria o voo até a cena do link
+    if (!padded.current) { padded.current = true; return; }
+    const box = boxRef.current, right = sideWidth();
+    // na visão do mundo o globo também muda de tamanho, para caber na parte livre; se o usuário já mexeu no zoom, ele fica como está
+    const was = labOpen ? SHEET : labPanelWidth(window.innerWidth) + 32;
+    const atHome = box !== null && Math.abs(map.getZoom() - homeZoom(box.clientWidth - was, box.clientHeight - 220)) < 0.05;
+    const zoom = atHome && box ? homeZoom(box.clientWidth - right, box.clientHeight - 220) : map.getZoom();
+    if (spinning.current) spinTarget.current = { right, zoom };
+    else map.easeTo({ padding: { top: 64, right, bottom: 0, left: 0 }, zoom, duration: reduceMotion() ? 0 : 500 });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [labOpen, ready]);
 
   const audience = props.audience;
   return (
@@ -920,7 +970,10 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
           </section>
         );
       })() : (
-        <p className="map__hint">{t.map.hint}</p>
+        <>
+          {dragHint && <p className="map__hint"><span><i aria-hidden="true">↔</i>{t.map.hintDrag}<b>{t.map.hintTouch}</b></span></p>}
+          {clickHint && props.hoverId === null && <span className="map__tip" ref={tipRef} aria-hidden="true">{t.map.hintClick}</span>}
+        </>
       )}
     </div>
   );
