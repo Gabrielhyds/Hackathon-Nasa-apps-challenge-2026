@@ -21,12 +21,14 @@ Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask m
 - O agente não recebe a conversa anterior: pergunta de seguimento ("e por quê?") é respondida sem o contexto. Decidir se vale mandar o histórico.
 - Os fatos das cenas existem em dois lugares, a fixture e os cartões. Conferir um contra o outro a cada mudança; o que não bate hoje está no item 24.
 
-### 5. Publicar o ambiente (dono a definir)
+### 5. Ambiente público na VM da Azure (Mateus tem o acesso)
 
-- **O quê:** página e API num endereço público, para quem avalia abrir sem Docker. Falta decidir onde hospedar e quem faz.
-- **Onde mexer:** o `docker compose up -d --build` já sobe os dois. Em outro domínio, `VITE_API_URL` e `PUBLIC_API_URL` no `.env` (Trocar exemplo por dado real, itens 1 e 4, no `CLAUDE.md`); com proxy na frente, sem buffer em `/api/` (Cuidados conhecidos).
-- **Limite de perguntas:** o agente conta as perguntas por minuto pelo primeiro endereço de `X-Forwarded-For` (`_client_ip`, em `apps/agent/agent/main.py`), e o nginx repassa o que o visitante mandar nesse cabeçalho (`$proxy_add_x_forwarded_for`): quem troca o valor a cada pedido não é limitado e gasta a cota do modelo. Num endereço público, o proxy da ponta precisa gravar o endereço real (no nginx deste repositório, `proxy_set_header X-Forwarded-For $remote_addr;` se ele for a ponta) ou o agente passa a ler o último valor da lista.
-- **Pronto quando:** o link abre de fora da rede do time com as cenas e as imagens reais, e `GET /api/health` responde.
+- **Como está (15/11):** uma VM da Azure (Ubuntu 24.04, 2 vCPUs, 7,7 GB) serve a `main` com `docker compose up -d --build` em `~/nexxus`: página, API e agente, na porta 80 (`WEB_PORT=80` e `VITE_API_MODE=http` no `.env` de lá). De fora só a 80 responde; a 3000 e a 8090 ficam fechadas. O endereço é o IP da máquina, por HTTP: peça ao Mateus.
+- **Atualizar depois de um merge:** na VM, em `~/nexxus`, `git pull` e `sudo docker compose up -d --build` (o Docker lá pede `sudo`).
+- **Falta a chave do agente:** `GEMINI_API_KEY` está vazia no `.env` da VM, então a aba Ask responde no modo reserva (item 4).
+- **Falta o limite de perguntas, antes de pôr a chave:** o agente conta as perguntas por minuto pelo primeiro endereço de `X-Forwarded-For` (`_client_ip`, em `apps/agent/agent/main.py`), e o nginx repassa o que o visitante mandar nesse cabeçalho (`$proxy_add_x_forwarded_for`, em `apps/web/nginx.conf`): quem troca o valor a cada pedido não é limitado e gasta a cota do modelo. Na VM esse nginx é a ponta, então basta `proxy_set_header X-Forwarded-For $remote_addr;`; com outro proxy na frente, é ele que precisa gravar o endereço real.
+- **A decidir:** HTTPS e domínio (hoje o link da submissão seria um IP) e até quando a VM fica ligada, para cobrir o julgamento.
+- **Pronto quando:** o link abre de fora da rede do time com as cenas e as imagens reais, `GET /api/health` responde, uma resposta escrita pelo modelo foi vista na tela e o endereço está na submissão.
 
 ### 6. Números do Taquari nos textos (Laís)
 
@@ -48,18 +50,6 @@ Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask m
 
 - O detalhe de perto do globo (acima do zoom 8) vem do Esri World Imagery (`apps/web/src/lib/tiles.ts`); o resto do fundo é da NASA (GIBS).
 - **Pronto quando:** os termos permitem o uso na demo e na página do projeto e o crédito pedido está no mapa e no `README.md`; se não permitirem, o detalhe sai.
-
-### 23. Textos e detalhes de tela vistos no ensaio de 15/11 (Gabriel)
-
-Vistos na tela com o Docker normal, na madrugada de 15/11. São pequenos e independentes.
-
-- **La Guaira, nível Dados, seção Origem:** aparece "No data on one of the dates: 50.0% of the crop, drawn black" (`originMissing` e `originMissingValue`, em `SceneSheet.tsx`, linha 221). Na cena de interferograma os vazios são transparentes e são água ou sinal perdido num dos pares, como a legenda do divisor já diz. Esconder a linha quando `isInterferogram`, ou dar a ela o texto da legenda. Ver em `?scene=laguaira&aud=analyze`, seção Origem.
-- **La Guaira, nível Dados, seção História:** o botão "Measure the change" leva à seção Medir, que nessa cena não mede nada (explica a fase). Trocar o rótulo ou tirar o botão nessa cena.
-- **Pulso, "The sent pulse":** "a sweep of 25 µs, 3.7 km long on the ground" (`sentNote`, em `en.ts` e `pt.ts`). c·T/2 é o comprimento do pulso na direção do satélite, não no chão; o cartão ao lado já diz "along the line of sight". Usar o mesmo termo nos dois idiomas.
-- **Régua de cheia, "78% cloud":** a conta do `scripts/hydrograph.py` é nuvem ou sombra de nuvem (o cinza da máscara do HLS). Dizer "cloud or cloud shadow" / "nuvem ou sombra", nos três textos de `i18n` que mostram a porcentagem.
-- **Régua de cheia em tela estreita:** o gráfico tem 760 px e rola de lado dentro de `.hydro__chart`; abre no começo da série (junho), com o pico de 23/07 fora da tela. Visto em 375 px, em `?lab=hydro&lang=pt`. Abrir rolado até o pico.
-- **Mapa de mudança com um lado quase nulo:** em Maceió a caixa do divisor mostra "≈ 1.430 km² mais escuros" e "≈ 0 km² mais claros". Quando os dois lados somam pouco a tela já troca o número por uma frase (`ALMOST_NOTHING`, em `MapView.tsx`), mas não quando só um deles é quase zero. Visto em `?scene=maceio&view=change`, em 15/11.
-- **Pronto quando:** os pontos acima foram vistos na tela, nos dois idiomas.
 
 ### 24. Cartões do agente contra a fixture e a tela (Vitor)
 
@@ -94,7 +84,7 @@ Conferido de novo na manhã de 15/11, contra a `main` depois dos PRs do agente: 
 ### 21. Laboratório e tela nova: o que ficou (Gabriel)
 
 - O laboratório, o redesenho e a tela reorganizada estão na `main` e descritos no `CLAUDE.md` (Estrutura e O laboratório). Ficou:
-- **Tela estreita:** a legenda do gráfico da régua de cheia rola junto com ele (ver também o item 23) e a simulação do pulso tem umas duas telas de altura.
+- **Tela estreita:** a legenda do gráfico da régua de cheia rola junto com ele e a simulação do pulso tem umas duas telas de altura.
 - **Captura do README:** `docs/preview-regua-cheia.jpg` foi refeita só em inglês.
 - **Inglês:** "flood level" ou "flood stage" nos textos das cenas e "through frequency" no laboratório, para o time decidir; a leitura de alguém fluente segue no item 8.
 - **Cenas sazonais no mapa de mudança:** o lado que muda cobre quase toda a cena em Maceió (cerca de 1.430 km² mais escuros) e no Campo de Gelo Sul (cerca de 1.980 km²), em 1,25× e HH, vistos na tela em 15/11. É o que o dado calibrado diz; decidir se é o que queremos mostrar.
