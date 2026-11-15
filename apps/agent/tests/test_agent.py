@@ -257,15 +257,46 @@ def test_modelo_previsao_cai_para_reserva(monkeypatch):
 
 # ---------- Verificador, caso a caso ----------
 
-def test_63_so_com_mapa_de_mudanca():
+def test_area_do_mapa_de_mudanca_so_com_o_nome_dele():
     card = core.CARDS["taquari_numeros_antigos"]
-    assert check_answer("O mapa de mudança mostra cerca de 63 km².", [card]) == []
-    assert check_answer("Foram 63 km² de água.", [card])
+    assert check_answer("O mapa de mudança mostra cerca de 55 km² mais escuros.", [card]) == []
+    assert check_answer("No par de 11/07 contra 23/07, o mapa de mudança marca cerca de 60 km².", [card]) == []
+    assert check_answer("Foram 55 km² de água.", [card])
+    assert check_answer("Foram 60 km² de água.", [card])
+    # O 63 km² saiu da tela e dos cartões: não passa nem com o nome do mapa.
+    assert check_answer("O mapa de mudança mostra cerca de 63 km².", [card])
+
+
+def test_copa_do_mundo_nao_e_copa_das_arvores():
+    a = asyncio.run(core.ask("E quem ganha a Copa?", "pt"))
+    assert a.mode == "no_info" and a.cards == []
+    hits = retrieve("O radar atravessa a copa das árvores?", core.CARDS)
+    assert hits and hits[0][0].id == "radar_basico"
+
+
+def test_daqui_aponta_para_a_cena_aberta():
+    from agent.knowledge import scene_in_focus
+
+    assert scene_in_focus("Quando foram as passagens daqui?", core.CARDS, "campinas") == "campinas"
+    a = asyncio.run(core.ask("Quando foram as passagens daqui?", "pt", "campinas"))
+    assert "campinas" in a.cards and "27/06 e 06/11/2026" in a.answer
+
+
+def test_cartoes_de_cena_trazem_as_datas_do_par():
+    # As datas vêm do manifest das imagens (apps/api/scene-images/manifest.json).
+    pares = {
+        "sindh": ("17/06", "09/09/2026"), "labrea": ("24/08", "23/10/2026"),
+        "jakobshavn": ("23/06", "02/11/2026"), "pantanal": ("17/07", "21/10/2026"),
+        "kalimantan": ("30/06", "28/10/2026"), "campo_de_gelo_sul": ("28/06", "26/10/2026"),
+        "campinas": ("27/06", "06/11/2026"), "maceio": ("23/06", "21/10/2026"),
+    }
+    for cid, (antes, depois) in pares.items():
+        assert f"em {antes} e {depois}" in core.CARDS[cid].texto["pt"], cid
 
 
 def test_guard_aceita_resposta_fiel():
     cards = [core.CARDS["taquari"], core.CARDS["taquari_metodo"]]
-    boa = ("O time mediu cerca de 53 km² de água aberta nova entre 11/07 e 23/07/2026, "
+    boa = ("O time mediu cerca de 53 km² de água aberta nova na passagem de 23/07/2026, "
            "com faixa de 49 a 56 km². Não é a área alagada total.")
     assert check_answer(boa, cards) == []
 
@@ -458,3 +489,76 @@ def test_texto_dos_cartoes_comeca_com_maiuscula():
         for lang in ("pt", "en"):
             for frase in re.split(r"(?<=[.!?])\s+", card.texto[lang]):
                 assert not frase[:1].islower(), f"{card.id} ({lang}): {frase[:50]}"
+
+
+# ---------- O que o modelo real mostrou em 15/11 ----------
+
+def test_etiqueta_com_varios_cartoes_some_e_vira_fonte(monkeypatch):
+    fake_model(monkeypatch, "NISAR is a NASA and ISRO radar satellite, while Sentinel-1 is ESA's [parceiros, nisar].")
+    a = run(core.ask("How is NISAR different from Sentinel-1?"))
+    assert a.mode == "model" and "[" not in a.answer
+    assert set(a.cards) == {"parceiros", "nisar"}
+
+
+def test_pergunta_de_seguimento_e_sobre_a_cena_aberta():
+    # O agente não recebe a conversa: sem palavra de conteúdo, a pergunta é sobre o que está na tela.
+    for q, cena in [("E por quê?", "taquari"), ("Tell me more", "taquari"),
+                    ("Why does it matter?", "chokwe"), ("Conte mais", "campinas")]:
+        a = run(core.ask(q, scene=cena))
+        assert a.cards == [cena], f"{q} com {cena} aberta -> {a.mode} {a.cards}"
+    # Sem cena aberta não há do que falar, e pergunta com assunto próprio segue fora.
+    assert run(core.ask("E por quê?")).mode == "no_info"
+    assert run(core.ask("Who are you?", scene="taquari")).cards[0] != "taquari"
+
+
+def test_este_dado_aponta_para_a_cena_aberta(monkeypatch):
+    # Na reserva responde o cartão dos limites, e a cena entra com a ressalva e as fontes dela.
+    for q, cena in [("How reliable is this data?", "taquari"), ("Quão confiável é este dado?", "chokwe")]:
+        a = run(core.ask(q, scene=cena))
+        assert a.cards[0] == "limites" and cena in a.cards, f"{q} com {cena} aberta -> {a.cards}"
+        assert core.CARDS[cena].ressalva[a.lang] in a.caveats
+    assert "taquari" not in run(core.ask("How reliable is this data?")).cards
+    # O modelo recebe o cartão da cena junto com o dos limites.
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    visto = []
+
+    async def gen(system, user):
+        visto.append(user)
+        return "In the Taquari valley the passes are in the PROVISIONAL release [taquari]."
+
+    monkeypatch.setattr(llm, "generate", gen)
+    run(core.ask("How reliable is this data?", scene="taquari"))
+    assert "[taquari]" in visto[0] and "[limites]" in visto[0] and "OPEN SCENE" in visto[0]
+
+
+def test_recusa_do_modelo_vira_nao_sei_sem_fontes(monkeypatch):
+    for q, reply in [
+        ("E quem ganha a Copa?", "O Nexxus não fala sobre esportes ou assuntos fora do projeto."),
+        ("Who can use this? How would a city use Nexxus?", "Nexxus does not have that information. I can talk about radar."),
+        ("How would a city use Nexxus?", "Nexxus doesn't have that information."),
+    ]:
+        fake_model(monkeypatch, reply)
+        a = run(core.ask(q))
+        assert a.mode == "no_info" and not a.cards and not a.sources, f"{q} -> {a.mode} {a.cards}"
+    # Resposta que cita cartão não é recusa, mesmo dizendo o que o Nexxus não tem.
+    fake_model(monkeypatch, "Nexxus does not have that information for the whole valley, only about 53 km² of new open water [taquari].")
+    assert run(core.ask("How big was the Taquari flood?")).mode == "model"
+
+
+def test_cache_nao_separa_por_cena_a_pergunta_que_nao_e_sobre_ela(monkeypatch):
+    import agent.main as m
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    chamadas = []
+
+    async def gen(system, user):
+        chamadas.append(1)
+        return "NISAR flies 747 km up [nisar]."
+
+    monkeypatch.setattr(llm, "generate", gen)
+    c = TestClient(app)
+    for cena in (None, "taquari", "campinas"):
+        r = c.post("/api/ask", json={"question": "What is NISAR?", "lang": "en", "scene": cena})
+        assert r.json()["mode"] == "model"
+    assert len(chamadas) == 1
+    # A pergunta que aponta para a cena continua com uma resposta por cena.
+    assert m._chave("What changed here?", "en", "taquari") != m._chave("What changed here?", "en", "campinas")

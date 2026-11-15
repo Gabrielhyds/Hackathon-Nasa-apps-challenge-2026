@@ -9,7 +9,7 @@ No Nexxus ele é o serviço `agent` do Docker Compose da raiz e atende a aba Ask
 1. **Busca** os cartões certos em `data/cards.json` (28 cartões, fatos conferidos em 15/11/2026, em português e inglês). A busca pesa palavra-chave, título e texto, e dá mais peso a termo raro: "Campinas mudou entre as passagens?" vai para a cena de Campinas, não para a aba Passes.
 2. **Pergunta ao Gemini** só com esses cartões. O prompt (`agent/prompt.py`) manda usar palavras simples, tom de briefing da NASA, responder na primeira frase, citar o cartão em cada frase e dizer quem mediu o quê (time ou NASA).
 3. **Confere a resposta** (`agent/guard.py`). Reprova quando a resposta:
-   - usa número proibido (57, 46,7, 45,6, 780 km²; 63 km² só junto de "mapa de mudança");
+   - usa número proibido (57, 46,7, 45,6, 780 km²; 55 ou 60 km² só junto de "mapa de mudança");
    - escreve medida, data, magnitude ou ano que não está nos cartões usados;
    - diz que os 53 km² são a área alagada total;
    - diz para que lado o chão andou sem creditar à NASA;

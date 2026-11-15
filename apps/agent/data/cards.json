@@ -1,5 +1,5 @@
 {
-  "versao": "2026-11-15b",
+  "versao": "2026-11-15c",
   "nota": "Cartões do agente. Cada resposta só pode usar o que está aqui. Fontes conferidas em 15/11/2026 (NISAR: science.nasa.gov e nisar-docs.asf.alaska.edu; cheia do Taquari: Jornal do Comércio). Para trocar os números, edite este arquivo, não o prompt.",
   "cards": [
     {
@@ -11,16 +11,20 @@
         "en": "Taquari River flood, Brazil (July 2026)"
       },
       "texto": {
-        "pt": "O rio Taquari passou da cota de inundação em 22/07/2026, a primeira cheia acima da cota no Rio Grande do Sul desde as enchentes de 2024. Documentos técnicos divulgados na noite de 21/07 previam que o rio não chegaria à cota. Em Lajeado o nível passou de 24 m na tarde de 22/07, com cinco municípios em alerta máximo: Lajeado, Encantado, Roca Sales, São Sebastião do Caí e Muçum. Nuvens cobriam o vale para os satélites ópticos, e o radar do NISAR atravessa nuvens. Comparando as passagens de 11/07 e 23/07/2026, o Nexxus mede cerca de 53 km² de água aberta nova (faixa de 49 a 56 km²) na noite seguinte ao pico do rio. Nas passagens de referência eram de 0,3 a 1,6 km²; quatro dias depois, 5 km².",
-        "en": "The Taquari River rose above flood stage on July 22, 2026, the first flood above that level in Rio Grande do Sul since the 2024 floods. Technical documents released the night of July 21 predicted the river would not reach flood stage. In Lajeado the level passed 24 m that afternoon, with five towns on top alert: Lajeado, Encantado, Roca Sales, São Sebastião do Caí and Muçum. Clouds hid the valley from optical satellites, and NISAR's radar sees through clouds. Comparing the July 11 and July 23, 2026 passes, Nexxus measures about 53 km² of new open water (range 49 to 56 km²) the evening after the river peaked. Reference passes showed 0.3 to 1.6 km²; four days later, 5 km²."
+        "pt": "O rio Taquari passou da cota de inundação em 22/07/2026, a primeira cheia acima da cota no Rio Grande do Sul desde as enchentes de 2024. Documentos técnicos divulgados na noite de 21/07 previam que o rio não chegaria à cota. Em Lajeado o rio chegou a 24,7 m em 22/07, com cinco municípios em alerta máximo: Lajeado, Encantado, Roca Sales, São Sebastião do Caí e Muçum. Nuvens cobriam o vale para os satélites ópticos, e o radar do NISAR atravessa nuvens. Na passagem de 23/07/2026, a noite seguinte ao pico do rio, o Nexxus mede cerca de 53 km² de água aberta nova (faixa de 49 a 56 km²) em relação à referência de águas baixas da mesma órbita. Nas passagens de referência eram de 0,3 a 1,6 km²; quatro dias depois, 5 km². A cena tem quatro passagens da mesma órbita: 17/06, 29/06, 11/07 e 23/07/2026.",
+        "en": "The Taquari River rose above flood stage on July 22, 2026, the first flood above that level in Rio Grande do Sul since the 2024 floods. Technical documents released the night of July 21 predicted the river would not reach flood stage. In Lajeado the river reached 24.7 m that day, with five towns on top alert: Lajeado, Encantado, Roca Sales, São Sebastião do Caí and Muçum. Clouds hid the valley from optical satellites, and NISAR's radar sees through clouds. On the July 23, 2026 pass, the evening after the river peaked, Nexxus measures about 53 km² of new open water (range 49 to 56 km²) relative to the same orbit's low-water reference. Reference passes showed 0.3 to 1.6 km²; four days later, 5 km². The scene has four passes from the same orbit: June 17, June 29, July 11 and July 23, 2026."
       },
       "ressalva": {
-        "pt": "É água aberta nova, não a área alagada total: água sob árvores ou entre prédios não aparece assim. Medida do time no GCOV calibrado do NISAR, lote PROVISIONAL (calibrado e validado só em alguns lugares). Cada estação de medição tem sua própria cota, por isso o nível de 24 m vale para Lajeado. O Nexxus não cita número de desabrigados, porque as fontes divergem.",
-        "en": "This is new open water, not the total flooded area: water under trees or between buildings does not show up this way. Team measurement on calibrated NISAR GCOV data, PROVISIONAL release (calibrated and validated only at some sites). Each gauge has its own flood stage, so the 24 m level is the one at Lajeado. Nexxus does not quote a number of displaced people, because sources disagree."
+        "pt": "É água aberta nova, não a área alagada total: água sob árvores ou entre prédios não aparece assim. Medida do time no GCOV calibrado do NISAR, lote PROVISIONAL (calibrado e validado só em alguns lugares). Cada estação de medição tem sua própria cota, por isso o nível de 24,7 m vale para Lajeado. O Nexxus não cita número de desabrigados, porque as fontes divergem.",
+        "en": "This is new open water, not the total flooded area: water under trees or between buildings does not show up this way. Team measurement on calibrated NISAR GCOV data, PROVISIONAL release (calibrated and validated only at some sites). Each gauge has its own flood stage, so the 24.7 m level is the one at Lajeado. Nexxus does not quote a number of displaced people, because sources disagree."
       },
       "fontes": [
         {
-          "nome": "Jornal do Comércio, 22/07/2026 (nível de 24 m em Lajeado, cinco municípios em alerta)",
+          "nome": "Jornal do Comércio, 06/10/2026 (o rio chegou a 24,7 m em Lajeado em 22/07)",
+          "url": "https://www.jornaldocomercio.com/jornal-cidades/2026/10/1265366-prefeitura-de-lajeado-monitora-uso-de-imoveis-em-areas-condenadas.html"
+        },
+        {
+          "nome": "Jornal do Comércio, 22/07/2026 (cinco municípios em alerta)",
           "url": "https://www.jornaldocomercio.com/geral/2026/07/1257206-cinco-municipios-superam-cota-de-inundacao-e-mais-de-450-pessoas-estao-desabrigadas.html"
         },
         {
@@ -77,8 +81,8 @@
         "en": "How Nexxus measures new water"
       },
       "texto": {
-        "pt": "A medida do Nexxus é a água aberta nova entre duas passagens da mesma órbita. Para cada ponto que antes era terra, o time exige queda de 3 dB ou mais no canal HH e brilho final abaixo de −12 dB; só esses pontos contam como água nova. As duas imagens usam a mesma escala fixa, com branco em 0 dB no HH e em −6 dB no HV, então a razão entre dois cinzas é razão de amplitude de verdade. A faixa de 49 a 56 km² vem de mexer nesses dois limites para cima e para baixo. A posição de cada ponto vem da grade do próprio arquivo GCOV, já corrigida do relevo.",
-        "en": "Nexxus measures new open water between two passes from the same orbit. For every spot that used to be land, the team requires an HH drop of 3 dB or more and a final brightness below −12 dB; only those spots count as new water. Both images use the same fixed scale, white at 0 dB in HH and at −6 dB in HV, so the ratio between two greys is a true amplitude ratio. The 49 to 56 km² range comes from moving those two thresholds up and down. Each spot's position comes from the GCOV file's own grid, already corrected for terrain."
+        "pt": "A medida do Nexxus é a água aberta nova em cada passagem, em relação à referência de águas baixas da mesma órbita (a mediana das passagens dela até 21/07/2026). Para cada ponto que na referência era terra, o time exige queda de 3 dB ou mais no canal HH e brilho final abaixo de −12 dB; só esses pontos contam como água nova. As imagens usam a mesma escala fixa, com branco em 0 dB no HH e em −6 dB no HV, então a razão entre dois cinzas é razão de amplitude de verdade. A faixa de 49 a 56 km² vem de mexer só no limite de brilho da água, entre −14 e −10 dB; a queda de 3 dB fica fixa. A posição de cada ponto vem da grade do próprio arquivo GCOV, já corrigida do relevo.",
+        "en": "Nexxus measures new open water on each pass, relative to the same orbit's low-water reference (the median of its passes up to July 21, 2026). For every spot that was land in the reference, the team requires an HH drop of 3 dB or more and a final brightness below −12 dB; only those spots count as new water. The images use the same fixed scale, white at 0 dB in HH and at −6 dB in HV, so the ratio between two greys is a true amplitude ratio. The 49 to 56 km² range comes from moving only the water brightness threshold, between −14 and −10 dB; the 3 dB drop stays fixed. Each spot's position comes from the GCOV file's own grid, already corrected for terrain."
       },
       "ressalva": {
         "pt": "Método do time, não um produto oficial da NASA. Só compara datas da mesma órbita: passagens de órbitas diferentes olham o chão de outro ângulo e não se comparam assim.",
@@ -151,8 +155,8 @@
         "en": "Radar hydrograph of the Taquari"
       },
       "texto": {
-        "pt": "O Nexxus usa o NISAR como régua de cheia: mede a água aberta nova em cada passagem e desenha a curva ao longo do tempo. Somando as órbitas de ida e de volta, há uma passagem a cada 6 a 12 dias sobre o vale. O pulso é nítido: cerca de 1 km² de água nova nas semanas anteriores, 53 km² (faixa de 49 a 56 km²) na noite seguinte ao pico do rio em 22/07/2026 e 5 km² quatro dias depois. A conferência vem de três lados independentes: o nível do rio no jornal, as nuvens vistas pelo MODIS e pelo VIIRS em 22 e 23/07 e o mapa de água OPERA de 25/07/2026.",
-        "en": "Nexxus uses NISAR as a flood ruler: it measures new open water on every pass and draws the curve over time. Counting northbound and southbound orbits, there is a pass every 6 to 12 days over the valley. The pulse is sharp: about 1 km² of new water in the weeks before, 53 km² (range 49 to 56 km²) the evening after the river peaked on July 22, 2026, and 5 km² four days later. Three independent checks back it up: the river level in the newspaper, the clouds seen by MODIS and VIIRS on July 22 and 23, and the OPERA water map of July 25, 2026."
+        "pt": "O Nexxus usa o NISAR como régua de cheia: mede a água aberta nova em cada passagem e desenha a curva ao longo do tempo. Somando as órbitas de ida e de volta, há uma passagem a cada 4 ou 8 dias sobre o vale. O pulso é nítido: cerca de 1 km² de água nova nas semanas anteriores, 53 km² (faixa de 49 a 56 km²) na noite seguinte ao pico do rio em 22/07/2026 e 5 km² quatro dias depois. A conferência vem de três lados independentes: o nível do rio no jornal, o mapa de água OPERA de 13/07 e de 25/07/2026 e as imagens ópticas, sem visão limpa do vale entre 15/07 e 01/08.",
+        "en": "Nexxus uses NISAR as a flood ruler: it measures new open water on every pass and draws the curve over time. Counting northbound and southbound orbits, there is a pass every 4 or 8 days over the valley. The pulse is sharp: about 1 km² of new water in the weeks before, 53 km² (range 49 to 56 km²) the evening after the river peaked on July 22, 2026, and 5 km² four days later. Three independent checks back it up: the river level in the newspaper, the OPERA water maps of July 13 and July 25, 2026, and the optical images, with no clear view of the valley between July 15 and August 1."
       },
       "ressalva": {
         "pt": "A série tem 8 passagens e um buraco de dados entre 27/07 e 10/08/2026, informado pelo ASF. Não é vazão nem nível do rio: é área de água aberta nova vista pelo radar.",
@@ -160,8 +164,8 @@
       },
       "fontes": [
         {
-          "nome": "Jornal do Comércio, 22/07/2026 (nível de 24 m em Lajeado)",
-          "url": "https://www.jornaldocomercio.com/geral/2026/07/1257206-cinco-municipios-superam-cota-de-inundacao-e-mais-de-450-pessoas-estao-desabrigadas.html"
+          "nome": "Jornal do Comércio, 06/10/2026 (o rio chegou a 24,7 m em Lajeado em 22/07)",
+          "url": "https://www.jornaldocomercio.com/jornal-cidades/2026/10/1265366-prefeitura-de-lajeado-monitora-uso-de-imoveis-em-areas-condenadas.html"
         },
         {
           "nome": "NISAR: disponibilidade dos dados e buraco de 27/07 a 10/08/2026 (ASF)",
@@ -219,8 +223,8 @@
         "en": "Old Taquari numbers"
       },
       "texto": {
-        "pt": "O único número válido para a cheia do Taquari é cerca de 53 km² de água aberta nova (49 a 56 km²). Os números antigos vinham de imagens de prévia, sem calibração, e foram descartados. O mapa de mudança da tela mostra cerca de 63 km², mas é outra medida: conta subida e queda do sinal e não mede água, por isso não se soma com os 53 km².",
-        "en": "The only valid number for the Taquari flood is about 53 km² of new open water (49 to 56 km²). The older numbers came from uncalibrated preview images and were dropped. The change map on screen shows about 63 km², but that is a different measure: it counts signal rises and drops and does not measure water, so it cannot be added to the 53 km²."
+        "pt": "O único número válido para a cheia do Taquari é cerca de 53 km² de água aberta nova (49 a 56 km²). Os números antigos vinham de imagens de prévia, sem calibração, e foram descartados. O mapa de mudança da tela mostra uma área maior: cerca de 55 km² mais escuros no par em que a cena abre (17/06 contra 23/07) e cerca de 60 km² no par de 11/07 contra 23/07, na sensibilidade 1,25× e em HH. É outra medida: marca onde o sinal caiu ou subiu além de um limiar e não mede água, por isso não se soma nem se compara com os 53 km².",
+        "en": "The only valid number for the Taquari flood is about 53 km² of new open water (49 to 56 km²). The older numbers came from uncalibrated preview images and were dropped. The change map on screen shows a larger area: about 55 km² darker on the pair the scene opens with (June 17 against July 23) and about 60 km² on the July 11 against July 23 pair, at 1.25× sensitivity in HH. It is a different measure: it marks where the signal dropped or rose past a threshold and does not measure water, so it cannot be added to or compared with the 53 km²."
       },
       "ressalva": {
         "pt": "Não somar o mapa de mudança com a medida de água.",
@@ -263,8 +267,8 @@
         "en": "What the measurement misses"
       },
       "texto": {
-        "pt": "A medida tem limites claros. Água sob copa de árvore ou entre prédios não aparece como espelho escuro, então fica de fora. Solo muito molhado e algumas lavouras também derrubam o sinal e podem ser contados como água. Em 13 passagens de agosto a outubro de 2026 a medida sobe aos poucos, de 5 a 27 km², em manchas com forma de lavoura, com ou sem cheia na data; isso também aparece no dado calibrado, então não é erro de calibração. O mapa de mudança da tela conta subida e queda do sinal e não mede água: no Taquari marca cerca de 63 km², e em Chókwè marca muito mais área do que alagou. O Nexxus não faz previsão: ele mede o que já aconteceu, na data de cada passagem, e não diz se vai chover ou alagar de novo. Para alerta e evacuação valem os órgãos oficiais de defesa civil.",
-        "en": "The measurement has clear limits. Water under tree canopy or between buildings does not act as a dark mirror, so it is left out. Very wet soil and some farm fields also push the signal down and can be counted as water. In 13 passes from August to October 2026 the measure creeps up, from 5 to 27 km², in patches shaped like fields, with or without a flood on that date; this shows up in the calibrated data too, so it is not a calibration error. The change map on screen counts signal rises and drops and does not measure water: it marks about 63 km² at the Taquari, and at Chókwè it marks far more land than actually flooded. Nexxus does not forecast: it measures what already happened, on the date of each pass, and does not say whether it will rain or flood again. For warnings and evacuation, the official civil defense agencies are the authority."
+        "pt": "A medida tem limites claros. Água sob copa de árvore ou entre prédios não aparece como espelho escuro, então fica de fora. Solo muito molhado e algumas lavouras também derrubam o sinal e podem ser contados como água. Em 13 passagens de agosto a outubro de 2026 a medida sobe aos poucos, de 5 a 27 km², em manchas com forma de lavoura, com ou sem cheia na data; isso também aparece no dado calibrado, então não é erro de calibração. O mapa de mudança da tela conta subida e queda do sinal e não mede água: no Taquari marca cerca de 55 km² mais escuros no par em que a cena abre (17/06 contra 23/07, em 1,25×), e em Chókwè marca muito mais área do que alagou. O Nexxus não faz previsão: ele mede o que já aconteceu, na data de cada passagem, e não diz se vai chover ou alagar de novo. Para alerta e evacuação valem os órgãos oficiais de defesa civil.",
+        "en": "The measurement has clear limits. Water under tree canopy or between buildings does not act as a dark mirror, so it is left out. Very wet soil and some farm fields also push the signal down and can be counted as water. In 13 passes from August to October 2026 the measure creeps up, from 5 to 27 km², in patches shaped like fields, with or without a flood on that date; this shows up in the calibrated data too, so it is not a calibration error. The change map on screen counts signal rises and drops and does not measure water: at the Taquari it marks about 55 km² darker on the pair the scene opens with (June 17 against July 23, at 1.25×), and at Chókwè it marks far more land than actually flooded. Nexxus does not forecast: it measures what already happened, on the date of each pass, and does not say whether it will rain or flood again. For warnings and evacuation, the official civil defense agencies are the authority."
       },
       "ressalva": {
         "pt": "Leitura do time sobre os próprios limites, não de uma fonte externa. Nas imagens de prévia, antes do dado calibrado, Maceió aparecia 8 km fora do lugar; por isso o Nexxus só usa a grade do arquivo GCOV.",
@@ -356,12 +360,12 @@
         "en": "Limpopo flood at Chókwè, Mozambique (January 2026)"
       },
       "texto": {
-        "pt": "Semanas de chuva em dezembro de 2025 e janeiro de 2026 fizeram os rios Limpopo e Incomati transbordarem no sul de Moçambique. A NASA comparou as passagens do NISAR de 05/01 e 17/01/2026, com a mesma escala de cor, enquanto o satélite óptico Sentinel-2 só via nuvens. A imagem usa os canais HH e HV da banda L: HH em vermelho, HV em verde e a razão HV/HH em azul, então azul escuro é água aberta e magenta sugere floresta alagada. Segundo a NASA, a cheia desalojou mais de 600 mil pessoas, danificou 400 mil acres de lavoura e alagou 30 mil casas. No Nexxus aparece uma faixa escura de vários quilômetros ao longo do rio.",
-        "en": "Weeks of rain in December 2025 and January 2026 pushed the Limpopo and Incomati rivers over their banks in southern Mozambique. NASA compared the NISAR passes of January 5 and January 17, 2026 with the same color scale, while the optical Sentinel-2 satellite saw only clouds. The image uses L-band HH and HV: HH in red, HV in green and the HV/HH ratio in blue, so dark blue is open water and magenta suggests flooded forest. According to NASA, the flood displaced more than 600 thousand people, damaged 400 thousand acres of cropland and flooded 30 thousand homes. In Nexxus you see a dark band several kilometers wide along the river."
+        "pt": "Semanas de chuva em dezembro de 2025 e janeiro de 2026 fizeram os rios Limpopo e Incomati transbordarem no sul de Moçambique. A NASA comparou as passagens do NISAR de 05/01 e 17/01/2026, com a mesma escala de cor, enquanto o satélite óptico Sentinel-2 só via nuvens. A imagem usa os canais HH e HV da banda L: HH em vermelho, HV em verde e a razão HV/HH em azul, então azul escuro é água aberta e magenta sugere floresta alagada. Segundo a NASA, no sul de Moçambique a cheia desalojou mais de 600 mil pessoas, danificou 400 mil acres de lavoura e alagou 30 mil casas. No Nexxus aparece uma faixa escura de vários quilômetros ao longo do rio.",
+        "en": "Weeks of rain in December 2025 and January 2026 pushed the Limpopo and Incomati rivers over their banks in southern Mozambique. NASA compared the NISAR passes of January 5 and January 17, 2026 with the same color scale, while the optical Sentinel-2 satellite saw only clouds. The image uses L-band HH and HV: HH in red, HV in green and the HV/HH ratio in blue, so dark blue is open water and magenta suggests flooded forest. According to NASA, across southern Mozambique the flood displaced more than 600 thousand people, damaged 400 thousand acres of cropland and flooded 30 thousand homes. In Nexxus you see a dark band several kilometers wide along the river."
       },
       "ressalva": {
-        "pt": "As passagens de janeiro de 2026 estão no lote BETA do NISAR, ainda sem calibração completa. Não use o mapa de mudança nesta cena: ele marca terra que não alagou. Os números de impacto são da NASA, não medidos pelo time, e aqui o Nexxus não mede área de água.",
-        "en": "The January 2026 passes are in NISAR's BETA release, not yet fully calibrated. Do not use the change map on this scene: it marks land that did not flood. The impact numbers are NASA's, not measured by the team, and Nexxus does not measure a water area here."
+        "pt": "As passagens de janeiro de 2026 estão no lote BETA do NISAR, ainda sem calibração completa. Não use o mapa de mudança nesta cena: ele marca terra que não alagou. Os números de impacto são da NASA, valem para o sul de Moçambique e não só para Chókwè, e não foram medidos pelo time; aqui o Nexxus não mede área de água.",
+        "en": "The January 2026 passes are in NISAR's BETA release, not yet fully calibrated. Do not use the change map on this scene: it marks land that did not flood. The impact numbers are NASA's, cover southern Mozambique and not only Chókwè, and were not measured by the team; Nexxus does not measure a water area here."
       },
       "fontes": [
         {
@@ -369,7 +373,7 @@
           "url": "https://svs.gsfc.nasa.gov/5661"
         },
         {
-          "nome": "NASA SVS 15087: Flooding in Southern Mozambique",
+          "nome": "NASA SVS 15087: Flooding in Southern Mozambique (série do Landsat)",
           "url": "https://svs.gsfc.nasa.gov/15087/"
         },
         {
@@ -462,8 +466,8 @@
         "en": "Seasonal change scenes"
       },
       "texto": {
-        "pt": "Oito das dez cenas mostram mudança de estação, com duas passagens cada, de junho a novembro de 2026: Sindh (Paquistão), Lábrea (Amazônia), Jakobshavn (Groenlândia), Pantanal, Kalimantan (Bornéu), Campo de Gelo Sul (Patagônia), Campinas e Maceió. Em cada uma, o Nexxus mostra o antes e o depois na mesma escala e o sentido da mudança medido no par calibrado: onde o sinal do radar subiu e onde caiu. Campinas, Kalimantan e Lábrea quase não mudam entre as duas passagens. Nessas oito cenas o time não mediu área de água nem confirmou nenhum evento com fonte de fora.",
-        "en": "Eight of the ten scenes show seasonal change, with two passes each, from June to November 2026: Sindh (Pakistan), Lábrea (Amazon), Jakobshavn (Greenland), the Pantanal, Kalimantan (Borneo), the Southern Patagonian Ice Field, Campinas and Maceió. For each one, Nexxus shows before and after on the same scale and the direction of change measured on the calibrated pair: where the radar signal went up and where it went down. Campinas, Kalimantan and Lábrea barely change between the two passes. For these eight scenes the team measured no water area and confirmed no event with an outside source."
+        "pt": "Oito das onze cenas do Nexxus mostram mudança de estação, com duas passagens cada, de junho a novembro de 2026: Sindh (Paquistão), Lábrea (Amazônia), Jakobshavn (Groenlândia), Pantanal, Kalimantan (Bornéu), Campo de Gelo Sul (Patagônia), Campinas e Maceió. Em cada uma, o Nexxus mostra o antes e o depois na mesma escala e o sentido da mudança medido no par calibrado: onde o sinal do radar subiu e onde caiu. Campinas, Kalimantan e Lábrea quase não mudam entre as duas passagens. Nessas oito cenas o time não mediu área de água nem confirmou nenhum evento com fonte de fora.",
+        "en": "Eight of the eleven Nexxus scenes show seasonal change, with two passes each, from June to November 2026: Sindh (Pakistan), Lábrea (Amazon), Jakobshavn (Greenland), the Pantanal, Kalimantan (Borneo), the Southern Patagonian Ice Field, Campinas and Maceió. For each one, Nexxus shows before and after on the same scale and the direction of change measured on the calibrated pair: where the radar signal went up and where it went down. Campinas, Kalimantan and Lábrea barely change between the two passes. For these eight scenes the team measured no water area and confirmed no event with an outside source."
       },
       "ressalva": {
         "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas por cena, não uma série: não dá para dizer o que houve entre elas.",
@@ -528,8 +532,8 @@
         "en": "Scene: Sindh (Pakistan)"
       },
       "texto": {
-        "pt": "Sindh (Paquistão) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
-        "en": "Sindh (Pakistan) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+        "pt": "Sindh (Paquistão) é uma das oito cenas de mudança sazonal do Nexxus. Ela tem duas passagens do NISAR, em 17/06 e 09/09/2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Sindh (Pakistan) is one of the eight seasonal change scenes in Nexxus. It has two NISAR passes, on June 17 and September 9, 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
       },
       "ressalva": {
         "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
@@ -562,8 +566,8 @@
         "en": "Scene: Lábrea (Amazon)"
       },
       "texto": {
-        "pt": "Lábrea (Amazônia) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Entre as duas passagens a cena quase não muda. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
-        "en": "Lábrea (Amazon) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. Between the two passes this scene barely changes. For this scene the team measured no water area and there is no event confirmed by an outside source."
+        "pt": "Lábrea (Amazônia) é uma das oito cenas de mudança sazonal do Nexxus. Ela tem duas passagens do NISAR, em 24/08 e 23/10/2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Entre as duas passagens a cena quase não muda. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Lábrea (Amazon) is one of the eight seasonal change scenes in Nexxus. It has two NISAR passes, on August 24 and October 23, 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. Between the two passes this scene barely changes. For this scene the team measured no water area and there is no event confirmed by an outside source."
       },
       "ressalva": {
         "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
@@ -596,8 +600,8 @@
         "en": "Scene: Jakobshavn (Greenland)"
       },
       "texto": {
-        "pt": "Jakobshavn (Groenlândia) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
-        "en": "Jakobshavn (Greenland) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+        "pt": "Jakobshavn (Groenlândia) é uma das oito cenas de mudança sazonal do Nexxus. Ela tem duas passagens do NISAR, em 23/06 e 02/11/2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Jakobshavn (Greenland) is one of the eight seasonal change scenes in Nexxus. It has two NISAR passes, on June 23 and November 2, 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
       },
       "ressalva": {
         "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
@@ -632,8 +636,8 @@
         "en": "Scene: the Pantanal"
       },
       "texto": {
-        "pt": "Pantanal é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
-        "en": "The Pantanal is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+        "pt": "Pantanal é uma das oito cenas de mudança sazonal do Nexxus. Ela tem duas passagens do NISAR, em 17/07 e 21/10/2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "The Pantanal is one of the eight seasonal change scenes in Nexxus. It has two NISAR passes, on July 17 and October 21, 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
       },
       "ressalva": {
         "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
@@ -666,8 +670,8 @@
         "en": "Scene: Kalimantan (Borneo)"
       },
       "texto": {
-        "pt": "Kalimantan (Bornéu) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Entre as duas passagens a cena quase não muda. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
-        "en": "Kalimantan (Borneo) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. Between the two passes this scene barely changes. For this scene the team measured no water area and there is no event confirmed by an outside source."
+        "pt": "Kalimantan (Bornéu) é uma das oito cenas de mudança sazonal do Nexxus. Ela tem duas passagens do NISAR, em 30/06 e 28/10/2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Entre as duas passagens a cena quase não muda. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Kalimantan (Borneo) is one of the eight seasonal change scenes in Nexxus. It has two NISAR passes, on June 30 and October 28, 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. Between the two passes this scene barely changes. For this scene the team measured no water area and there is no event confirmed by an outside source."
       },
       "ressalva": {
         "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
@@ -698,8 +702,8 @@
         "en": "Scene: the Southern Patagonian Ice Field"
       },
       "texto": {
-        "pt": "Campo de Gelo Sul (Patagônia) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
-        "en": "The Southern Patagonian Ice Field is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+        "pt": "Campo de Gelo Sul (Patagônia) é uma das oito cenas de mudança sazonal do Nexxus. Ela tem duas passagens do NISAR, em 28/06 e 26/10/2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "The Southern Patagonian Ice Field is one of the eight seasonal change scenes in Nexxus. It has two NISAR passes, on June 28 and October 26, 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
       },
       "ressalva": {
         "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
@@ -733,8 +737,8 @@
         "en": "Scene: Campinas (Brazil)"
       },
       "texto": {
-        "pt": "Campinas (Brasil) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Entre as duas passagens a cena quase não muda. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
-        "en": "Campinas (Brazil) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. Between the two passes this scene barely changes. For this scene the team measured no water area and there is no event confirmed by an outside source."
+        "pt": "Campinas (Brasil) é uma das oito cenas de mudança sazonal do Nexxus. Ela tem duas passagens do NISAR, em 27/06 e 06/11/2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Entre as duas passagens a cena quase não muda. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Campinas (Brazil) is one of the eight seasonal change scenes in Nexxus. It has two NISAR passes, on June 27 and November 6, 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. Between the two passes this scene barely changes. For this scene the team measured no water area and there is no event confirmed by an outside source."
       },
       "ressalva": {
         "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
@@ -767,8 +771,8 @@
         "en": "Scene: Maceió (Brazil)"
       },
       "texto": {
-        "pt": "Maceió (Brasil) é uma das dez cenas do Nexxus. Ela tem duas passagens do NISAR, entre junho e novembro de 2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
-        "en": "Maceió (Brazil) is one of the ten Nexxus scenes. It has two NISAR passes, between June and November 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
+        "pt": "Maceió (Brasil) é uma das oito cenas de mudança sazonal do Nexxus. Ela tem duas passagens do NISAR, em 23/06 e 21/10/2026, mostradas como antes e depois na mesma escala das outras cenas. O Nexxus mede o sentido da mudança no par calibrado: onde o sinal do radar subiu e onde caiu. Nesta cena o time não mediu área de água e não há evento confirmado por fonte de fora.",
+        "en": "Maceió (Brazil) is one of the eight seasonal change scenes in Nexxus. It has two NISAR passes, on June 23 and October 21, 2026, shown as before and after on the same scale as the other scenes. Nexxus measures the direction of change on the calibrated pair: where the radar signal went up and where it went down. For this scene the team measured no water area and there is no event confirmed by an outside source."
       },
       "ressalva": {
         "pt": "Leitura do time, sem evento confirmado por fonte externa. São duas datas, não uma série: não dá para dizer o que houve entre elas.",
@@ -800,8 +804,8 @@
         "en": "The NISAR satellite"
       },
       "texto": {
-        "pt": "O NISAR é um satélite de radar da NASA e da ISRO, a agência espacial da Índia, lançado em 30/07/2025. Voa a 747 km de altura, em órbita polar que cruza o equador sempre no amanhecer e no anoitecer, e repete a mesma trilha a cada 12 dias; somando as passagens de ida e de volta, olha cada ponto em média a cada 6 dias. Cada faixa imageada tem 242 km de largura e o detalhe vai de 3 a 10 m, conforme o modo. Usa dois radares: banda L, com onda de 24 cm, e banda S, com onda de 9,4 cm. Como manda o próprio sinal, enxerga de dia, de noite e através de nuvens. A missão tem 3 anos de duração prevista.",
-        "en": "NISAR is a radar satellite from NASA and ISRO, India's space agency, launched on July 30, 2025. It flies 747 km up, in a polar orbit that always crosses the equator at dawn and dusk, and repeats the same track every 12 days; counting northbound and southbound passes, it looks at each point about every 6 days. Each imaged strip is 242 km wide and detail runs from 3 to 10 m, depending on the mode. It carries two radars: L-band with a 24 cm wave and S-band with a 9.4 cm wave. Because it sends its own signal, it sees day and night and through clouds. The mission has a 3 year baseline."
+        "pt": "O NISAR é um satélite de radar da NASA e da ISRO, a agência espacial da Índia, lançado em 30/07/2025. Voa a 747 km de altura, em órbita polar que cruza o equador sempre no amanhecer e no anoitecer, e repete a mesma trilha a cada 12 dias; somando as passagens de ida e de volta, olha cada ponto em média a cada 6 dias. Cada faixa imageada tem cerca de 240 km de largura e o detalhe vai de 3 a 10 m, conforme o modo. Usa dois radares: banda L, com onda de 24 cm, e banda S, com onda de 9,4 cm. Como manda o próprio sinal, enxerga de dia, de noite e através de nuvens. A missão tem 3 anos de duração prevista.",
+        "en": "NISAR is a radar satellite from NASA and ISRO, India's space agency, launched on July 30, 2025. It flies 747 km up, in a polar orbit that always crosses the equator at dawn and dusk, and repeats the same track every 12 days; counting northbound and southbound passes, it looks at each point about every 6 days. Each imaged strip is about 240 km wide and detail runs from 3 to 10 m, depending on the mode. It carries two radars: L-band with a 24 cm wave and S-band with a 9.4 cm wave. Because it sends its own signal, it sees day and night and through clouds. The mission has a 3 year baseline."
       },
       "ressalva": {
         "pt": "",
@@ -938,7 +942,6 @@
         "why is water",
         "vegetacao",
         "vegetation",
-        "copa",
         "canopy"
       ]
     },
@@ -1060,8 +1063,8 @@
         "en": "Where NISAR data lives"
       },
       "texto": {
-        "pt": "Os dados do NISAR são gratuitos e abertos, guardados no ASF, o arquivo de radar da NASA, e saem em três graus de maturidade. BETA: amostra em 23/01/2026 e mais de 100 mil produtos em 27/02/2026, para passagens de 17/10/2025 a 20/01/2026, sem calibração completa. PROVISIONAL, em 20/07/2026: calibrado e validado em alguns lugares, para passagens a partir de 17/06/2026. VALIDATED, em 06/11/2026: calibrado e validado, níveis 0 a 2, para passagens a partir de 21/10/2026. O Nexxus usa o GCOV, que traz o brilho do radar já corrigido do relevo, e o GUNW, que traz o interferograma. Para achar as imagens há o Earthdata Search e o ASF Vertex. Para baixar o arquivo inteiro é preciso uma conta Earthdata, gratuita; o catálogo de passagens não pede login.",
-        "en": "NISAR data is free and open, kept at ASF, NASA's radar archive, and comes out in three maturity levels. BETA: a sample on January 23, 2026 and over 100 thousand products on February 27, 2026, for passes from October 17, 2025 to January 20, 2026, not fully calibrated. PROVISIONAL, on July 20, 2026: calibrated and validated at some sites, for passes from June 17, 2026 on. VALIDATED, on November 6, 2026: calibrated and validated, levels 0 to 2, for passes from October 21, 2026 on. Nexxus uses GCOV, which gives radar brightness already corrected for terrain, and GUNW, which gives the interferogram. To find the images there are Earthdata Search and ASF Vertex. Downloading a whole file needs a free Earthdata account; the pass catalog needs no login."
+        "pt": "Os dados do NISAR são gratuitos e abertos, guardados no ASF, o arquivo de radar da NASA, e saem em três graus de maturidade. BETA: amostra em 23/01/2026 e mais de 100 mil produtos em 27/02/2026, para passagens de 17/10/2025 a 20/01/2026, sem calibração completa. PROVISIONAL, em 20/07/2026: calibrado e validado em alguns lugares, para passagens a partir de 17/06/2026. VALIDATED, em 06/11/2026: calibrado e validado, níveis 0 a 2, para passagens a partir de 21/10/2026. As cenas do Nexxus têm passagens dos três graus, e a versão de cada passagem aparece na tela, no nível Dados. O Nexxus usa o GCOV, que traz o brilho do radar já corrigido do relevo, e o GUNW, que traz o interferograma. Para achar as imagens há o Earthdata Search e o ASF Vertex. Para baixar o arquivo inteiro é preciso uma conta Earthdata, gratuita; o catálogo de passagens não pede login.",
+        "en": "NISAR data is free and open, kept at ASF, NASA's radar archive, and comes out in three maturity levels. BETA: a sample on January 23, 2026 and over 100 thousand products on February 27, 2026, for passes from October 17, 2025 to January 20, 2026, not fully calibrated. PROVISIONAL, on July 20, 2026: calibrated and validated at some sites, for passes from June 17, 2026 on. VALIDATED, on November 6, 2026: calibrated and validated, levels 0 to 2, for passes from October 21, 2026 on. Nexxus scenes include passes at all three levels, and each pass's release is shown on screen, at the Data level. Nexxus uses GCOV, which gives radar brightness already corrected for terrain, and GUNW, which gives the interferogram. To find the images there are Earthdata Search and ASF Vertex. Downloading a whole file needs a free Earthdata account; the pass catalog needs no login."
       },
       "ressalva": {
         "pt": "Há um buraco permanente de dados entre 27/07 e 10/08/2026, e o ASF avisa que em 2027 um reprocessamento vai substituir as versões antigas. As cenas do Taquari estão no lote PROVISIONAL; as de Chókwè, no BETA.",
@@ -1197,8 +1200,8 @@
         "en": "Other data used"
       },
       "texto": {
-        "pt": "Para conferir o radar, o Nexxus usa imagens de nuvem dos sensores ópticos MODIS e VIIRS, servidas pelo GIBS da NASA, que também dá o fundo do globo. Usa também o mapa de água OPERA DSWx-S1, feito com o radar C-SAR dos satélites Sentinel-1, da agência espacial europeia (ESA). Esse mapa tem pixel de 30 m, pega corpos d'água maiores que 3 hectares e com pelo menos 200 m de largura, e repete a cada 6 a 12 dias. Como é radar, funciona com nuvem e de noite.",
-        "en": "To cross-check the radar, Nexxus uses cloud images from the MODIS and VIIRS optical sensors, served by NASA's GIBS, which also provides the globe background. It also uses the OPERA DSWx-S1 water map, made with the C-SAR radar on the Sentinel-1 satellites, from the European Space Agency (ESA). That map has 30 m pixels, catches water bodies larger than 3 hectares and at least 200 m wide, and repeats every 6 to 12 days. Being radar, it works through clouds and at night."
+        "pt": "Para conferir o radar, o Nexxus usa imagens ópticas servidas pelo GIBS da NASA, que também dá o fundo do globo: a do sensor MODIS no dia da passagem do radar e as do HLS, que junta Landsat e Sentinel-2. Usa também o mapa de água OPERA DSWx-S1, feito com o radar C-SAR dos satélites Sentinel-1, da agência espacial europeia (ESA). Esse mapa tem pixel de 30 m, pega corpos d'água maiores que 3 hectares e com pelo menos 200 m de largura, e repete a cada 6 a 12 dias. Como é radar, funciona com nuvem e de noite.",
+        "en": "To cross-check the radar, Nexxus uses optical images served by NASA's GIBS, which also provides the globe background: the MODIS image from the day of the radar pass and the HLS images, which combine Landsat and Sentinel-2. It also uses the OPERA DSWx-S1 water map, made with the C-SAR radar on the Sentinel-1 satellites, from the European Space Agency (ESA). That map has 30 m pixels, catches water bodies larger than 3 hectares and at least 200 m wide, and repeats every 6 to 12 days. Being radar, it works through clouds and at night."
       },
       "ressalva": {
         "pt": "O OPERA DSWx-S1 usa dados Copernicus Sentinel modificados (ESA, agência parceira), não dados da NASA. A camada do NISAR no GIBS tem telhas quebradas e ficou fora do Nexxus.",
@@ -1411,8 +1414,8 @@
         "en": "What Nexxus is"
       },
       "texto": {
-        "pt": "O Nexxus é o projeto de um time de Campinas, no Brasil, para o desafio Dancing with the SARs do NASA Space Apps 2026. Ele traz 10 cenas de radar do NISAR com antes e depois na mesma escala, acha todas as passagens do NISAR sobre qualquer lugar pelo catálogo da NASA, desenha o hidrograma de radar da cheia do Taquari e responde perguntas citando a fonte. Cada cena mostra a base, se é evento documentado ou leitura do time, as fontes conferidas e a ressalva.",
-        "en": "Nexxus is a project by a team from Campinas, Brazil, for the Dancing with the SARs challenge at NASA Space Apps 2026. It shows 10 NISAR radar scenes before and after on the same scale, finds every NISAR pass over any place using NASA's catalog, draws the radar hydrograph of the Taquari flood, and answers questions with sources. Every scene shows its basis, whether a documented event or a team reading, the checked sources and the caveat."
+        "pt": "O Nexxus é o projeto de um time de Campinas, no Brasil, para o desafio Dancing with the SARs do NASA Space Apps 2026. Ele traz 11 cenas do NISAR: dez de brilho, com antes e depois na mesma escala, e uma de interferograma, a dos terremotos da Venezuela; acha todas as passagens do NISAR sobre qualquer lugar pelo catálogo da NASA, desenha o hidrograma de radar da cheia do Taquari e responde perguntas citando a fonte. Cada cena mostra a base, se é evento documentado ou leitura do time, as fontes conferidas e a ressalva.",
+        "en": "Nexxus is a project by a team from Campinas, Brazil, for the Dancing with the SARs challenge at NASA Space Apps 2026. It shows 11 NISAR scenes: ten brightness scenes, before and after on the same scale, and one interferogram, of the Venezuela earthquakes; it finds every NISAR pass over any place using NASA's catalog, draws the radar hydrograph of the Taquari flood, and answers questions with sources. Every scene shows its basis, whether a documented event or a team reading, the checked sources and the caveat."
       },
       "ressalva": {
         "pt": "",

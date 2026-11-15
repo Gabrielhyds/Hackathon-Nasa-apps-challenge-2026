@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 
 from . import llm
 from .core import CARDS, ask
-from .knowledge import detect_lang, norm
+from .knowledge import detect_lang, norm, scene_in_focus
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 log = logging.getLogger("nexxus.main")
@@ -49,7 +49,11 @@ _cache: OrderedDict[str, dict] = OrderedDict()
 
 
 def _chave(question: str, lang: str, scene: str | None) -> str:
-    return f"{lang}|{scene}|{norm(question).strip()}"
+    # A cena só entra na chave quando a pergunta é sobre ela. O front manda a cena aberta em toda
+    # pergunta: sem isto, "O que é o NISAR?" virava uma chave (e um pedido ao modelo) por cena aberta,
+    # e a resposta pronta, guardada sem cena, nunca servia.
+    foco = scene_in_focus(question, CARDS, scene)
+    return f"{lang}|{foco}|{norm(question).strip()}"
 
 
 def _carregar_prontas() -> int:
