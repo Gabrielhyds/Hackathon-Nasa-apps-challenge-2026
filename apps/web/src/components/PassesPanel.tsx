@@ -18,11 +18,9 @@ interface Props {
   scenes: Scene[];
   onRetry(): void;
   onOpenScene(id: string): void;
-  /** Tira o lugar escolhido: somem o ponto e as faixas do mapa, e a aba do lugar. */
-  onClear(): void;
 }
 
-export function PassesPanel({ place, audience, passes, loading, failed, example, scenes, onRetry, onOpenScene, onClear }: Props) {
+export function PassesPanel({ place, audience, passes, loading, failed, example, scenes, onRetry, onOpenScene }: Props) {
   const { t, f } = useI18n();
   if (!place) {
     return (
@@ -42,7 +40,6 @@ export function PassesPanel({ place, audience, passes, loading, failed, example,
     <div className="stack">
       <header>
         <h2 className="title">{placeLabel(place)}</h2>
-        <button type="button" className="link" onClick={onClear}>{t.passes.clear}</button>
         {passes && passes.length > 0 && (
           <p className="meta">
             {t.passes.count(passes.length, f.date(passes[0].date))}{example === "mock" ? ` · ${t.passes.example}` : ""}

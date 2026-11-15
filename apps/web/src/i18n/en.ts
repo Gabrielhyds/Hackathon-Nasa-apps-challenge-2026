@@ -309,7 +309,7 @@ export const en = {
     loading: "Looking for passes…",
     error: "Could not fetch the passes. Check the connection to the API.",
     retry: "Search again",
-    clear: "Remove this place",
+    clear: "Close this place",
     none: "No passes at this spot in the NASA catalog. NISAR observes land and ice, and the public catalog does not cover every spot yet.",
     columns: ["Date", "Orbit", "Track/frame", "Polarization", "Product"],
     direction: { ascending: "ascending", descending: "descending" },

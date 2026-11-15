@@ -150,7 +150,7 @@ export function App() {
   /** Tira o lugar escolhido: o ponto e as faixas saem do mapa, a aba do lugar some e a busca esvazia. */
   function clearPlace() {
     setPlace(null);
-    setTab("scenes");
+    if (tab === "passes") setTab("scenes");
     setSearchReset((n) => n + 1);
   }
   // o hidrograma é da cena aberta, se ela tiver um; senão, da primeira que tiver
@@ -220,11 +220,14 @@ export function App() {
           {/* a aba do lugar só existe depois que alguém escolhe um lugar, pela busca ou no mapa */}
           {TABS.filter((id) => id !== "passes" || place !== null || tab === "passes").map((id) => (
             <Fragment key={id}>
-              <button type="button" role="tab" id={`tab-${id}`} aria-selected={lab === null && tab === id} aria-controls="panel" onClick={() => { closeLab(); setTab(id); }}>
-                {t.tabs[id]}
-                {id === "passes" && passesQuery.data && passesQuery.data.length > 0 && <span>{passesQuery.data.length}</span>}
-                {id === "ask" && chat.turns.length > 0 && <span>{chat.turns.length}</span>}
-              </button>
+              <div className={id === "passes" && place ? "tabs__item tabs__item--closable" : "tabs__item"}>
+                <button type="button" role="tab" id={`tab-${id}`} aria-selected={lab === null && tab === id} aria-controls="panel" onClick={() => { closeLab(); setTab(id); }}>
+                  {t.tabs[id]}
+                  {id === "ask" && chat.turns.length > 0 && <span>{chat.turns.length}</span>}
+                </button>
+                {/* fechar a aba do lugar tira o lugar: o ponto e as faixas saem do mapa */}
+                {id === "passes" && place && <button type="button" className="tabs__close" aria-label={t.passes.clear} title={t.passes.clear} onClick={clearPlace}>×</button>}
+              </div>
               {/* o laboratório é uma aba como as outras, antes da conversa: aberta, a folha alarga */}
               {id !== "ask" && id === beforeLab && (
                 <button type="button" role="tab" id="tab-lab" aria-selected={lab !== null} aria-controls="lab-panel" onClick={() => { if (!lab) openLab("hydro"); }}>{t.lab.open}</button>
@@ -255,7 +258,7 @@ export function App() {
           {tab === "passes" && (
             <PassesPanel place={place} audience={audience} passes={passesQuery.data} loading={passesQuery.isFetching && !passesQuery.data}
               failed={passesQuery.isError} example={API_MODE === "mock" ? "mock" : passesQuery.data?.some((p) => p.isExample) ? "fallback" : null} scenes={scenes}
-              onRetry={() => passesQuery.refetch()} onOpenScene={openScene} onClear={clearPlace} />
+              onRetry={() => passesQuery.refetch()} onOpenScene={openScene} />
           )}
           {tab === "ask" && <AskPanel chat={chat} scenes={scenes} context={context} suggestions={t.ask.suggestions[audience]} onOpenScene={openScene} />}
         </div>

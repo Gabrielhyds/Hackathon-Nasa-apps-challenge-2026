@@ -311,7 +311,7 @@ export const pt: Dict = {
     loading: "Buscando passagens…",
     error: "Não deu para consultar as passagens. Confira a conexão com a API.",
     retry: "Buscar de novo",
-    clear: "Tirar este lugar",
+    clear: "Fechar este lugar",
     none: "Nenhuma passagem neste ponto no catálogo da NASA. O NISAR observa terra firme e gelo, e o catálogo público ainda não cobre todos os pontos.",
     columns: ["Data", "Órbita", "Trilha/quadro", "Polarização", "Produto"],
     direction: { ascending: "ascendente", descending: "descendente" },
