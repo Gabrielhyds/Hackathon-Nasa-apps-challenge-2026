@@ -562,3 +562,60 @@ def test_cache_nao_separa_por_cena_a_pergunta_que_nao_e_sobre_ela(monkeypatch):
     assert len(chamadas) == 1
     # A pergunta que aponta para a cena continua com uma resposta por cena.
     assert m._chave("What changed here?", "en", "taquari") != m._chave("What changed here?", "en", "campinas")
+
+
+# ---------- O que a revisão do PR 25 achou na tela ----------
+
+def test_pergunta_de_opiniao_nao_e_seguimento(monkeypatch):
+    # Só palavras que a busca ignora, mas com "quem", "melhor", "acha": é fora do assunto, com ou sem
+    # cena aberta. Antes virava pergunta sobre a cena e gastava um pedido ao modelo.
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    chamadas = []
+
+    async def gen(system, user):
+        chamadas.append(user)
+        return "I cannot give opinions [taquari]."
+
+    monkeypatch.setattr(llm, "generate", gen)
+    for q, cena in [("Quem é o melhor?", "campinas"), ("Who is the best?", "taquari"),
+                    ("O que você acha?", "taquari"), ("What do you think?", "chokwe"),
+                    ("Who made you?", "taquari"), ("?", "taquari")]:
+        a = run(core.ask(q, scene=cena))
+        assert a.mode == "no_info" and not a.cards and not a.sources, f"{q} com {cena} aberta -> {a.mode} {a.cards}"
+    assert not chamadas
+    # O seguimento de verdade continua indo para a cena.
+    assert run(core.ask("E por quê?", scene="campinas")).cards == ["campinas"]
+    assert len(chamadas) == 1 and "OPEN SCENE" in chamadas[0]
+
+
+def test_este_dado_nao_passa_na_frente_do_cartao_que_responde():
+    # "This data" aponta para a medida da cena: responde o cartão da origem dos dados, e a cena entra
+    # só com a ressalva e as fontes. Antes a reserva respondia com a história da cena.
+    for q, cena in [("Where does this data come from?", "taquari"), ("De onde vem esse dado?", "campinas")]:
+        a = run(core.ask(q, scene=cena))
+        assert a.cards[0] == "dados_nisar" and cena in a.cards, f"{q} com {cena} aberta -> {a.cards}"
+        assert core.CARDS[cena].ressalva[a.lang] in a.caveats
+        assert core.CARDS[cena].texto[a.lang][:40] not in a.answer
+    # O modelo recebe os dois cartões, o da resposta na frente.
+    hits = [c.id for c, _ in retrieve("Where does this data come from?", core.CARDS, scene="taquari")]
+    assert hits[0] == "dados_nisar" and "taquari" in hits
+    # Quando o cartão da própria cena é o que responde, ele continua na frente.
+    assert run(core.ask("Esse número é a área alagada?", scene="taquari")).cards[0] == "taquari"
+    # "Aqui" e "esta cena" continuam valendo pela cena inteira.
+    assert run(core.ask("What changed here?", scene="campinas")).cards == ["campinas"]
+
+
+def test_este_dado_de_outra_cena_nao_e_da_cena_aberta():
+    # "Essa medida" não puxa a cena aberta quando a pergunta dá o nome de outra cena ou cai num
+    # cartão que é só de outra (o método do Taquari): a resposta não leva a ressalva da cena errada.
+    for q, cena, card in [
+        ("No Taquari, essa medida é a área alagada?", "campinas", "taquari"),
+        ("Em Chókwè, de onde vem esse dado?", "campinas", "chokwe"),
+        ("What is the margin of error of that number?", "kalimantan", "taquari_metodo"),
+        ("Qual a margem de erro deste dado?", "campinas", "taquari_metodo"),
+    ]:
+        a = run(core.ask(q, scene=cena))
+        assert a.cards[0] == card and cena not in a.cards, f"{q} com {cena} aberta -> {a.cards}"
+    # Com a cena dona do cartão aberta, ela acompanha.
+    a = run(core.ask("What is the margin of error of that number?", scene="taquari"))
+    assert a.cards[0] == "taquari_metodo" and "taquari" in a.cards
