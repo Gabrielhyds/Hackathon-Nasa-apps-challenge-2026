@@ -285,9 +285,10 @@ Copy `.env.example` to `.env` at the repository root. Docker Compose reads it; a
 |---|---|---|
 | `VITE_API_MODE` | `http` | `http` reads from the API; `mock` uses example data in the browser |
 | `VITE_API_URL` | `/api` | API address as seen by the browser |
-| `GEMINI_API_KEY` | empty | Gemini key for the agent. Empty: the agent answers from its fact cards, without the model |
+| `AGENT_API_KEY` | empty | Key of the model the agent uses (Gemini today). Empty: the agent answers from its fact cards, without the model |
+| `AGENT_MODEL` | `gemini-3.5-flash-lite` | Model the agent calls |
 | `AGENT_URL` | empty | Empty: the agent of this repository (`apps/agent`), started by Docker. Another URL: that agent. `off`: the Ask tab answers with example text |
-| `AGENT_API_KEY` | empty | Key sent to the agent, if it needs one |
+| `AGENT_TOKEN` | empty | Bearer token for an external agent that requires login. The agent of this repository does not use it |
 | `PASSES_ONLINE` | `1` | `0` turns off the NASA catalog query and serves example passes |
 | `PLACES_ONLINE` | `1` | `0` turns off the online geocoder fallback |
 | `PUBLIC_API_URL` | `/api` | Public address of the API, used in the scene image URLs |

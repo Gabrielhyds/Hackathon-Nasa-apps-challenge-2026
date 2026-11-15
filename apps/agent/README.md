@@ -2,7 +2,7 @@
 
 Assistente que responde perguntas sobre as cenas do Nexxus em palavras simples, sempre com fonte e ressalva.
 
-No Nexxus ele é o serviço `agent` do Docker Compose da raiz e atende a aba Ask por trás da API (`apps/api/src/agent-context.ts` traduz o pedido e a resposta). A chave do Gemini vai no `.env` da raiz, nunca neste diretório. Ver O agente, no `CLAUDE.md` da raiz.
+No Nexxus ele é o serviço `agent` do Docker Compose da raiz e atende a aba Ask por trás da API (`apps/api/src/agent-context.ts` traduz o pedido e a resposta). A chave do Gemini vai no `.env` da raiz, como `AGENT_API_KEY` (o compose a entrega aqui como `GEMINI_API_KEY`), nunca neste diretório. Ver O agente, no `CLAUDE.md` da raiz.
 
 ## Como ele garante respostas certas
 

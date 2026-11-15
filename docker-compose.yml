@@ -5,14 +5,15 @@
 # Front em http://localhost:8080 · API em http://localhost:3000/api · página de teste do agente em http://localhost:8090
 # Para desenvolver com recarga automática, use docker-compose.dev.yml.
 services:
-  # O agente da aba Ask (apps/agent). Com GEMINI_API_KEY no .env, responde com o modelo; sem ela, com as frases
+  # O agente da aba Ask (apps/agent). Com AGENT_API_KEY no .env, responde com o modelo; sem ela, com as frases
   # dos cartões de fatos (modo reserva). O navegador nunca fala com ele: só a API.
   agent:
     build:
       context: apps/agent
     environment:
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      # A chave e o modelo vêm do .env com nome genérico; o agente de hoje os lê como chave e modelo do Gemini.
+      GEMINI_API_KEY: ${AGENT_API_KEY:-}
+      GEMINI_MODEL: ${AGENT_MODEL:-gemini-3.5-flash-lite}
     ports:
       # Página de teste do agente. Se a 8090 estiver ocupada, defina AGENT_PORT no .env.
       - "${AGENT_PORT:-8090}:8080"
@@ -26,7 +27,7 @@ services:
       # Agente: por padrão, o serviço `agent` acima. AGENT_URL no .env aponta para outro (o do Cloud Run, por
       # exemplo); AGENT_URL=off desliga, e a API responde com o texto de exemplo.
       AGENT_URL: ${AGENT_URL:-http://agent:8080/api/ask}
-      AGENT_API_KEY: ${AGENT_API_KEY:-}
+      AGENT_TOKEN: ${AGENT_TOKEN:-}
       # 0 desliga a busca online de cidades e usa só a lista embutida.
       PLACES_ONLINE: ${PLACES_ONLINE:-1}
       PASSES_ONLINE: ${PASSES_ONLINE:-1}
