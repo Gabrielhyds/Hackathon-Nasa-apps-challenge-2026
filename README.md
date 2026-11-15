@@ -2,7 +2,7 @@
 
 **See how the Earth's surface changes, through the radar eyes of NASA's NISAR satellite.**
 
-Nexxus puts radar change detection on a globe anyone can explore: pick a place, compare two satellite passes, and read in plain language what changed and how much. It was built for the *Dancing with the SARs* challenge of the [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/).
+Nexxus puts radar change detection on a globe anyone can explore: pick a place, compare two satellite passes, and read in plain language what changed and how much. It was built for the *Dancing with the SARs* challenge of the [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/); the submission is on the [Nexxus project page](https://www.spaceappschallenge.org/2026/find-a-team/nexxus/?tab=details).
 
 It runs on open NASA data: NISAR radar products from NASA Earthdata (GCOV, the calibrated brightness, and GUNW, the interferograms), the pass list from NASA's CMR catalog and, for context, the OPERA DSWx-S1 water map and MODIS, HLS and VIIRS imagery through GIBS. See [Data provenance](#data-provenance).
 
@@ -393,12 +393,12 @@ We used AI in two ways, and say so here as the Space Apps rules ask.
 
 ## Team
 
-Nexxus is a team of four from Campinas, Brazil.
+Nexxus is a team of four from Campinas, Brazil. Our page on Space Apps: [Nexxus](https://www.spaceappschallenge.org/2026/find-a-team/nexxus/?tab=details).
 
-- **Gabriel:** the front end (`apps/web`) and its integration with the API.
-- **Mateus:** the API (`apps/api`) and the scripts that turn NASA data into the images and measurements (`scripts/`).
-- **Vitor:** the agent behind the Ask tab (`apps/agent`): fact cards, prompt and answer quality.
-- **Laís:** submission, story and demo.
+- **Gabriel Yoshino:** the front end (`apps/web`) and its integration with the API.
+- **Mateus Nunes:** the API (`apps/api`) and the scripts that turn NASA data into the images and measurements (`scripts/`).
+- **Vitor Parra:** the agent behind the Ask tab (`apps/agent`): fact cards, prompt and answer quality.
+- **Laís Melo:** submission, story and demo.
 
 ## Credits
 
