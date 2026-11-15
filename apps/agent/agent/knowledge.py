@@ -280,7 +280,7 @@ def _scores(question: str, cards: dict[str, Card]) -> dict[str, float]:
 MIN_SCORE = 3.2
 # A pergunta aponta para o lugar que está na tela: "aqui", "esta cena", "this place".
 DEICTIC = re.compile(
-    r"\b(?:here|aqui)\b"
+    r"\b(?:here|aqui|daqui)\b"
     r"|\b(?:this|that)\s+(?:scene|place|image|area|region|spot|location|map|data|number|measurement|result)\b"
     r"|\b[nd]?es[st][ae]\s+(?:cena|lugar|local|imagem|area|regiao|ponto|mapa|dado|numero|medida|medicao|resultado)\b"
 )

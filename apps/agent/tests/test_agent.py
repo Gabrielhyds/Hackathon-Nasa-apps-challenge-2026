@@ -257,15 +257,46 @@ def test_modelo_previsao_cai_para_reserva(monkeypatch):
 
 # ---------- Verificador, caso a caso ----------
 
-def test_63_so_com_mapa_de_mudanca():
+def test_area_do_mapa_de_mudanca_so_com_o_nome_dele():
     card = core.CARDS["taquari_numeros_antigos"]
-    assert check_answer("O mapa de mudança mostra cerca de 63 km².", [card]) == []
-    assert check_answer("Foram 63 km² de água.", [card])
+    assert check_answer("O mapa de mudança mostra cerca de 55 km² mais escuros.", [card]) == []
+    assert check_answer("No par de 11/07 contra 23/07, o mapa de mudança marca cerca de 60 km².", [card]) == []
+    assert check_answer("Foram 55 km² de água.", [card])
+    assert check_answer("Foram 60 km² de água.", [card])
+    # O 63 km² saiu da tela e dos cartões: não passa nem com o nome do mapa.
+    assert check_answer("O mapa de mudança mostra cerca de 63 km².", [card])
+
+
+def test_copa_do_mundo_nao_e_copa_das_arvores():
+    a = asyncio.run(core.ask("E quem ganha a Copa?", "pt"))
+    assert a.mode == "no_info" and a.cards == []
+    hits = retrieve("O radar atravessa a copa das árvores?", core.CARDS)
+    assert hits and hits[0][0].id == "radar_basico"
+
+
+def test_daqui_aponta_para_a_cena_aberta():
+    from agent.knowledge import scene_in_focus
+
+    assert scene_in_focus("Quando foram as passagens daqui?", core.CARDS, "campinas") == "campinas"
+    a = asyncio.run(core.ask("Quando foram as passagens daqui?", "pt", "campinas"))
+    assert "campinas" in a.cards and "27/06 e 06/11/2026" in a.answer
+
+
+def test_cartoes_de_cena_trazem_as_datas_do_par():
+    # As datas vêm do manifest das imagens (apps/api/scene-images/manifest.json).
+    pares = {
+        "sindh": ("17/06", "09/09/2026"), "labrea": ("24/08", "23/10/2026"),
+        "jakobshavn": ("23/06", "02/11/2026"), "pantanal": ("17/07", "21/10/2026"),
+        "kalimantan": ("30/06", "28/10/2026"), "campo_de_gelo_sul": ("28/06", "26/10/2026"),
+        "campinas": ("27/06", "06/11/2026"), "maceio": ("23/06", "21/10/2026"),
+    }
+    for cid, (antes, depois) in pares.items():
+        assert f"em {antes} e {depois}" in core.CARDS[cid].texto["pt"], cid
 
 
 def test_guard_aceita_resposta_fiel():
     cards = [core.CARDS["taquari"], core.CARDS["taquari_metodo"]]
-    boa = ("O time mediu cerca de 53 km² de água aberta nova entre 11/07 e 23/07/2026, "
+    boa = ("O time mediu cerca de 53 km² de água aberta nova na passagem de 23/07/2026, "
            "com faixa de 49 a 56 km². Não é a área alagada total.")
     assert check_answer(boa, cards) == []
 

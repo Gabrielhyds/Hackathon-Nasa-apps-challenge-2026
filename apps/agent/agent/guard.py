@@ -2,7 +2,7 @@
 
 Reprova a resposta (e cai para o texto do cartão) quando ela:
   1. usa um número proibido (os números antigos do Taquari, o 780 km² do mapa de mudança);
-  2. usa 63 km² sem dizer que é o mapa de mudança;
+  2. usa a área do mapa de mudança do Taquari (55 ou 60 km²) sem dizer que é o mapa de mudança;
   3. escreve qualquer medida, data, magnitude ou ano que não esteja nos cartões;
   4. diz que os 53 km² são a área alagada total;
   5. diz para que lado o chão andou sem creditar à NASA;
@@ -26,7 +26,8 @@ FORBIDDEN = [
     re.compile(r"\b780\s*(km|quil)", re.I),
 ]
 CHANGE_MAP = re.compile(r"mapa de mudan|change map", re.I)
-SIXTY_THREE = re.compile(r"\b63\s*(km|quil)", re.I)
+# As áreas do mapa de mudança no Taquari, conforme o par (e o 63 km², de uma versão antiga da tela).
+CHANGE_AREA = re.compile(r"\b(?:55|60|63)\s*(km|quil)", re.I)
 
 # Número seguido de unidade física, data, ano ou magnitude: precisa existir em algum cartão usado.
 MEASURE = re.compile(
@@ -103,8 +104,8 @@ def check_answer(answer: str, used: list[Card]) -> list[str]:
     for rx in FORBIDDEN:
         if rx.search(answer):
             problems.append(f"número proibido: {rx.pattern}")
-    if SIXTY_THREE.search(answer) and not CHANGE_MAP.search(answer):
-        problems.append("63 km² sem dizer que é o mapa de mudança")
+    if CHANGE_AREA.search(answer) and not CHANGE_MAP.search(answer):
+        problems.append("área do mapa de mudança sem dizer que é o mapa de mudança")
 
     allowed: set[str] = set()
     for c in used:
