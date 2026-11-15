@@ -11,6 +11,9 @@ interface Props {
   /** A cena cujo hidrograma aparece. Sem ela (ainda carregando, ou cena sem série), a aba avisa. */
   scene: Scene | undefined;
   loading: boolean;
+  /** As cenas não carregaram: a aba do hidrograma diz isso e oferece tentar de novo, em vez de dizer que a cena não tem série. */
+  failed: boolean;
+  onRetry(): void;
   onPanel(panel: LabId): void;
   onClose(): void;
 }
@@ -19,7 +22,7 @@ interface Props {
  * O laboratório: uma folha de vidro por cima do mapa com as três peças que vão além do antes e depois.
  * O hidrograma mede a enchente passagem a passagem; as outras duas abrem o radar por dentro.
  */
-export function Lab({ panel, scene, loading, onPanel, onClose }: Props) {
+export function Lab({ panel, scene, loading, failed, onRetry, onPanel, onClose }: Props) {
   const { t } = useI18n();
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -40,7 +43,13 @@ export function Lab({ panel, scene, loading, onPanel, onClose }: Props) {
         <button type="button" className="ghost lab__close" onClick={onClose}>{t.lab.close}</button>
       </header>
       <div className="lab__body" id="lab-body" ref={body} role="tabpanel" aria-labelledby={`lab-${panel}`} tabIndex={-1} key={panel}>
-        {panel === "hydro" && (scene?.waterSeries ? <Hydrograph scene={scene} /> : <p className="muted">{loading ? t.scenes.loading : t.lab.hydro.none}</p>)}
+        {panel === "hydro" && (scene?.waterSeries ? <Hydrograph scene={scene} />
+          : failed ? (
+            <div className="stack stack--tight">
+              <p className="muted">{t.scenes.error}</p>
+              <button type="button" className="link" onClick={onRetry}>{t.scenes.retry}</button>
+            </div>
+          ) : <p className="muted">{loading ? t.scenes.loading : t.lab.hydro.none}</p>)}
         {panel === "pulse" && <PulseLab />}
         {panel === "fringes" && <FringeLab />}
       </div>
