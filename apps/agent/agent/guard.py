@@ -126,6 +126,9 @@ def check_answer(answer: str, used: list[Card]) -> list[str]:
 
     for sentence in _sentences(answer):
         s_norm = norm(sentence)
+        # "pelo menos" e "ao menos" não negam nada: "a área alagada foi de pelo menos 53 km²" é
+        # justamente a afirmação que a regra barra, e o "menos" de NEGATION a deixava passar.
+        s_norm = re.sub(r"\b(?:pelo|ao) menos\b", " ", s_norm)
         if FLOODED_AREA.search(s_norm) and not NEGATION.search(s_norm):
             problems.append("afirma que é a área alagada")
         if DIRECTION.search(s_norm) and "nasa" not in s_norm:
