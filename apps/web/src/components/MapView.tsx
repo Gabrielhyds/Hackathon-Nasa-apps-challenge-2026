@@ -371,14 +371,24 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
     // em tela larga a folha cobre a direita do mapa: o centro útil fica deslocado para a esquerda
     const narrow = window.matchMedia("(max-width: 900px)");
-    const fit = () => map.setPadding(narrow.matches ? { top: 0, right: 0, bottom: 0, left: 0 } : { top: 64, right: sideWidth(), bottom: 0, left: 0 });
-    fit();
-    // a largura do laboratório acompanha a janela; só mexe quando a margem muda, para não cortar um voo à toa
+    const padding = () => (narrow.matches ? { top: 0, right: 0, bottom: 0, left: 0 } : { top: 64, right: sideWidth(), bottom: 0, left: 0 });
+    map.setPadding(padding());
+    // a margem e, na visão do mundo, o tamanho do globo acompanham a janela; só mexe quando algo muda, para não cortar um voo à toa
+    let seen = { w: box.clientWidth, h: box.clientHeight };
     const refit = () => {
       setNarrowScreen(narrow.matches);
-      const right = narrow.matches ? 0 : sideWidth();
-      if (spinTarget.current && !narrow.matches) spinTarget.current.right = right;
-      else if ((map.getPadding().right ?? 0) !== right) fit();
+      const next = padding(), right = next.right, was = map.getPadding().right ?? 0, old = seen;
+      seen = { w: box.clientWidth, h: box.clientHeight };
+      const zoom = homeZoom(seen.w - right, seen.h - 220);
+      const homeBefore = (z: number, r: number) => Math.abs(z - homeZoom(old.w - r, old.h - 220)) < 0.05;
+      const target = spinTarget.current;
+      if (target && !narrow.matches) { spinTarget.current = { right, zoom: homeBefore(target.zoom, target.right) ? zoom : target.zoom }; return; }
+      spinTarget.current = null;
+      // no meio de um voo: a margem nova entra e o voo recomeça com ela
+      const again = flight.current;
+      if (again && map.isMoving()) { if (was !== right) { map.setPadding(next); fly(again); } return; }
+      const atHome = homeBefore(map.getZoom(), was);
+      if (was !== right || (atHome && Math.abs(zoom - map.getZoom()) > 0.002)) map.jumpTo(atHome ? { padding: next, zoom } : { padding: next });
     };
     narrow.addEventListener("change", refit);
     window.addEventListener("resize", refit);
@@ -401,7 +411,8 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       last = now;
       spinRaf = requestAnimationFrame(spin);
     };
-    const stopSpin = () => haltSpin();
+    // quem mexe no mapa com a mão também desfaz a espera do `showPass`: a chegada seguinte à cena toca a varredura
+    const stopSpin = () => { haltSpin(); passHold.current = null; };
     for (const type of ["pointerdown", "wheel", "touchstart"]) box.addEventListener(type, stopSpin, { passive: true });
 
     map.on("load", () => {
@@ -459,7 +470,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       setClickHint(false);
       live.current.onPickPoint(e.lngLat.lat, e.lngLat.wrap().lng);
       // de longe a faixa da órbita mal aparece: chega mais perto do ponto escolhido
-      if (map.getZoom() < 4) map.flyTo({ center: e.lngLat, zoom: 4.6, duration: 1600 });
+      if (map.getZoom() < 4) { passHold.current = null; fly(() => map.flyTo({ center: e.lngLat, zoom: 4.6, duration: 1600 })); }
     });
 
     return () => {

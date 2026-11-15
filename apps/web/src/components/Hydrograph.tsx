@@ -32,7 +32,8 @@ export function Hydrograph({ scene, onPass }: { scene: Scene; /** A passagem esc
   const pass = samples[index];
 
   // a passagem escolhida comanda o mapa; não ao abrir, para não mexer no par que a pessoa deixou na cena
-  // (a última data avisada fica guardada: em desenvolvimento o efeito roda duas vezes ao montar)
+  // (a última data avisada fica guardada: em desenvolvimento o efeito roda duas vezes ao montar);
+  // clicar na passagem que já está escolhida, como o pico ao abrir, também leva o mapa até ela
   const told = useRef(selected), notify = useRef(onPass);
   notify.current = onPass;
   useEffect(() => {
@@ -166,7 +167,7 @@ export function Hydrograph({ scene, onPass }: { scene: Scene; /** A passagem esc
               return (
                 <g key={s.date} className={`hydro__pass hydro__pass--${s.direction}${on ? " is-on" : ""}${s.reference ? " is-ref" : ""}`} role="button" tabIndex={0} aria-pressed={on}
                   aria-label={t.lab.hydro.passAria(f.date(s.date), f.num(s.newWaterKm2, 1))}
-                  onPointerEnter={() => { if (!playing) setSelected(s.date); }} onClick={() => { setPlaying(false); setSelected(s.date); }} onFocus={() => setSelected(s.date)}
+                  onPointerEnter={() => { if (!playing) setSelected(s.date); }} onClick={() => { setPlaying(false); setSelected(s.date); if (s.date === selected) notify.current?.(s.date); }} onFocus={() => setSelected(s.date)}
                   onKeyDown={(e) => { if (e.key === "ArrowRight") step(1); if (e.key === "ArrowLeft") step(-1); }}>
                   <rect x={x(s.date) - 9} y={TOP - 10} width={18} height={ZERO - TOP + 10} className="hydro__hit" />
                   <line x1={x(s.date)} x2={x(s.date)} y1={ZERO} y2={y(s.newWaterKm2)} />
