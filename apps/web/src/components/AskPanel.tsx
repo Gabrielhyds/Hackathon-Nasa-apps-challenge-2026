@@ -3,6 +3,9 @@ import type { Scene } from "@nexxus/contract";
 import { useI18n } from "../i18n";
 import type { Chat } from "../lib/useChat";
 
+/** O agente recusa pergunta mais longa que isto. */
+const QUESTION_MAX = 500;
+
 /** `context` são as cenas sobre as quais o agente responde: a aberta e as marcadas para comparar. */
 interface Props { chat: Chat; scenes: Scene[]; context: string[]; suggestions: string[]; onOpenScene(id: string): void }
 
@@ -13,8 +16,10 @@ export function AskPanel({ chat, scenes, context, suggestions, onOpenScene }: Pr
   const about = context.map((id) => scenes.find((s) => s.id === id)).filter((s): s is Scene => Boolean(s));
   const last = chat.turns[chat.turns.length - 1];
 
-  // acompanha a resposta enquanto ela cresce
-  useEffect(() => { end.current?.scrollIntoView({ block: "nearest" }); }, [chat.turns.length, last?.answer.length, last?.status]);
+  // Acompanha a resposta enquanto ela cresce. Quando termina, ressalva e fontes entram embaixo sem mover a tela:
+  // quem está lendo a resposta não a perde de vista.
+  const live = last?.status === "streaming";
+  useEffect(() => { if (live) end.current?.scrollIntoView({ block: "nearest" }); }, [live, chat.turns.length, last?.answer.length]);
 
   function submit(question: string) {
     if (!question.trim() || chat.busy) return;
@@ -53,6 +58,15 @@ export function AskPanel({ chat, scenes, context, suggestions, onOpenScene }: Pr
                   <button type="button" className="link" onClick={() => chat.retry(turn.id)}>{t.ask.retry}</button>
                 </div>
               )}
+              {turn.status === "done" && turn.caveats.length > 0 && (
+                <p className="turn__caveat"><b>{t.ask.caveat}.</b> {turn.caveats.join(" ")}</p>
+              )}
+              {turn.status === "done" && turn.sources.length > 0 && (
+                <div className="turn__sources">
+                  <h4>{t.ask.sources}</h4>
+                  <ul>{turn.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.title}</a></li>)}</ul>
+                </div>
+              )}
               {turn.status === "done" && turn.citations.length > 0 && (
                 <div className="cites">
                   {turn.citations.map((id) => {
@@ -61,6 +75,7 @@ export function AskPanel({ chat, scenes, context, suggestions, onOpenScene }: Pr
                   })}
                 </div>
               )}
+              {turn.status === "done" && turn.mode === "offline" && <p className="meta">{t.ask.offline}</p>}
               {turn.status === "done" && turn.isExample && <p className="meta">{t.ask.example}</p>}
             </article>
           ))}
@@ -71,7 +86,7 @@ export function AskPanel({ chat, scenes, context, suggestions, onOpenScene }: Pr
       <div className="chat__foot">
         <form className="ask" onSubmit={(e) => { e.preventDefault(); submit(text); }}>
           <input type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder={t.ask.placeholder}
-            aria-label={t.ask.inputAria} autoComplete="off" />
+            aria-label={t.ask.inputAria} autoComplete="off" maxLength={QUESTION_MAX} />
           {chat.busy
             ? <button type="button" onClick={chat.stop}>{t.ask.stop}</button>
             : <button type="submit" disabled={!text.trim()}>{t.ask.send}</button>}

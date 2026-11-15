@@ -1,7 +1,7 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, Post, Query, Res } from "@nestjs/common";
-import type { Response } from "express";
+import { BadRequestException, Body, Controller, Get, HttpCode, HttpException, Post, Query, Req, Res } from "@nestjs/common";
+import type { Request, Response } from "express";
 import type { AskRequest, AskResponse, AskStreamEvent, Lang, Pass, Place, PlaceKind, ScenesResponse } from "@nexxus/contract";
-import { AgentService } from "./agent.service";
+import { AgentBusyError, AgentService } from "./agent.service";
 import { PassesService } from "./passes.service";
 import { parseInclude, servedScenes } from "./scene-images";
 import { PlacesService } from "./places.service";
@@ -81,6 +81,13 @@ function parseAsk(body: AskRequest): AskRequest {
   };
 }
 
+/** O visitante de verdade: o primeiro endereço que o nginx (ou outro proxy) pôs em X-Forwarded-For, ou o da conexão. */
+function clientIp(req: Request): string | undefined {
+  const forwarded = req.headers["x-forwarded-for"];
+  const first = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(",")[0].trim();
+  return first || req.socket.remoteAddress || undefined;
+}
+
 @Controller("ask")
 export class AskController {
   constructor(private readonly agent: AgentService) {}
@@ -88,14 +95,19 @@ export class AskController {
   /** Resposta inteira de uma vez. */
   @Post()
   @HttpCode(200)
-  ask(@Body() body: AskRequest): Promise<AskResponse> {
-    return this.agent.ask(parseAsk(body));
+  async ask(@Body() body: AskRequest, @Req() request: Request): Promise<AskResponse> {
+    try {
+      return await this.agent.ask(parseAsk(body), clientIp(request));
+    } catch (e) {
+      if (e instanceof AgentBusyError) throw new HttpException(e.message, 429);
+      throw e;
+    }
   }
 
   /** Resposta em pedaços, por Server-Sent Events. O front usa esta rota e cai para POST /ask se ela não existir. */
   @Post("stream")
   @HttpCode(200)
-  async stream(@Body() body: AskRequest, @Res() res: Response): Promise<void> {
+  async stream(@Body() body: AskRequest, @Req() request: Request, @Res() res: Response): Promise<void> {
     const req = parseAsk(body);
     res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache, no-transform");
@@ -105,7 +117,7 @@ export class AskController {
     let closed = false;
     res.on("close", () => { closed = true; });
     try {
-      for await (const event of this.agent.stream(req)) {
+      for await (const event of this.agent.stream(req, clientIp(request))) {
         if (closed) return;
         send(event);
       }

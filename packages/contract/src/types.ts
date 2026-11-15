@@ -279,11 +279,25 @@ export interface AskRequest {
   lang?: Lang;
 }
 
+/**
+ * De onde saiu a resposta do agente:
+ * - `model`: escrita pelo modelo, só com os cartões de fatos, e aprovada pelo verificador do agente;
+ * - `offline`: frases dos próprios cartões de fatos, sem modelo (sem chave, sem cota, modelo lento ou resposta reprovada);
+ * - `no_info`: a pergunta está fora do que o agente sabe.
+ */
+export type AskMode = "model" | "offline" | "no_info";
+
 export interface AskResponse {
   answer: string;
   /** Cenas citadas na resposta. O front transforma cada uma num botão que leva ao mapa. */
   citations: { sceneId: string }[];
-  /** `true` quando a resposta não veio de um modelo. O front avisa o usuário. */
+  /** Ressalvas dos fatos usados na resposta, no idioma pedido. Quem as cola é o agente, não o modelo. */
+  caveats?: string[];
+  /** Fontes dos fatos usados na resposta. Quem as cola é o agente, não o modelo. */
+  sources?: SceneSource[];
+  /** Só com o agente ligado: de onde saiu a resposta. */
+  mode?: AskMode;
+  /** `true` quando o agente não está ligado e a resposta é o texto de exemplo, calculado das notas. O front avisa. */
   isExample?: boolean;
 }
 

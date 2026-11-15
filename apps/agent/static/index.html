@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexxus · Mission Guide</title>
+<style>
+  :root {
+    --bg: #0b1120; --panel: #111a2e; --line: #23324f; --text: #e8eefc; --muted: #8fa3c7;
+    --accent: #ff6a3d; --blue: #4f8cff; --ok: #3ddc97;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--line); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .dot.off { background: var(--muted); box-shadow: none; }
+  h1 { font-size: 15px; letter-spacing: .14em; text-transform: uppercase; margin: 0; font-weight: 700; }
+  h1 span { color: var(--accent); }
+  .status { margin-left: auto; font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+  main { max-width: 760px; margin: 0 auto; padding: 18px 16px 140px; }
+  .msg { padding: 14px 16px; border-radius: 10px; margin: 12px 0; border: 1px solid var(--line); background: var(--panel); }
+  .body { white-space: pre-wrap; }
+  .msg.user { background: transparent; border-color: var(--blue); margin-left: 15%; }
+  .tag { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .caveat { margin-top: 10px; padding: 8px 10px; border-left: 3px solid var(--accent); background: rgba(255,106,61,.08); font-size: 14px; }
+  .sources { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .sources a { color: var(--blue); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 4px; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); padding: 7px 12px; border-radius: 999px; cursor: pointer; font-size: 14px; }
+  .chip:hover { border-color: var(--accent); }
+  form { position: fixed; left: 0; right: 0; bottom: 0; background: linear-gradient(transparent, var(--bg) 30%); padding: 24px 16px 18px; }
+  .bar { max-width: 760px; margin: 0 auto; display: flex; gap: 8px; }
+  input { flex: 1; padding: 13px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font-size: 16px; }
+  input:focus { outline: 2px solid var(--blue); }
+  button.send { padding: 0 20px; border-radius: 10px; border: 0; background: var(--accent); color: #fff; font-weight: 700; letter-spacing: .06em; cursor: pointer; }
+  button.send:disabled { opacity: .5; cursor: wait; }
+  .foot { text-align: center; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .lang { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .lang button { background: transparent; color: var(--muted); border: 0; padding: 6px 10px; font-weight: 700; letter-spacing: .08em; cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  h1 b { font-weight: 700; }
+</style>
+</head>
+<body>
+<header>
+  <div class="dot off" id="dot"></div>
+  <h1>Nexxus <span>·</span> <b id="t-title">Mission Guide</b></h1>
+  <div class="status" id="status">…</div>
+  <div class="lang" role="group" aria-label="Language / Idioma">
+    <button type="button" data-lang="pt">PT</button>
+    <button type="button" data-lang="en">EN</button>
+  </div>
+</header>
+
+<main id="log">
+  <div class="msg">
+    <div class="tag" id="t-tag"></div><div id="t-hello"></div>
+    <div class="chips" id="chips"></div>
+  </div>
+</main>
+
+<form id="form" autocomplete="off">
+  <div class="bar">
+    <input id="q" maxlength="500">
+    <button class="send" id="send" type="submit"></button>
+  </div>
+  <div class="foot" id="t-foot"></div>
+</form>
+
+<script>
+const API = (window.NEXXUS_API || "") + "/api";
+const $ = id => document.getElementById(id);
+const log = $("log"), form = $("form"), q = $("q"), send = $("send");
+
+const T = {
+  pt: {
+    title: "Guia da Missão", you: "Você", caveat: "Ressalva: ", sources: "Fontes: ",
+    hello: "Olá! Eu explico o que o satélite de radar NISAR viu no Nexxus, com palavras simples e sempre com fonte.",
+    placeholder: "Pergunte sobre a enchente do Taquari, o radar, o NISAR…", ask: "Sua pergunta",
+    send: "ENVIAR", foot: "Feito com dados abertos da NASA: NISAR, GIBS e OPERA. As respostas usam só fontes do Nexxus e podem ser escritas com IA.",
+    online: "Online", backup: "Online · modo reserva", offline: "Fora do ar", connecting: "Conectando…",
+    reserva: "texto do cartão (modelo fora)",
+    lost: "O sinal caiu por um instante. Tente de novo.",
+    suggest: ["O que o NISAR viu na enchente do Taquari?", "53 km² é a área alagada?", "Como o radar enxerga através das nuvens?", "O que são as faixas de cor da Venezuela?", "O que é o NISAR?"]
+  },
+  en: {
+    title: "Mission Guide", you: "You", caveat: "Caveat: ", sources: "Sources: ",
+    hello: "Hi! I explain what the NISAR radar satellite saw in Nexxus, in plain words and always with sources.",
+    placeholder: "Ask about the Taquari flood, radar, NISAR…", ask: "Your question",
+    send: "SEND", foot: "Built on NASA open data: NISAR, GIBS and OPERA. Answers use Nexxus sources only and may be written with AI.",
+    online: "Online", backup: "Online · backup mode", offline: "Offline", connecting: "Connecting…",
+    reserva: "card text (model unavailable)",
+    lost: "Signal lost for a moment. Please try again.",
+    suggest: ["What did NISAR see in the Taquari flood?", "Is 53 km² the flooded area?", "How does radar see through clouds?", "What do the color bands in Venezuela mean?", "What is NISAR?"]
+  }
+};
+
+function savedLang() {
+  try { const v = localStorage.getItem("nexxus-lang"); if (v === "pt" || v === "en") return v; } catch (e) {}
+  return (navigator.language || "en").toLowerCase().startsWith("pt") ? "pt" : "en";
+}
+let lang = new URLSearchParams(location.search).get("lang");
+if (lang !== "pt" && lang !== "en") lang = savedLang();
+let health = null;
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+function renderStatus() {
+  const t = T[lang];
+  $("status").textContent = health === null ? t.connecting : health === false ? t.offline : (health.model ? t.online + " · " + health.model : t.backup);
+}
+
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem("nexxus-lang", l); } catch (e) {}
+  const t = T[l];
+  document.documentElement.lang = l === "pt" ? "pt-BR" : "en";
+  document.title = "Nexxus · " + t.title;
+  $("t-title").textContent = t.title; $("t-tag").textContent = t.title; $("t-hello").textContent = t.hello;
+  q.placeholder = t.placeholder; q.setAttribute("aria-label", t.ask);
+  send.textContent = t.send; $("t-foot").textContent = t.foot;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l));
+  const chips = $("chips"); chips.textContent = "";
+  t.suggest.forEach(s => { const c = el("button", "chip", s); c.type = "button"; c.onclick = () => askQ(s); chips.append(c); });
+  renderStatus();
+}
+
+function addUser(text) { const m = el("div", "msg user"); m.append(el("div", "tag", T[lang].you), el("div", "body", text)); log.append(m); scrollTo(0, document.body.scrollHeight); }
+
+function addBot(data) {
+  const t = T[data.lang] || T[lang];
+  const m = el("div", "msg");
+  const tag = t.title + (data.mode && data.mode !== "model" ? " · " + t.reserva : "");
+  m.append(el("div", "tag", tag), el("div", "body", data.answer));
+  if (data.caveats && data.caveats.length) m.append(el("div", "caveat", t.caveat + data.caveats.join(" ")));
+  if (data.sources && data.sources.length) {
+    const s = el("div", "sources", t.sources);
+    data.sources.forEach((src, i) => {
+      const a = el("a", null, src.nome); a.href = src.url; a.target = "_blank"; a.rel = "noopener";
+      if (i) s.append(document.createTextNode(" · ")); s.append(a);
+    });
+    m.append(s);
+  }
+  log.append(m); scrollTo(0, document.body.scrollHeight);
+}
+
+async function askQ(text) {
+  addUser(text); send.disabled = true; q.value = "";
+  try {
+    const r = await fetch(API + "/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: text, lang }) });
+    if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || ("HTTP " + r.status)); }
+    addBot(await r.json());
+  } catch (err) {
+    addBot({ lang, answer: T[lang].lost + " (" + err.message + ")" });
+  } finally { send.disabled = false; q.focus(); }
+}
+
+form.addEventListener("submit", e => { e.preventDefault(); const t = q.value.trim(); if (t) askQ(t); });
+document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang(b.dataset.lang));
+setLang(lang);
+
+fetch(API + "/health").then(r => r.json()).then(h => { health = h; $("dot").classList.remove("off"); renderStatus(); })
+  .catch(() => { health = false; renderStatus(); });
+</script>
+</body>
+</html>

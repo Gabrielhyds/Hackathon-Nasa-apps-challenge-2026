@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import type { ChatMessage, Lang } from "@nexxus/contract";
+import type { AskMode, ChatMessage, Lang, SceneSource } from "@nexxus/contract";
 import { api } from "../api";
 
 export interface ChatTurn {
@@ -8,6 +8,11 @@ export interface ChatTurn {
   answer: string;
   status: "streaming" | "done" | "stopped" | "error";
   citations: string[];
+  /** Ressalvas e fontes dos fatos usados, coladas pelo agente depois da resposta. */
+  caveats: string[];
+  sources: SceneSource[];
+  /** De onde saiu a resposta do agente; ausente na resposta de exemplo. */
+  mode?: AskMode;
   isExample: boolean;
 }
 
@@ -34,13 +39,16 @@ export function useChat(sceneIds: string[], lang: Lang) {
     const id = nextId.current++;
     const abort = new AbortController();
     controller.current = abort;
-    setTurns((all) => [...all, { id, question: q, answer: "", status: "streaming", citations: [], isExample: false }]);
+    setTurns((all) => [...all, { id, question: q, answer: "", status: "streaming", citations: [], caveats: [], sources: [], isExample: false }]);
     try {
       const response = await api.ask({ question: q, sceneIds: ids, history, lang: l }, {
         signal: abort.signal,
         onDelta: (text) => patch(id, (t) => ({ ...t, answer: t.answer + text })),
       });
-      patch(id, (t) => ({ ...t, answer: response.answer, status: "done", citations: response.citations.map((c) => c.sceneId), isExample: Boolean(response.isExample) }));
+      patch(id, (t) => ({
+        ...t, answer: response.answer, status: "done", citations: response.citations.map((c) => c.sceneId),
+        caveats: response.caveats ?? [], sources: response.sources ?? [], mode: response.mode, isExample: Boolean(response.isExample),
+      }));
     } catch {
       patch(id, (t) => ({ ...t, status: abort.signal.aborted ? "stopped" : "error" }));
     } finally {
