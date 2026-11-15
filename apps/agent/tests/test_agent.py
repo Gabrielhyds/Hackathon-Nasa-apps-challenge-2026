@@ -1,6 +1,7 @@
 """Testes do agente. Rodam sem internet: o modelo é substituído por respostas falsas."""
 import asyncio
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -65,6 +66,14 @@ def test_cena_do_front_puxa_o_cartao_certo():
                        ("campo_gelo_sul", "campo_de_gelo_sul")]:
         hits = retrieve("o que mudou aqui?", core.CARDS, scene=cena)
         assert hits and hits[0][0].id == card, f"{cena} -> {[h[0].id for h in hits]}"
+
+
+def test_texto_dos_cartoes_comeca_com_maiuscula():
+    # O modo reserva responde com as frases do cartão: a primeira letra aparece na tela.
+    for card in core.CARDS.values():
+        for lang in ("pt", "en"):
+            for frase in re.split(r"(?<=[.!?])\s+", card.texto[lang]):
+                assert not frase[:1].islower(), f"{card.id} ({lang}): {frase[:50]}"
 
 
 def test_toda_cena_do_front_tem_cartao():
