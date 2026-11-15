@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
 import type { CityRow } from "@nexxus/contract";
 
-/** Todas as cidades do mundo com mais de 500 habitantes, geradas por scripts/places_data.py. */
+/** Todas as cidades do mundo com mais de 500 habitantes e as sedes administrativas, geradas por scripts/places_data.py. */
 export const CITIES_FILE = join(__dirname, "..", "data", "cities.json.gz");
 
 interface Packed {

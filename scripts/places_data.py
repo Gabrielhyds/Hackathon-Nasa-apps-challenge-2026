@@ -6,7 +6,7 @@
 # Os arquivos baixados ficam em .cache/places (fora do git); para outra pasta, passe o caminho no fim.
 #
 # Fontes:
-#   GeoNames (CC BY 4.0, citar "GeoNames"): cities500 (lugares povoados com mais de 500 habitantes),
+#   GeoNames (CC BY 4.0, citar "GeoNames"): cities500 (lugares povoados com mais de 500 habitantes ou sede administrativa),
 #     countryInfo (países e territórios) e alternateNamesV2 (nomes em português).
 #   Natural Earth (domínio público): estados e províncias, os mesmos da lista embutida.
 #
