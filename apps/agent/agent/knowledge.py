@@ -281,8 +281,14 @@ MIN_SCORE = 3.2
 # A pergunta aponta para o lugar que está na tela: "aqui", "esta cena", "this place".
 DEICTIC = re.compile(
     r"\b(?:here|aqui|daqui)\b"
-    r"|\b(?:this|that)\s+(?:scene|place|image|area|region|spot|location|map|data|number|measurement|result)\b"
-    r"|\b[nd]?es[st][ae]\s+(?:cena|lugar|local|imagem|area|regiao|ponto|mapa|dado|numero|medida|medicao|resultado)\b"
+    r"|\b(?:this|that)\s+(?:scene|place|image|area|region|spot|location|map)\b"
+    r"|\b[nd]?es[st][ae]\s+(?:cena|lugar|local|imagem|area|regiao|ponto|mapa)\b"
+)
+# A pergunta aponta para a medida da cena, não para o lugar: "this data", "este dado". A cena entra,
+# mas quem responde é o cartão que casa com a pergunta ("De onde vem esse dado?" é sobre a origem).
+DEICTIC_DATA = re.compile(
+    r"\b(?:this|that)\s+(?:data|number|measurement|result)\b"
+    r"|\b[nd]?es[st][ae]\s+(?:dado|numero|medida|medicao|resultado)\b"
 )
 # Palavras de uma pergunta de seguimento, que não dizem o assunto: "Why does it matter?", "Conte mais".
 FOLLOW_UP = {
@@ -290,6 +296,29 @@ FOLLOW_UP = {
     "detail", "details", "detalhe", "detalhes", "conte", "continue", "go", "further", "again", "novo",
     "better", "simpler", "simples", "summary", "resumo", "resuma", "summarize", "ok", "hm", "hmm",
 }
+# Palavras de opinião e de "quem", que a busca ignora (`STOP`) para a pergunta fora do assunto dar
+# "não sei". Com uma delas a pergunta não é de seguimento: "Quem é o melhor?" não é sobre a cena aberta.
+OFF_TOPIC = {
+    "quem", "who", "whom", "melhor", "pior", "best", "worst", "acha", "think", "opiniao", "opinion",
+    "gosta", "deveria", "devo", "worth",
+}
+
+
+def _other_scene(card_id: str, cid: str) -> bool:
+    """O cartão é de outra cena que não a aberta: o cartão dela ou um que leva o nome dela (`taquari_metodo`)."""
+    def family(a: str, b: str) -> bool:
+        return a == b or a.startswith(b + "_") or b.startswith(a + "_")
+
+    return not family(card_id, cid) and any(family(card_id, s) for s in set(SCENE_CARDS.values()))
+
+
+def _is_follow_up(question: str) -> bool:
+    """Pergunta sem assunto próprio: só palavras vazias ou de seguimento, e nenhuma de opinião."""
+    words = [w.strip(".,-") for w in norm(question).split()]
+    words = [w for w in words if w]
+    if not words or any(w in OFF_TOPIC for w in words):
+        return False
+    return all(t in FOLLOW_UP for t in _terms(question))
 
 
 def scene_in_focus(question: str, cards: dict[str, Card], scene: str | None) -> str | None:
@@ -303,14 +332,22 @@ def scene_in_focus(question: str, cards: dict[str, Card], scene: str | None) -> 
 
     Também entra na pergunta de seguimento ("E por quê?", "Tell me more"): sem palavra de conteúdo
     e sem cartão que a responda, ela é sobre o que está na tela. O agente não recebe a conversa.
+    Pergunta de opinião ou sem palavra nenhuma ("Quem é o melhor?", "?") não é de seguimento.
     """
     cid = SCENE_CARDS.get((scene or "").strip().lower()) if scene else None
     if not cid or cid not in cards:
         return None
-    if DEICTIC.search(norm(question)):
+    flat = norm(question)
+    if DEICTIC.search(flat):
         return cid
     scores = _scores(question, cards)
-    if max(scores.values()) < MIN_SCORE and all(t in FOLLOW_UP for t in _terms(question)):
+    if DEICTIC_DATA.search(flat):
+        # "Este dado" vale pela cena aberta, menos quando a pergunta é de outra cena: dá o nome dela
+        # ("No Taquari, essa medida…") ou cai num cartão que é só dela (o método do Taquari).
+        other = max((v for k, v in scores.items() if _other_scene(k, cid)), default=0.0)
+        if other < MIN_SCORE or other <= scores[cid]:
+            return cid
+    if max(scores.values()) < MIN_SCORE and _is_follow_up(question):
         return cid
     own = scores[cid]
     if own < MIN_SCORE or own < 0.5 * max(scores.values()):
@@ -322,16 +359,26 @@ def scene_in_focus(question: str, cards: dict[str, Card], scene: str | None) -> 
 def retrieve(question: str, cards: dict[str, Card], scene: str | None = None, k: int = 4) -> list[tuple[Card, float]]:
     """Pontua cada cartão pelos termos da pergunta, com peso e raridade."""
     scene_card = scene_in_focus(question, cards, scene)
-    scored: list[tuple[Card, float]] = []
-    for cid, score in _scores(question, cards).items():
-        if scene_card == cid:
-            score += 10.0
-        if score > 0:
-            scored.append((cards[cid], score))
+    scores = _scores(question, cards)
+    if scene_card:
+        own = scores[scene_card]
+        best = max((v for cid, v in scores.items() if cid != scene_card), default=0.0)
+        flat = norm(question)
+        if DEICTIC_DATA.search(flat) and not DEICTIC.search(flat) and best >= MIN_SCORE and own < best:
+            # "Este dado" com outro cartão respondendo melhor: a cena acompanha, com a ressalva e as
+            # fontes dela, sem passar na frente (fica abaixo dos 75% que a reserva exige para citar o texto).
+            scores[scene_card] = max(MIN_SCORE, min(own + 10.0, 0.7 * best))
+        else:
+            scores[scene_card] = own + 10.0
+    scored = [(cards[cid], score) for cid, score in scores.items() if score > 0]
 
     scored.sort(key=lambda x: (-x[1], x[0].id))
     if not scored:
         return []
     top = scored[0][1]
     # Corta o que é muito mais fraco que o primeiro: fonte fraca na tela é pior que fonte faltando.
-    return [(c, s) for c, s in scored[:k] if s >= max(MIN_SCORE, 0.22 * top)]
+    hits = [(c, s) for c, s in scored[:k] if s >= max(MIN_SCORE, 0.22 * top)]
+    if scene_card and all(c.id != scene_card for c, _ in hits):
+        # A cena de que a pergunta fala não fica de fora por haver muitos cartões à frente dela.
+        hits = hits[: k - 1] + [(cards[scene_card], scores[scene_card])]
+    return hits
