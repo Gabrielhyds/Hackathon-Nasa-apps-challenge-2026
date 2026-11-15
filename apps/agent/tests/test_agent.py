@@ -281,6 +281,21 @@ def test_sem_cota_cai_para_reserva(monkeypatch):
     assert a.mode == "offline" and a.sources
 
 
+@pytest.mark.parametrize("conteudo", [
+    "[]",
+    '{"respostas": {}}',
+    '{"respostas": [{"resposta": {"lang": "pt", "answer": "sem pergunta"}}]}',
+    '{"respostas": [{"question": "O que é o NISAR?", "resposta": {"answer": "sem idioma"}}]}',
+    '{"respostas": ["texto solto", null]}',
+])
+def test_respostas_prontas_com_formato_errado_nao_derrubam_o_servidor(tmp_path, monkeypatch, conteudo):
+    import agent.main as m
+    arquivo = tmp_path / "respostas_prontas.json"
+    arquivo.write_text(conteudo, encoding="utf-8")
+    monkeypatch.setattr(m, "PRONTAS", arquivo)
+    assert m._carregar_prontas() == 0
+
+
 def test_respostas_prontas_entram_no_cache(tmp_path, monkeypatch):
     import json as _json
     import agent.main as m
