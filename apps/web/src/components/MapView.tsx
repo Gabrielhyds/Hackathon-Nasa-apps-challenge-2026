@@ -567,6 +567,12 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   }, [props.passes, props.place, ready]);
 
   // ---------- nuvens do último dia ----------
+  // pouco depois de o globo abrir, já pergunta qual é o dia: ligar as nuvens não espera essa resposta
+  useEffect(() => {
+    if (!ready) return;
+    const warm = window.setTimeout(() => { latestCloudDay().catch(() => {}); }, 1500);
+    return () => window.clearTimeout(warm);
+  }, [ready]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -588,8 +594,8 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       retry = window.setTimeout(() => void refresh(), 500);
     };
     map.on("error", onError);
-    const refresh = () => latestCloudDay(abort.signal, bad).then((time) => {
-      if (time === shown || mapRef.current !== map) return;
+    const refresh = () => latestCloudDay(bad).then((time) => {
+      if (abort.signal.aborted || time === shown || mapRef.current !== map) return;
       shown = time;
       errors = 0;
       clear();

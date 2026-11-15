@@ -47,17 +47,42 @@ export function cloudDayCandidates(now: Date, count = 3, skip: readonly string[]
   return out;
 }
 
+/** Por quanto tempo o dia já conferido vale sem perguntar de novo ao GIBS. */
+const DAY_TTL_MS = 30 * 60_000;
+let knownDay: { at: number; day: Promise<string> } | null = null;
+
 /**
  * Último dia (AAAA-MM-DD) cuja imagem já está publicada: confere o tile do mundo inteiro de cada candidato e recua
- * um dia se faltar. `skip` exclui dias que já falharam no mapa.
+ * um dia se faltar. `skip` exclui dias que já falharam no mapa. A resposta fica guardada por meia hora: o mapa pergunta
+ * logo depois de abrir, e quando alguém liga as nuvens o dia já está na mão, sem esperar essa ida ao servidor.
  */
-export async function latestCloudDay(signal?: AbortSignal, skip: readonly string[] = [], now = new Date()): Promise<string> {
-  for (const day of cloudDayCandidates(now, 3, skip)) {
-    // HEAD: só a resposta, sem baixar a imagem
-    const ok = await fetch(VIIRS(day).replace("{z}/{y}/{x}", "0/0/0"), { method: "HEAD", signal, cache: "no-store" }).then((r) => r.ok, () => false);
-    if (ok) return day;
-  }
-  throw new Error("Nenhuma imagem recente do VIIRS");
+export function latestCloudDay(skip: readonly string[] = []): Promise<string> {
+  if (!skip.length && knownDay && Date.now() - knownDay.at < DAY_TTL_MS) return knownDay.day;
+  const day = (async () => {
+    for (const candidate of cloudDayCandidates(new Date(), 3, skip)) {
+      // HEAD: só a resposta, sem baixar a imagem
+      const ok = await fetch(VIIRS(candidate).replace("{z}/{y}/{x}", "0/0/0"), { method: "HEAD", cache: "no-store", signal: AbortSignal.timeout(8000) }).then((r) => r.ok, () => false);
+      if (ok) return candidate;
+    }
+    throw new Error("Nenhuma imagem recente do VIIRS");
+  })();
+  const entry = { at: Date.now(), day };
+  knownDay = entry;
+  // falhou (sem rede): não guarda, a próxima tentativa pergunta de novo
+  day.catch(() => { if (knownDay === entry) knownDay = null; });
+  return day;
+}
+
+/** Latitude (graus) além da qual um tile pode ter a noite polar: abaixo disso o VIIRS sempre tem imagem de dia. */
+const POLAR_LAT = 45;
+
+/**
+ * Se o tile `z/y` chega perto de um polo e, por isso, pode ter pixels sem dado. Os outros (a maior parte do globo)
+ * vão para o mapa como vieram, sem passar pelo canvas. Pura, para teste.
+ */
+export function mayHaveNoData(z: number, y: number): boolean {
+  const lat = (row: number) => (Math.atan(Math.sinh(Math.PI * (1 - (2 * row) / 2 ** z))) * 180) / Math.PI;
+  return lat(y) > POLAR_LAT || lat(y + 1) < -POLAR_LAT;
 }
 
 /** Brilho (maior canal, 0 a 255) abaixo do qual o pixel é "sem dado", e a partir do qual é imagem inteira. */
@@ -84,14 +109,17 @@ function registerClouds() {
     const [day, z, y, x] = request.url.slice("nexxusclouds://".length).split("/");
     const response = await fetch(VIIRS(day).replace("{z}", z).replace("{y}", y).replace("{x}", x), { signal: abort.signal });
     if (!response.ok) throw new Error(`Sem nuvens para ${z}/${y}/${x}`);
+    if (!mayHaveNoData(Number(z), Number(y))) return { data: await response.arrayBuffer() };
     const bitmap = await createImageBitmap(await response.blob());
-    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height), ctx = canvas.getContext("2d");
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height), ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) throw new Error("Sem canvas para as nuvens");
     ctx.drawImage(bitmap, 0, 0);
+    bitmap.close();
     const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
     clearNoData(pixels.data);
     ctx.putImageData(pixels, 0, 0);
-    return { data: await (await canvas.convertToBlob({ type: "image/png" })).arrayBuffer() };
+    // a imagem já decodificada vai direto para o mapa: codificar em PNG e decodificar de novo custava mais que a conta
+    return { data: canvas.transferToImageBitmap() };
   });
 }
 

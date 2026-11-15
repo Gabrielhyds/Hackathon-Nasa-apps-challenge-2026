@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clearNoData, cloudDayCandidates, packLookup } from "./tiles";
+import { clearNoData, cloudDayCandidates, mayHaveNoData, packLookup } from "./tiles";
 
 describe("packLookup: os pacotes do globo em fila", () => {
   const packs = { globe: { index: { "0/0/0": 1, "4/3/2": 1 } }, regions: { index: { "6/20/37": 1 } } };
@@ -55,5 +55,21 @@ describe("clearNoData", () => {
     expect([px[3], px[7], px[11], px[15], px[19]]).toEqual([0, 0, 128, 255, 255]);
     // as cores não mudam
     expect([px[12], px[13], px[14]]).toEqual([8, 12, 40]);
+  });
+});
+
+describe("mayHaveNoData", () => {
+  it("o mundo inteiro e os tiles que chegam perto dos polos passam pela limpeza", () => {
+    expect(mayHaveNoData(0, 0)).toBe(true);
+    expect(mayHaveNoData(1, 0)).toBe(true);
+    expect(mayHaveNoData(3, 0)).toBe(true);
+    expect(mayHaveNoData(3, 2)).toBe(true);
+    expect(mayHaveNoData(3, 7)).toBe(true);
+  });
+  it("a faixa entre 45°S e 45°N vai direto", () => {
+    expect(mayHaveNoData(3, 3)).toBe(false);
+    expect(mayHaveNoData(3, 4)).toBe(false);
+    // Taquari, 29,7°S, no zoom 7
+    expect(mayHaveNoData(7, 75)).toBe(false);
   });
 });
