@@ -14,9 +14,8 @@ services:
     build:
       context: apps/agent
     environment:
-      # A chave e o modelo vêm do .env com nome genérico; o agente de hoje os lê como chave e modelo do Gemini.
-      GEMINI_API_KEY: ${AGENT_API_KEY:-}
-      GEMINI_MODEL: ${AGENT_MODEL:-gemini-3.5-flash-lite}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
     ports:
       - "${AGENT_PORT:-8090}:8080"
 
@@ -26,7 +25,7 @@ services:
     command: sh -c "npm install && npm run dev"
     environment:
       AGENT_URL: ${AGENT_URL:-http://agent:8080/api/ask}
-      AGENT_TOKEN: ${AGENT_TOKEN:-}
+      AGENT_API_KEY: ${AGENT_API_KEY:-}
       PLACES_ONLINE: ${PLACES_ONLINE:-1}
       PASSES_ONLINE: ${PASSES_ONLINE:-1}
       PUBLIC_API_URL: ${PUBLIC_API_URL:-/api}

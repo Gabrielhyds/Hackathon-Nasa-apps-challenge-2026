@@ -16,7 +16,7 @@ Os números atuais estão só no `CLAUDE.md` (O que ainda é exemplo, Imagens de
 
 Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask mostra resposta, ressalva, fontes e cenas citadas (O agente, no `CLAUDE.md`). Falta:
 
-- Pôr `AGENT_API_KEY` (a chave do Gemini) no `.env` da máquina da demo e conferir no navegador uma resposta escrita pelo modelo (a integração foi vista na tela só no modo reserva, sem chave).
+- Pôr `GEMINI_API_KEY` no `.env` da máquina da demo e conferir no navegador uma resposta escrita pelo modelo (a integração foi vista na tela só no modo reserva, sem chave).
 - Gerar e commitar `apps/agent/data/respostas_prontas.json` (`python scripts/aquecer.py`, com a chave), para as perguntas prováveis não gastarem cota.
 - No modo reserva, com uma cena aberta, pergunta fora do assunto ("Qual a capital da França?") devolve o cartão da cena em vez de "não sei": o bônus da cena aberta em `retrieve` (`agent/knowledge.py`) vale mesmo sem nenhum termo em comum.
 - O agente não recebe a conversa anterior: pergunta de seguimento ("e por quê?") é respondida sem o contexto. Decidir se vale mandar o histórico.

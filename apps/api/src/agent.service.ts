@@ -18,15 +18,14 @@ export class AgentBusyError extends Error {}
  *
  * Variáveis de ambiente:
  *   AGENT_URL      endereço que recebe a pergunta (POST, JSON), por exemplo http://agent:8080/api/ask; "off" desliga
- *   AGENT_TOKEN    opcional, só para agente externo que exija login; vai no cabeçalho Authorization: Bearer.
- *                  A chave do modelo (AGENT_API_KEY, no .env) não passa pela API: vai direto ao serviço do agente.
+ *   AGENT_API_KEY  opcional; vai no cabeçalho Authorization: Bearer
  *   AGENT_TIMEOUT_MS  opcional; padrão 30000 (o agente desiste do modelo em 15 s e responde pela reserva)
  */
 @Injectable()
 export class AgentService {
   private readonly log = new Logger(AgentService.name);
   private readonly url = AgentService.address(process.env.AGENT_URL);
-  private readonly key = process.env.AGENT_TOKEN?.trim() || "";
+  private readonly key = process.env.AGENT_API_KEY?.trim() || "";
   private readonly timeout = Number(process.env.AGENT_TIMEOUT_MS) || 30_000;
 
   /** "off" (ou vazio) desliga o agente: no Docker, vazio já vira o endereço do serviço `agent`. */
