@@ -250,7 +250,9 @@ def _index(cards: dict[str, Card]) -> tuple[dict[str, dict[str, float]], dict[st
 def _scores(question: str, cards: dict[str, Card]) -> dict[str, float]:
     """Quanto cada cartão casa com a pergunta, pelos termos e pelas frases inteiras. Sem a cena aberta."""
     weights, idf = _index(cards)
-    q_norm = " " + norm(question) + " "
+    # Ponto ou vírgula no fim de uma palavra viram espaço ("who are you." casa com a frase "who are you");
+    # os de dentro de um número ("1,25") ficam.
+    q_norm = " " + re.sub(r"\s+", " ", re.sub(r"[.,]+(?=\s|$)", " ", norm(question))).strip() + " "
     # Cada termo da pergunta conta uma vez, pelo melhor casamento entre suas formas
     # (plural/singular). Sem isso "nuvens" casaria com "nuvem" e "nuvens" e contaria dobrado.
     groups: list[set[str]] = []

@@ -103,6 +103,14 @@ def test_banco_de_perguntas_com_uma_cena_qualquer_aberta(item):
     assert a.cards and a.cards[0] in [item["card"]] + item.get("aceita", []), f"cartão {a.cards}"
 
 
+def test_frase_inteira_casa_mesmo_com_ponto_ou_virgula():
+    def nota(q, card):
+        return {c.id: s for c, s in retrieve(q, core.CARDS)}.get(card, 0)
+    assert run(core.ask("who are you.")).cards == run(core.ask("who are you")).cards == ["nexxus"]
+    assert nota("Tell me about the change map.", "taquari_numeros_antigos") == nota("Tell me about the change map?", "taquari_numeros_antigos") > 6
+    assert nota("Explain pulse compression, please", "fourier") == nota("Explain pulse compression please", "fourier") > 6
+
+
 def test_toda_cena_do_front_tem_cartao():
     for card_id in SCENE_CARDS.values():
         assert card_id in core.CARDS
