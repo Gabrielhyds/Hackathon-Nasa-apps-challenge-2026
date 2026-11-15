@@ -18,6 +18,7 @@ import { defaultWeights, rank, type Weights } from "./lib/ranking";
 import { trackFor } from "./lib/soundtrack";
 import { useChat } from "./lib/useChat";
 import { useSoundtrack } from "./lib/useSoundtrack";
+import logo from "./assets/brand/nexxus.webp";
 import { useSpeech } from "./lib/useSpeech";
 import type { Steps } from "./lib/series";
 import { buildUrlState, parseUrlState, type Lab as LabId, type Tab, type View } from "./lib/urlState";
@@ -225,7 +226,7 @@ export function App() {
       </main>
 
       <header className="hud">
-        <div className="brand"><h1>Nexxus</h1><p>{t.cover.tagline}</p></div>
+        <div className="brand"><h1><img src={logo} alt="Nexxus" width={560} height={146} /></h1><p>{t.cover.tagline}</p></div>
         <PlaceSearch key={searchReset} onPick={(p) => choosePlace(p, true)} />
         <div className="hud__right">
           {API_MODE === "mock" && <p className="badge" title={t.badge.exampleTitle}>{t.badge.example}</p>}
