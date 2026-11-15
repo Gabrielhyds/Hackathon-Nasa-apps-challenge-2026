@@ -247,10 +247,12 @@ def _index(cards: dict[str, Card]) -> tuple[dict[str, dict[str, float]], dict[st
     return _INDEX[key]
 
 
-def retrieve(question: str, cards: dict[str, Card], scene: str | None = None, k: int = 4) -> list[tuple[Card, float]]:
-    """Pontua cada cartão pelos termos da pergunta, com peso e raridade."""
+def _scores(question: str, cards: dict[str, Card]) -> dict[str, float]:
+    """Quanto cada cartão casa com a pergunta, pelos termos e pelas frases inteiras. Sem a cena aberta."""
     weights, idf = _index(cards)
-    q_norm = " " + norm(question) + " "
+    # Ponto ou vírgula no fim de uma palavra viram espaço ("who are you." casa com a frase "who are you");
+    # os de dentro de um número ("1,25") ficam.
+    q_norm = " " + re.sub(r"\s+", " ", re.sub(r"[.,]+(?=\s|$)", " ", norm(question))).strip() + " "
     # Cada termo da pergunta conta uma vez, pelo melhor casamento entre suas formas
     # (plural/singular). Sem isso "nuvens" casaria com "nuvem" e "nuvens" e contaria dobrado.
     groups: list[set[str]] = []
@@ -260,8 +262,7 @@ def retrieve(question: str, cards: dict[str, Card], scene: str | None = None, k:
             for e in _terms(extra):
                 groups.append(_variants(e))
 
-    scene_card = SCENE_CARDS.get((scene or "").strip().lower()) if scene else None
-    scored: list[tuple[Card, float]] = []
+    out: dict[str, float] = {}
     for cid, card in cards.items():
         w = weights[cid]
         score = sum(
@@ -271,14 +272,55 @@ def retrieve(question: str, cards: dict[str, Card], scene: str | None = None, k:
         for phrase in card.phrases():
             if phrase in q_norm:
                 score += 6.0
+        out[cid] = score
+    return out
+
+
+# Nota mínima para um cartão valer como resposta.
+MIN_SCORE = 3.2
+# A pergunta aponta para o lugar que está na tela: "aqui", "esta cena", "this place".
+DEICTIC = re.compile(
+    r"\b(?:here|aqui)\b"
+    r"|\b(?:this|that)\s+(?:scene|place|image|area|region|spot|location|map)\b"
+    r"|\b[nd]?es[st][ae]\s+(?:cena|lugar|local|imagem|area|regiao|ponto|mapa)\b"
+)
+
+
+def scene_in_focus(question: str, cards: dict[str, Card], scene: str | None) -> str | None:
+    """O cartão da cena aberta, se a pergunta é sobre ela; senão `None`.
+
+    O front manda a cena aberta em toda pergunta, mesmo quando a pergunta é sobre outra coisa
+    ("O que é o NISAR?", "De onde vêm os dados?", a cheia de outra cena). A cena aberta só entra
+    quando a pergunta aponta para ela ("aqui", "esta cena") ou quando o cartão dela já responde
+    por conta própria: pelo menos metade da nota do melhor cartão, e nenhuma outra cena casa melhor
+    (a pergunta que dá o nome de outro lugar é sobre o outro lugar).
+    """
+    cid = SCENE_CARDS.get((scene or "").strip().lower()) if scene else None
+    if not cid or cid not in cards:
+        return None
+    if DEICTIC.search(norm(question)):
+        return cid
+    scores = _scores(question, cards)
+    own = scores[cid]
+    if own < MIN_SCORE or own < 0.5 * max(scores.values()):
+        return None
+    other = max((v for k, v in scores.items() if k != cid and cards[k].tipo == "cena"), default=0.0)
+    return cid if own >= other else None
+
+
+def retrieve(question: str, cards: dict[str, Card], scene: str | None = None, k: int = 4) -> list[tuple[Card, float]]:
+    """Pontua cada cartão pelos termos da pergunta, com peso e raridade."""
+    scene_card = scene_in_focus(question, cards, scene)
+    scored: list[tuple[Card, float]] = []
+    for cid, score in _scores(question, cards).items():
         if scene_card == cid:
             score += 10.0
         if score > 0:
-            scored.append((card, score))
+            scored.append((cards[cid], score))
 
     scored.sort(key=lambda x: (-x[1], x[0].id))
     if not scored:
         return []
     top = scored[0][1]
     # Corta o que é muito mais fraco que o primeiro: fonte fraca na tela é pior que fonte faltando.
-    return [(c, s) for c, s in scored[:k] if s >= max(3.2, 0.22 * top)]
+    return [(c, s) for c, s in scored[:k] if s >= max(MIN_SCORE, 0.22 * top)]

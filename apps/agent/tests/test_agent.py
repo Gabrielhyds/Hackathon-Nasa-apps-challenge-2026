@@ -1,6 +1,7 @@
 """Testes do agente. Rodam sem internet: o modelo é substituído por respostas falsas."""
 import asyncio
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -67,6 +68,50 @@ def test_cena_do_front_puxa_o_cartao_certo():
         assert hits and hits[0][0].id == card, f"{cena} -> {[h[0].id for h in hits]}"
 
 
+def test_cena_aberta_nao_responde_pergunta_sobre_outro_assunto():
+    # O front manda a cena aberta em toda pergunta. Ela não pode tomar o lugar do cartão certo.
+    for q, cena, card in [
+        ("What is NISAR?", "campinas", "nisar"),
+        ("Where does the data come from?", "taquari", "dados_nisar"),
+        ("O que é o Nexxus?", "taquari", "nexxus"),
+        ("How big was the Taquari flood?", "campinas", "taquari"),
+        ("Qual foi a magnitude dos terremotos da Venezuela?", "taquari", "venezuela"),
+        ("A cheia do Limpopo foi vista através das nuvens?", "taquari", "chokwe"),
+    ]:
+        a = run(core.ask(q, scene=cena))
+        assert a.cards and a.cards[0] == card, f"{q} com {cena} aberta -> {a.cards}"
+
+
+def test_cena_aberta_nao_responde_pergunta_fora_do_assunto():
+    a = run(core.ask("Who will win the World Cup?", scene="campinas"))
+    assert a.mode == "no_info" and not a.cards
+
+
+def test_cena_aberta_vale_quando_a_pergunta_aponta_para_ela():
+    for q, cena in [("What changed here?", "campinas"), ("O que mudou nesta cena?", "pantanal"),
+                    ("Isso é a área alagada?", "taquari")]:
+        a = run(core.ask(q, scene=cena))
+        assert a.cards and a.cards[0] == cena, f"{q} com {cena} aberta -> {a.cards}"
+
+
+@pytest.mark.parametrize("item", [q for q in QUESTIONS if not q.get("cena")], ids=lambda q: q["q"][:40])
+def test_banco_de_perguntas_com_uma_cena_qualquer_aberta(item):
+    # A mesma pergunta, com uma cena sazonal aberta: a resposta não pode virar a da cena.
+    a = run(core.ask(item["q"], scene="kalimantan"))
+    if item["card"] is None:
+        assert a.mode == "no_info"
+        return
+    assert a.cards and a.cards[0] in [item["card"]] + item.get("aceita", []), f"cartão {a.cards}"
+
+
+def test_frase_inteira_casa_mesmo_com_ponto_ou_virgula():
+    def nota(q, card):
+        return {c.id: s for c, s in retrieve(q, core.CARDS)}.get(card, 0)
+    assert run(core.ask("who are you.")).cards == run(core.ask("who are you")).cards == ["nexxus"]
+    assert nota("Tell me about the change map.", "taquari_numeros_antigos") == nota("Tell me about the change map?", "taquari_numeros_antigos") > 6
+    assert nota("Explain pulse compression, please", "fourier") == nota("Explain pulse compression please", "fourier") > 6
+
+
 def test_toda_cena_do_front_tem_cartao():
     for card_id in SCENE_CARDS.values():
         assert card_id in core.CARDS
@@ -127,6 +172,25 @@ def test_modelo_numero_inventado_cai_para_reserva(monkeypatch):
     assert a.mode == "offline"
 
 
+def test_contexto_do_modelo_diz_qual_cena_esta_aberta(monkeypatch):
+    from agent.prompt import build_context
+    cards = [core.CARDS["campinas"]]
+    assert "OPEN SCENE: Campinas, Brasil\n" in build_context("What changed here?", "en", cards, "campinas")
+    assert "OPEN SCENE" not in build_context("What changed here?", "en", cards, None)
+    assert "OPEN SCENE" not in build_context("What changed here?", "en", cards, "lugar-desconhecido")
+    # e a pergunta com cena aberta chega ao modelo com essa linha
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    visto = []
+
+    async def gen(system, user):
+        visto.append(user)
+        return "In Campinas the two passes look almost the same [campinas]."
+
+    monkeypatch.setattr(llm, "generate", gen)
+    run(core.ask("What changed here?", scene="campinas"))
+    assert visto and "OPEN SCENE: Campinas, Brasil" in visto[0]
+
+
 def test_modelo_link_inventado_e_removido(monkeypatch):
     fake_model(monkeypatch, "NISAR flies 747 km up [nisar]. See https://fake.example.com")
     a = run(core.ask("What is NISAR?"))
@@ -150,10 +214,33 @@ def test_sem_cartao_nunca_usa_texto_do_modelo(monkeypatch):
     assert a.mode == "no_info" and "Brazil" not in a.text
 
 
+def test_sem_cartao_nao_gasta_pedido_do_modelo(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    chamou = []
+
+    async def gen(system, user):
+        chamou.append(1)
+        return "Brazil will win the World Cup."
+
+    monkeypatch.setattr(llm, "generate", gen)
+    a = run(core.ask("Who will win the World Cup?"))
+    assert a.mode == "no_info" and not chamou
+
+
 def test_modelo_area_alagada_cai_para_reserva(monkeypatch):
     fake_model(monkeypatch, "The flooded area was about 53 km² [taquari].")
     a = run(core.ask("How big was the Taquari flood?"))
     assert a.mode == "offline"
+
+
+def test_guard_pelo_menos_nao_conta_como_negacao():
+    cards = [core.CARDS["taquari"]]
+    assert check_answer("A área alagada foi de pelo menos 53 km².", cards)
+    assert check_answer("Ao menos 53 km² de área alagada apareceram no radar.", cards)
+    assert check_answer("O vale vai alagar de novo, pelo menos em parte.", cards)
+    # a negação de verdade continua valendo
+    assert check_answer("Os 53 km² não são a área alagada: são água aberta nova.", cards) == []
+    assert check_answer("É água aberta nova, e a área alagada real é maior, nunca menos que isso.", cards) == []
 
 
 def test_modelo_sentido_do_chao_cai_para_reserva(monkeypatch):
@@ -220,6 +307,23 @@ def test_guard_aceita_sentido_do_chao_creditado_a_nasa():
     assert check_answer("Segundo a NASA, o chão andou até 60 cm para oeste.", cards) == []
 
 
+def test_guard_nao_confunde_nome_de_lugar_com_sentido_do_chao():
+    # "land" dentro de Groenlândia/Greenland/island/wetland e "sul" dentro de "resultado" não são o chão andando.
+    for card, frase in [
+        ("jakobshavn", "Em Jakobshavn, na Groenlândia, o sinal do radar subiu em alguns pontos e caiu em outros."),
+        ("jakobshavn", "In Greenland the radar signal went up in some places and down in others."),
+        ("kalimantan", "On Borneo island the signal went down in a few spots."),
+        ("pantanal", "In the Pantanal wetland the signal went up where the ground got wetter."),
+        ("campo_de_gelo_sul", "O gelo se moveu, e o resultado aparece na imagem."),
+    ]:
+        assert check_answer(frase, [core.CARDS[card]]) == [], frase
+    # o que a regra existe para barrar continua barrado
+    cards = [core.CARDS["venezuela"]]
+    assert check_answer("The ground moved west near the airport.", cards)
+    assert check_answer("O chão andou para o sul.", cards)
+    assert check_answer("The land surface went up near the coast.", cards)
+
+
 # ---------- Cota do modelo e respostas prontas ----------
 
 def test_cota_por_minuto_segura_o_modelo(monkeypatch):
@@ -236,6 +340,29 @@ def test_cota_por_minuto_segura_o_modelo(monkeypatch):
     assert a.mode == "model" and chamou
 
 
+def test_modelo_lento_passa_a_vez_para_o_proximo(monkeypatch):
+    import asyncio as _a
+    import collections as _c
+    from types import SimpleNamespace
+
+    tentados = []
+
+    class Modelos:
+        async def generate_content(self, model, contents, config):
+            tentados.append(model)
+            if len(tentados) == 1:
+                await _a.sleep(1)  # o primeiro modelo da fila não responde a tempo
+            return SimpleNamespace(text="NISAR flies 747 km up [nisar].")
+
+    monkeypatch.setattr(llm, "_client", SimpleNamespace(aio=SimpleNamespace(models=Modelos())))
+    monkeypatch.setattr(llm, "TIMEOUT_S", 0.05)
+    monkeypatch.setattr(llm, "_active", None)
+    monkeypatch.setattr(llm, "_chamadas", _c.defaultdict(_c.deque))
+    monkeypatch.setattr(llm, "_bloqueado_ate", {})
+    assert run(llm.generate("sistema", "pergunta")) == "NISAR flies 747 km up [nisar]."
+    assert tentados == llm.FALLBACKS[:2]
+
+
 def test_sem_cota_cai_para_reserva(monkeypatch):
     import time as _t
     monkeypatch.setenv("GEMINI_API_KEY", "teste")
@@ -243,6 +370,21 @@ def test_sem_cota_cai_para_reserva(monkeypatch):
     monkeypatch.setattr(llm, "_bloqueado_ate", {m: _t.monotonic() + 60 for m in llm.FALLBACKS})
     a = run(core.ask("What is NISAR?"))
     assert a.mode == "offline" and a.sources
+
+
+@pytest.mark.parametrize("conteudo", [
+    "[]",
+    '{"respostas": {}}',
+    '{"respostas": [{"resposta": {"lang": "pt", "answer": "sem pergunta"}}]}',
+    '{"respostas": [{"question": "O que é o NISAR?", "resposta": {"answer": "sem idioma"}}]}',
+    '{"respostas": ["texto solto", null]}',
+])
+def test_respostas_prontas_com_formato_errado_nao_derrubam_o_servidor(tmp_path, monkeypatch, conteudo):
+    import agent.main as m
+    arquivo = tmp_path / "respostas_prontas.json"
+    arquivo.write_text(conteudo, encoding="utf-8")
+    monkeypatch.setattr(m, "PRONTAS", arquivo)
+    assert m._carregar_prontas() == 0
 
 
 def test_respostas_prontas_entram_no_cache(tmp_path, monkeypatch):
@@ -308,3 +450,11 @@ def test_http_limite_por_minuto(monkeypatch):
     c = TestClient(app)
     codes = [c.post("/api/ask", json={"question": f"What is NISAR {i}?"}).status_code for i in range(5)]
     assert codes[:3] == [200, 200, 200] and 429 in codes[3:]
+
+
+def test_texto_dos_cartoes_comeca_com_maiuscula():
+    # O modo reserva responde com as frases do cartão: a primeira letra aparece na tela.
+    for card in core.CARDS.values():
+        for lang in ("pt", "en"):
+            for frase in re.split(r"(?<=[.!?])\s+", card.texto[lang]):
+                assert not frase[:1].islower(), f"{card.id} ({lang}): {frase[:50]}"

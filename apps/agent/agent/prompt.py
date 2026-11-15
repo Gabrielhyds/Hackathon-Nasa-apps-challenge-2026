@@ -64,4 +64,7 @@ def build_context(question: str, lang: str, cards: list[Card], scene: str | None
             f"caveat: {caveat}"
         )
     cards_txt = "\n\n".join(blocks) if blocks else "(no card matched)"
-    return f"LANG: {lang}\n\nCARDS:\n{cards_txt}\n\nQUESTION:\n{question}"
+    # A cena aberta no app: sem esta linha, a regra do prompt sobre "here" e "esta cena" nunca vale.
+    label = SCENE_LABELS.get((scene or "").strip().lower())
+    open_scene = f"OPEN SCENE: {label}\n\n" if label else ""
+    return f"LANG: {lang}\n\n{open_scene}CARDS:\n{cards_txt}\n\nQUESTION:\n{question}"

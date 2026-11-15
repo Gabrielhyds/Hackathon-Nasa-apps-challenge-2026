@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Scene, WaterSample } from "@nexxus/contract";
 import { useI18n } from "../i18n";
 import { axisMax, chartSpan, dailyWithin, dayNumber, daysApart, gaugeDays, isoDay, nearest, opticalGap, orbitLinks, peakSample, referenceRange, timeFraction, usualRevisit } from "../lib/hydro";
@@ -46,6 +46,14 @@ export function Hydrograph({ scene }: { scene: Scene }) {
   }, [playing, samples]);
 
   const span = useMemo(() => chartSpan(samples, context), [samples, context]);
+  // em tela estreita o gráfico é mais largo que a tela e rola de lado: abre com o pico no meio, não no começo da série
+  const chart = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = chart.current;
+    if (part !== "chart" || !el || el.scrollWidth <= el.clientWidth) return;
+    const at = (LEFT + timeFraction(span, peak.date) * (W - LEFT - RIGHT)) / W;
+    el.scrollLeft = Math.max(0, at * el.scrollWidth - el.clientWidth / 2);
+  }, [part, span, peak]);
   const max = axisMax(samples);
   const x = (iso: string) => LEFT + timeFraction(span, iso) * (W - LEFT - RIGHT);
   const y = (km2: number) => ZERO - (km2 / max) * (ZERO - TOP);
@@ -95,7 +103,7 @@ export function Hydrograph({ scene }: { scene: Scene }) {
       </nav>
 
       {part === "chart" && <div className="hydro__main">
-        <figure className="hydro__chart">
+        <figure className="hydro__chart" ref={chart}>
           <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label={t.lab.hydro.chartAria(samples.length, f.date(peak.date), f.num(peak.newWaterKm2, 0))}>
             {context && (
               <>
