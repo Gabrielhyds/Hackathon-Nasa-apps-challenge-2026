@@ -36,7 +36,7 @@ Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask m
 ### 7. Compressão de pulso e régua de 12 cm na página do projeto e no vídeo (Laís)
 
 - Partes 2 e 3 do explicador, em inglês. Explicam como o radar funciona por dentro e ajudam na categoria Best Use of Science, mas não ajudam a ler as cenas, então não precisam estar no app.
-- Conteúdo: o radar manda um chirp longo, e o filtro casado (Fourier) junta a energia num pico estreito; o ganho é banda × duração e a resolução é c/2B (40 MHz nas cenas, cerca de 3,75 m). A onda do NISAR tem 24 cm e o caminho é de ida e volta, então cada ciclo de cor de um interferograma vale 12 cm de movimento na direção do satélite; nos terremotos de 24/06/2026, no norte da Venezuela, a NASA mediu até 60 cm de deslocamento para oeste, valor preliminar (NASA Earth Observatory).
+- Conteúdo: o radar manda um chirp longo, e o filtro casado (Fourier) junta a energia num pico estreito; o ganho é banda × duração e a resolução é c/2B (40 MHz, cerca de 3,75 m na direção do satélite, em seis das dez cenas de brilho; pelo código do modo no nome da granule, Lábrea, Pantanal e Kalimantan seriam de 20 MHz e Jakobshavn, de 77 MHz: é leitura do nome do arquivo, falta conferir no guia do produto antes de citar). A onda do NISAR tem 24 cm e o caminho é de ida e volta, então cada ciclo de cor de um interferograma vale 12 cm de movimento na direção do satélite; nos terremotos de 24/06/2026, no norte da Venezuela, a NASA mediu até 60 cm de deslocamento para oeste, valor preliminar (NASA Earth Observatory).
 - A duração do pulso no explicador é ilustrativa, e a parte 1 dele usa os números antigos do Taquari.
 
 ### 8. Revisar os textos em inglês com alguém fluente (Laís, antes da submissão)
@@ -49,37 +49,45 @@ Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask m
 - O detalhe de perto do globo (acima do zoom 8) vem do Esri World Imagery (`apps/web/src/lib/tiles.ts`); o resto do fundo é da NASA (GIBS).
 - **Pronto quando:** os termos permitem o uso na demo e na página do projeto e o crédito pedido está no mapa e no `README.md`; se não permitirem, o detalhe sai.
 
+### 23. Textos e detalhes de tela vistos no ensaio de 15/11 (Gabriel)
+
+Vistos na tela com o Docker normal, na madrugada de 15/11. São pequenos e independentes.
+
+- **La Guaira, nível Dados, seção Origem:** aparece "No data on one of the dates: 50.0% of the crop, drawn black" (`originMissing` e `originMissingValue`, em `SceneSheet.tsx`, linha 221). Na cena de interferograma os vazios são transparentes e são água ou sinal perdido num dos pares, como a legenda do divisor já diz. Esconder a linha quando `isInterferogram`, ou dar a ela o texto da legenda. Ver em `?scene=laguaira&aud=analyze`, seção Origem.
+- **La Guaira, nível Dados, seção História:** o botão "Measure the change" leva à seção Medir, que nessa cena não mede nada (explica a fase). Trocar o rótulo ou tirar o botão nessa cena.
+- **Pulso, "The sent pulse":** "a sweep of 25 µs, 3.7 km long on the ground" (`sentNote`, em `en.ts` e `pt.ts`). c·T/2 é o comprimento do pulso na direção do satélite, não no chão; o cartão ao lado já diz "along the line of sight". Usar o mesmo termo nos dois idiomas.
+- **Régua de cheia, "78% cloud":** a conta do `scripts/hydrograph.py` é nuvem ou sombra de nuvem (o cinza da máscara do HLS). Dizer "cloud or cloud shadow" / "nuvem ou sombra", nos três textos de `i18n` que mostram a porcentagem.
+- **Régua de cheia em tela estreita:** o gráfico tem 760 px e rola de lado dentro de `.hydro__chart`; abre no começo da série (junho), com o pico de 23/07 fora da tela. Visto em 375 px, em `?lab=hydro&lang=pt`. Abrir rolado até o pico.
+- **Pronto quando:** os cinco pontos foram vistos na tela, nos dois idiomas.
+
+### 24. Cartões do agente contra a fixture e a tela (Vitor)
+
+Conferido em 15/11, cartão por cartão, contra `packages/contract/src/fixtures/scenes.ts`, `scripts/water_series.py` e a tela. Em `apps/agent/data/cards.json`:
+
+- `taquari_hidrograma`: "há uma passagem a cada 6 a 12 dias sobre o vale". Na série publicada é uma a cada 4 ou 8 dias, e é o que a régua de cheia diz.
+- `taquari_numeros_antigos` e `limites`: o mapa de mudança "mostra cerca de 63 km²". Na tela, em 1,25× e HH, são cerca de 60 km² mais escuros no par de 11/07 contra 23/07 e cerca de 55 no par de 17/06 contra 23/07, em que a cena passa a abrir com a série de quatro passagens. Dizer o par e a sensibilidade, ou tirar o número.
+- `taquari`: "Comparando as passagens de 11/07 e 23/07/2026, o Nexxus mede cerca de 53 km²". A medida compara 23/07 com a referência de águas baixas da mesma órbita, não só com 11/07 (o método está em `waterSeries.method`, na fixture).
+- `taquari_metodo`, em inglês: a faixa de 49 a 56 km² viria de "moving those two thresholds". Só o limiar de água se move (−14, −12 e −10 dB, `THRESHOLDS_DB` no script); a queda de 3 dB fica fixa. Conferir também o português.
+- `taquari` e `taquari_hidrograma`: a fonte do nível do rio é o Jornal do Comércio de 22/07/2026 ("nível de 24 m em Lajeado"); a fixture usa 24,7 m, do Jornal do Comércio de 06/10/2026, e não tem a página de 22/07. Os números não se contradizem ("passou de 24 m"), mas a ressalva do agente fala em "o nível de 24 m" ao lado de uma cena que diz 24,7 m. Alinhar, e registrar quem abriu a página de 22/07 e quando.
+- `chokwe`: a fonte `svs.gsfc.nasa.gov/15087/` e os números de impacto ("mais de 600 mil pessoas, 400 mil acres de lavoura, 30 mil casas") não estão na fixture. Registrar quem abriu a página e quando, ou tirar.
+- `sazonais` e os cartões das oito cenas sazonais: "duas passagens, entre junho e novembro de 2026", sem as datas de cada cena (estão em `dates`, na fixture).
+- Os cartões do Taquari falam em duas passagens; com a série de quatro (17/06, 29/06, 11/07 e 23/07), rever.
+- **Pronto quando:** os cartões batem com a fixture e os testes do agente passam.
+
 ## Se sobrar tempo no domingo de manhã
-
-### 9. Painel "How it works" no app (Gabriel)
-
-- Portar as simulações do explicador (compressão de pulso e anéis de 12 cm), em inglês e português, com `reduceMotion()` e o design do app. Só depois dos itens de antes do congelamento.
-
-### 11. Hidrograma do Taquari (Gabriel)
-
-- **O quê:** no detalhe do Taquari, gráfico da água aberta nova em cada passagem do NISAR, com a cheia de 22/07 marcada.
-- **Dado:** `scene.waterSeries` (uma amostra por passagem, com a faixa, e o texto do método) e `scene.riverGauge` (leituras do nível do rio: lugar, hora, se subia ou descia, cota de alagamento quando a fonte dá, e a fonte); ver `types.ts`. Opcionais, só no Taquari, iguais em `mock` e `http`: são medidas e fontes reais nos dois modos.
-- **Tela:** SVG no molde do `Timeline` de `PassesPanel.tsx`: um marcador por passagem (ascendente `--blue`, descendente `--ink`), haste de `lowKm2` a `highKm2`, marcador vazado quando `reference`, linha só dentro da mesma órbita e sem atravessar mais de 12 dias, uma linha vertical por dia de leitura do rio (nível, lugar, fonte), `method` na legenda.
-- **Cuidados:** o "km² changed" do mapa de mudança é outra medida: não juntar nem somar. O número do detalhe sai da amostra de 23/07, com o rótulo "New water" / "Água nova", e não vai para `areaKm2`.
-- **Pronto quando:** pontos montados por função testada em `lib/`, textos nos dois idiomas, nada aparece em cena sem os campos, tela conferida (também estreita).
 
 ### 20. Cores do mapa fora dos tokens (Gabriel)
 
 - A constante `C` de `MapView.tsx` ficou com o vermelho e o azul de antes do redesenho (`#FC3D21`, `#4C8DFF`); os tokens de `:root` em `styles.css` hoje são `--red: #f04a2a` e `--blue: #5b8cff`. O tracejado vermelho e a faixa da órbita ascendente, que o mapa desenha com `C`, saem num tom diferente do resto da tela, e a regra do Design no `CLAUDE.md` pede que `C` repita os tokens. O `#4C8DFF` também é o meio da escala do interferograma (`COLORS` em `scripts/gunw_crop.py`), gravado nas imagens.
 - **Pronto quando:** `C` repete os tokens, ou a regra do `CLAUDE.md` passa a dizer que o mapa tem tons próprios.
 
-### 21. Laboratório do radar: alinhar com os dados calibrados (Gabriel)
+### 21. Laboratório e tela nova: o que ficou (Gabriel)
 
-- Só vale nesta branch (`claude/youthful-keller-mp9zju`), que tem o laboratório (`?lab=hydro|pulse|fringes`), o redesenho em vidro e a busca com todas as cidades, e recebeu a `main` em 14/11.
-- **Régua de cheia:** feito em 14/11. `Hydrograph.tsx` lê `scene.waterSeries` e `scene.riverGauge` (cerca de 53 km² no pico); o campo `hydrograph`, medido no preview, saiu do contrato e virou `floodContext`, só com chuva, vazão modelada, dias ópticos e OPERA. Cobre o item 11 nesta branch. Falta: em tela estreita a legenda do gráfico rola junto com ele, e a captura `docs/preview-regua-cheia.jpg` do README foi refeita só em inglês.
-- **Régua de franjas:** feito em 14/11. `FringeLab.tsx` conta as franjas entre as duas pontas e diz quanto vale uma (cerca de 12,1 cm de mudança na distância até o satélite, o `cycleCm` da cena `laguaira`); não soma centímetros nem diz para que lado o chão andou, e saiu a citação da UC San Diego, que ninguém conferiu. Continua com imagens próprias (`apps/web/src/assets/insar`, preview da trilha 162, sem nada descontado), e a tela avisa: a cena `laguaira` da API guarda a fase dobrada em tons de cinza, o que não serve para somar ao longo de uma linha, e só existe com a API. O valor de 12,1 cm foi copiado da cena, do mesmo modo de aquisição; o `insar_fringes.py` não lê a frequência do preview. A tela dessa cena no mapa segue no item 13.
-- **Fontes, ressalvas e origem das imagens (era o item 12):** feito nesta branch em 14/11, na folha da cena e na legenda do divisor, com as três frases da fixture movidas e o selo de exemplo falando em duas enchentes. Na `main` o item segue aberto: o front de lá ainda não mostra esses campos.
-- **Textos que dizem mais do que o app mostra (era o item 19):** feito nesta branch em 14/11. Com o botão Agora ligado e uma cena de fora das Américas aberta, a legenda diz que ali não há nuvens ao vivo (`inGoesEastView`, em `lib/tiles.ts`, a mesma faixa que gira o globo). "Desmatamento" saiu de `intro.body`; neste redesenho a abertura já usa outro texto, então a troca só aparece na `main`, onde o item segue aberto. O item 9 (painel "How it works") está feito nesta branch, na aba Inside the pulse.
-- **Mapa de mudança nas cenas calibradas (era o item 17):** feito nesta branch em 14/11. Com `imagery: "gcov"` o `lib/change.ts` não desconta a mediana, e a tela pinta e mede em separado o que escureceu e o que clareou, sem somar. Taquari: cerca de 60 km² mais escuros em 1,25× e 42 em 1,5×. Chókwè: cerca de 173 km² mais escuros e 3.450 mais claros (antes, 780 km² misturados). Nas cenas sazonais a cena inteira muda com a estação e o lado que muda cobre quase tudo (Maceió, Campo de Gelo Sul): é o que o dado calibrado diz, mas vale conferir se é o que queremos mostrar.
-- **Tela do interferograma de La Guaira (era o item 13):** feito nesta branch em 14/11. O front pede `include=interferogram` e mostra a cena com os dois pares, a legenda da fase (12,1 cm por volta de cor) e sem km²; o pacote de imagens do globo foi gerado de novo com ela. Só existe com a API: no modo de exemplo a cena não aparece.
-- **Tela reorganizada:** feito nesta branch em 15/11, depois de conferido num preview. Carrossel com os eventos documentados na frente e sem nota no cartão; folha da cena em seções, com uma atividade guiada para a turma (nível Aula) e a aba Medir, com histograma e limiar que se arrasta (nível Dados); o ranking virou uma seção do nível Dados; cada aba do laboratório abre numa parte só. Falta conferir em tela estreita com calma (a simulação do pulso ainda tem umas duas telas de altura) e alguém fluente ler os textos novos em inglês.
-- **Inglês revisado em 15/11:** um segundo leitor leu `i18n/en.ts` e os textos em inglês das cenas e apontou 57 itens; quase todos foram aplicados (erros, grafia britânica, frases com cara de tradução e frases que podiam enganar). Ficaram para o time: "flood level" ou "flood stage" nos textos das cenas, e "through frequency" no laboratório. A dica do HH e o glossário diziam que o sinal volta forte da água; saiu a água, nos dois idiomas (o Mateus confirma). Continua valendo a leitura de alguém fluente no que entra no vídeo e na página (item 8).
-- **Ranking fora da tela, régua de cheia no topo e setas no carrossel:** feito em 15/11.
+- O laboratório, o redesenho e a tela reorganizada estão na `main` e descritos no `CLAUDE.md` (Estrutura e O laboratório). Ficou:
+- **Tela estreita:** a legenda do gráfico da régua de cheia rola junto com ele (ver também o item 23) e a simulação do pulso tem umas duas telas de altura.
+- **Captura do README:** `docs/preview-regua-cheia.jpg` foi refeita só em inglês.
+- **Inglês:** "flood level" ou "flood stage" nos textos das cenas e "through frequency" no laboratório, para o time decidir; a leitura de alguém fluente segue no item 8.
+- **Cenas sazonais no mapa de mudança:** o lado que muda cobre quase toda a cena em Maceió (cerca de 1.430 km² mais escuros) e no Campo de Gelo Sul (cerca de 1.980 km²), em 1,25× e HH, vistos na tela em 15/11. É o que o dado calibrado diz; decidir se é o que queremos mostrar.
 - **Pronto quando:** nenhum número do preview aparece na tela (a régua de cheia já não tem; a de franjas só conta franjas), tipos e testes passam e as três abas foram conferidas nos dois idiomas.
 
 ### 22. Série mais longa no Taquari: rodar o script (Mateus)
@@ -101,6 +109,27 @@ Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask m
 
 - `packages/contract/src/fixtures/taquari-water.json` tem as 21 passagens medidas, até 31/10, mas a cena só publica até 27/07. De agosto em diante a medida sobe aos poucos e não volta ao piso, em manchas com forma de talhão: lavoura alagada ou preparada para o plantio também devolve pouco sinal, e a regra não a separa da água de uma cheia.
 - **Para publicar o resto:** separar lavoura de cheia (máscara de uso do solo ou critério de forma) e conferir com as cheias seguintes: o Jornal do Comércio de 06/10/2026 fala em mais três acima de 23 m depois da de julho, e o de 22/09/2026, num pico de 24,46 m em Estrela naquele dia (as duas páginas foram abertas e conferidas em 14/11).
+
+### 25. Contas do front para rever com calma (Gabriel, com o time)
+
+De uma revisão de leitura do código em 15/11; só o primeiro ponto foi refeito à mão, os outros não foram reproduzidos com número. Nenhum muda antes do congelamento: mexem em números que já estão na tela e nos textos.
+
+- **`lib/change.ts`, `EPS = 0.04`:** é somado às duas amplitudes antes da razão, também no dado calibrado. Em chão escuro isso comprime a mudança: uma queda de −14 para −20 dB (6 dB) é lida como 4,7 dB, e uma queda real de 2× em terra escura pode não passar do limiar de 2×. Vale para todos os km² do mapa de mudança, então trocar a conta muda os números do `CLAUDE.md`, da fixture e dos cartões do agente.
+- **`changedParts`:** os pixels sem dado entram na conta. Hoje é desprezível: só Jakobshavn (99,9% com dado) e Pantanal (99,8%) têm parte vazia.
+- **`lib/probe.ts`:** faz a média de 3 × 3 pixels antes de testar cinza 0 e 255, e a média é da amplitude, não da potência.
+- **`lib/pulse.ts`, `measuredOutputSnrDb`:** o pico é o máximo global, então com eco muito fraco a medida não desce de uns 9 dB; e a guarda de `pulseSamples / 8` deixa lóbulos do chirp dentro do "ruído", então com eco forte a medida fica abaixo da teórica.
+- **`lib/fringes.ts`:** janela vazia zera a fase anterior, `Math.round` de ±0,5 é assimétrico e pontos fora da imagem inflam a coerência.
+- **Aba Medir:** a cor de cada barra do histograma sai do centro da barra contra o limiar, e a barra que o limiar corta fica de uma cor só.
+
+### 26. Scripts: acertos que pedem gerar os dados de novo (Mateus)
+
+Da mesma revisão de 15/11, por leitura. Nenhum muda o que a demo mostra.
+
+- `places_data.py`: `by_code[gn_a1_code]` é sobrescrito onde o Natural Earth é mais fino que o nível 1 do GeoNames (França, Reino Unido), o que também impede a busca pelo polígono mais próximo; o centro de BQ e de SJ sai da média das ilhas e cai no mar.
+- `hydrograph.py`: `waterKm2` divide por todos os pixels, com ou sem dado (até 2% de viés); a chuva está em hora local e a vazão e os satélites em UTC; `wms()` devolve `None` em silêncio quando a rede falha; a miniatura óptica usa só o S30; miniaturas da mesma data se sobrescrevem.
+- `insar_fringes.py`: o `bbox` sai dos pixels válidos e difere um pouco entre os dois pares.
+- `optical_day.py`: trata luminância abaixo de 4 no JPEG como sem dado.
+- `scene_images.py`: o comentário de `SCENES` "datas da escolha automática 6" está truncado desde o primeiro commit.
 
 ## Descartado
 

@@ -11,7 +11,7 @@
 # comprimento de onda de mudança na distância até o satélite (ida e volta): cerca de 12 cm na banda L (CYCLE_CM).
 # Nada é descontado do preview: ionosfera e troposfera estão dentro da fase. Por isso a tela só conta voltas e diz
 # quanto vale uma; não soma centímetros nem diz quanto ou para que lado o chão andou.
-# O script desfaz a tabela de cores, faz a média complexa de 2 × 2 pixels (menos ruído, pixel de uns 430 m) e
+# O script desfaz a tabela de cores, faz a média complexa de 2 × 2 pixels (menos ruído, pixel de uns 480 m) e
 # grava a fase em PNG de tons de cinza: 0 = sem dado, 1 a 255 = fase. O navegador pinta de novo com a mesma tabela.
 #
 # Dois interferogramas do mesmo quadro (trilha 162, ascendente), com 12 dias cada:
