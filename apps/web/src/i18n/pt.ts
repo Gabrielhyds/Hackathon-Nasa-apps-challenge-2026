@@ -354,6 +354,7 @@ export const pt: Dict = {
     listen: "Ouvir",
     stopListening: "Parar leitura",
     listenHint: "Lê a resposta e a ressalva em voz alta, com a voz do seu navegador.",
+    listenFailed: "A voz do navegador não respondeu. Algumas vozes vêm pela rede: confira a conexão e tente de novo.",
     offline: "Resposta tirada direto dos cartões de fatos conferidos pelo time, sem o modelo de linguagem.",
     example: "Resposta de exemplo, calculada das notas. O agente ainda não está ligado.",
   },

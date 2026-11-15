@@ -75,6 +75,7 @@ export function AskPanel({ chat, speech, scenes, context, suggestions, onOpenSce
                   {speech.speaking === turn.id ? t.ask.stopListening : t.ask.listen}
                 </button>
               )}
+              {speech.failed === turn.id && <p className="meta">{t.ask.listenFailed}</p>}
               {turn.status === "done" && turn.caveats.length > 0 && (
                 <p className="turn__caveat"><b>{t.ask.caveat}.</b> {turn.caveats.join(" ")}</p>
               )}

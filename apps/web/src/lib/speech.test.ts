@@ -65,6 +65,40 @@ describe("pickVoice", () => {
     expect(pickVoice([{ name: "só idioma", lang: "en" }], "en")?.name).toBe("só idioma");
   });
 
+  it("pula as vozes de efeito do macOS, mesmo quando vêm primeiro na lista", () => {
+    const mac = [
+      { name: "Albert", lang: "en-US" }, { name: "Bad News", lang: "en-US" }, { name: "Bells", lang: "en-US" },
+      { name: "Mónica", lang: "es-ES", default: true }, { name: "Samantha", lang: "en-US" }, { name: "Zarvox", lang: "en-US" },
+    ];
+    expect(pickVoice(mac, "en")?.name).toBe("Samantha");
+    expect(pickVoice([{ name: "Whisper", lang: "en-US" }, { name: "Wobble", lang: "en-US" }], "en")).toBeNull();
+  });
+
+  it("prefere a voz que soa melhor à padrão do sistema", () => {
+    const chrome = [
+      { name: "Microsoft Daniel - Portuguese (Brazil)", lang: "pt-BR", default: true, localService: true },
+      { name: "Google português do Brasil", lang: "pt-BR", localService: false },
+    ];
+    expect(pickVoice(chrome, "pt")?.name).toBe("Google português do Brasil");
+    const edge = [
+      { name: "Microsoft David - English (United States)", lang: "en-US", default: true, localService: true },
+      { name: "Microsoft Aria Online (Natural) - English (United States)", lang: "en-US", localService: false },
+      { name: "Microsoft Sonia Online (Natural) - English (United Kingdom)", lang: "en-GB", localService: false },
+    ];
+    expect(pickVoice(edge, "en")?.name).toBe("Microsoft Aria Online (Natural) - English (United States)");
+  });
+
+  it("sem internet, a voz instalada passa na frente da que vem da rede", () => {
+    const chrome = [
+      { name: "Google US English", lang: "en-US", localService: false },
+      { name: "Microsoft David - English (United States)", lang: "en-US", localService: true },
+    ];
+    expect(pickVoice(chrome, "en", true)?.name).toBe("Google US English");
+    expect(pickVoice(chrome, "en", false)?.name).toBe("Microsoft David - English (United States)");
+    // só há voz da rede: ainda é a escolhida, e a tela avisa se ela não responder
+    expect(pickVoice(chrome.slice(0, 1), "en", false)?.name).toBe("Google US English");
+  });
+
   it("sem voz no idioma devolve null", () => {
     expect(pickVoice([{ name: "ES", lang: "es-ES" }], "pt")).toBeNull();
     expect(pickVoice([], "en")).toBeNull();

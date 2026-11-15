@@ -2,9 +2,9 @@
  * LEITURA EM VOZ ALTA das respostas do agente, pela voz do próprio navegador (Web Speech API): sem chave,
  * sem servidor e sem custo. Aqui fica só a regra, que é pura; quem fala é lib/useSpeech.ts.
  *
- * Limites: a voz é a que o sistema ou o navegador tiver, e muda de uma máquina para outra; sem voz no idioma
- * da resposta o botão não aparece. O Chrome corta falas longas com as vozes que vêm da rede (cerca de 15 s),
- * por isso o texto vai em pedaços de uma frase.
+ * Limites: a voz é a que o sistema ou o navegador tiver, e muda de uma máquina para outra; quando a lista de
+ * vozes não tem nenhuma no idioma da resposta, o botão não aparece. O Chrome corta falas longas com as vozes
+ * que vêm da rede (cerca de 15 s), por isso o texto vai em pedaços de uma frase.
  */
 import type { Lang } from "@nexxus/contract";
 
@@ -71,17 +71,36 @@ export function speechChunks(text: string, max = 200): string[] {
 }
 
 /** O que a escolha da voz precisa saber de cada uma (as do navegador têm mais campos). */
-export interface VoiceLike { lang: string; default?: boolean }
+export interface VoiceLike { lang: string; name?: string; default?: boolean; localService?: boolean }
+
+/** Vozes de efeito do macOS (sinos, robôs, sussurro) e as sintéticas antigas: vêm marcadas como inglês, mas não servem para ler. */
+const NOVELTY = /^(albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|pipe organ|princess|ralph|superstar|trinoids|whisper|wobble|zarvox)\b/i;
+/** Vozes neurais, do Edge e dos sistemas: as que mais parecem gente. */
+const NATURAL = /natural|neural|enhanced|premium/i;
+/** Vozes boas conhecidas: as do Google no Chrome e as principais da Apple, em inglês e em português do Brasil. */
+const GOOD = /^google\b|samantha|allison|\bava\b|luciana|felipe/i;
 
 /**
- * A voz para o idioma: primeiro a do país certo (pt-BR, en-US), depois qualquer uma do idioma; entre iguais,
- * a que o sistema marca como padrão. Sem voz no idioma devolve `null`, e a tela não oferece a leitura.
+ * A voz para o idioma, pela ordem do que soa melhor: neural, depois as boas conhecidas; a do país certo (pt-BR, en-US)
+ * e a padrão do sistema desempatam; no empate, a primeira da lista. As vozes de efeito ficam de fora. Sem internet
+ * (`online` falso), a voz instalada no sistema passa na frente da que vem da rede. Sem voz no idioma devolve `null`.
  */
-export function pickVoice<V extends VoiceLike>(voices: readonly V[], lang: Lang): V | null {
+export function pickVoice<V extends VoiceLike>(voices: readonly V[], lang: Lang, online = true): V | null {
   const code = (voice: V) => voice.lang.replace("_", "-").toLowerCase(); // o Android escreve pt_BR
   const wanted = SPEECH_LANG[lang].toLowerCase();
-  const best = (list: V[]) => list.find((v) => v.default) ?? list[0] ?? null;
-  return best(voices.filter((v) => code(v) === wanted)) ?? best(voices.filter((v) => code(v) === lang || code(v).startsWith(`${lang}-`)));
+  const score = (voice: V) => {
+    const name = voice.name ?? "";
+    return (NATURAL.test(name) ? 3 : GOOD.test(name) ? 2 : 0) + (code(voice) === wanted ? 2 : 0) + (voice.default ? 1 : 0)
+      + (!online && voice.localService === false ? -6 : 0);
+  };
+  let best: V | null = null;
+  for (const voice of voices) {
+    const c = code(voice);
+    if (c !== lang && !c.startsWith(`${lang}-`)) continue;
+    if (NOVELTY.test(voice.name ?? "")) continue;
+    if (!best || score(voice) > score(best)) best = voice;
+  }
+  return best;
 }
 
 /** O que é lido de uma resposta: o texto e, depois, a ressalva, anunciada pelo rótulo que a tela mostra. */
