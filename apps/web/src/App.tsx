@@ -204,7 +204,8 @@ export function App() {
       {/* painel de vidro: a cena aberta, o lugar escolhido ou a conversa, no nível de detalhe escolhido no rodapé */}
       <aside className="story glass">
         <div className="tabs" role="tablist" aria-label={t.tabs.aria}>
-          {TABS.map((id) => (
+          {/* a aba do lugar só existe depois que alguém escolhe um lugar, pela busca ou no mapa */}
+          {TABS.filter((id) => id !== "passes" || place !== null || tab === "passes").map((id) => (
             <button key={id} type="button" role="tab" id={`tab-${id}`} aria-selected={tab === id} aria-controls="panel" onClick={() => setTab(id)}>
               {t.tabs[id]}
               {id === "passes" && passesQuery.data && passesQuery.data.length > 0 && <span>{passesQuery.data.length}</span>}

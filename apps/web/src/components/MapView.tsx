@@ -107,7 +107,6 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   const imagery = useRef(new Map<string, Imagery>());
   const canvases = useRef(new Map<string, HTMLCanvasElement>());
   const dividerRef = useRef(0.5);
-  const readoutRef = useRef<HTMLSpanElement>(null);
   /** Mudança por pixel de cada cena, calculada uma vez. `null`: as imagens não puderam ser lidas. */
   const changes = useRef(new Map<string, Float32Array | null>());
   /** Cinza de cada imagem real, para a leitura em dB sob o ponteiro. `null`: a imagem não pôde ser lida. */
@@ -373,8 +372,6 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
 
     map.on("move", () => {
       const zoom = map.getZoom(), c = map.getCenter();
-      // coordenada do centro, escrita direto na margem da moldura para não redesenhar a tela a cada quadro
-      if (readoutRef.current) readoutRef.current.textContent = live.current.f.coords(c.lat, c.wrap().lng);
       setNear(zoom > (NEAR_FROM + NEAR_FULL) / 2);
       const focus = zoom > NEAR_FULL
         ? live.current.scenes.find((s) => c.lng >= s.bbox[0] - 1 && c.lng <= s.bbox[2] + 1 && c.lat >= s.bbox[1] - 1 && c.lat <= s.bbox[3] + 1) ?? null
@@ -783,12 +780,9 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       {ripple && <span key={ripple.id} className="ping" style={{ transform: `translate(${ripple.x}px, ${ripple.y}px)` }} aria-hidden="true"><i /></span>}
 
       <div className="map__tools glass">
-        <button type="button" onClick={() => mapRef.current?.zoomIn()} aria-label={t.map.zoomIn}>+</button>
-        <button type="button" onClick={() => mapRef.current?.zoomOut()} aria-label={t.map.zoomOut}>−</button>
         <button type="button" className="map__word" onClick={reset}>{t.map.world}</button>
         <button type="button" className="map__word map__live" aria-pressed={clouds} aria-label={t.map.liveAria}
           onClick={() => { setLiveFailed(false); setClouds((on) => !on); }}><i aria-hidden="true" />{t.map.live}</button>
-        <span className="map__readout" title={t.console.center} ref={readoutRef} />
       </div>
       {(clouds || liveFailed) && (
         <p className="map__caption glass" role="status">
@@ -819,7 +813,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
         return (
           <section className="player glass" key={nearScene.id} aria-label={t.console.aria}>
             <header className="player__head">
-              <p className="player__name"><b>{nearScene.name}</b><span>{phase ? t.console.spanPairs(pairList.length, pairList[0] ? daysBetween(pairList[0].from, pairList[0].to) : apart) : audience === "explore" ? t.console.spanPlain(apart) : t.console.span(apart)}</span></p>
+              <p className="player__name">{nearScene.id !== props.selectedId && <b>{nearScene.name}</b>}<span>{phase ? t.console.spanPairs(pairList.length, pairList[0] ? daysBetween(pairList[0].from, pairList[0].to) : apart) : audience === "explore" ? t.console.spanPlain(apart) : t.console.span(apart)}</span></p>
               {audience !== "explore" && !phase && (
                 <div className="pills pills--mono" role="group" aria-label={t.map.polAria}>
                   {(["HH", "HV"] as const).map((option) => {

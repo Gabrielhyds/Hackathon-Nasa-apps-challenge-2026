@@ -95,7 +95,7 @@ export function PassesPanel({ place, audience, passes, loading, failed, example,
             </table>
           </div>
           <p className="meta">{t.passes.swath(NISAR.swathKm)}</p>
-          <details className="fold" open={audience === "teach"} key={audience}>
+          <details className="fold">
             <summary>{t.passes.glossary}</summary>
             <dl className="glossary">
               {t.passes.terms.map((x) => (<div key={x.term}><dt>{x.term}</dt><dd>{x.text}</dd></div>))}

@@ -41,8 +41,6 @@ export const en = {
     aria: "World map with the analyzed scenes. Use the list on the side to pick a scene with the keyboard.",
     loading: "Loading the map…",
     failed: "The map did not load. Reload the page.",
-    zoomIn: "Zoom in",
-    zoomOut: "Zoom out",
     world: "See the world",
     hint: "Drag to turn the globe, scroll to zoom. Click any spot to see when the satellite passed over it. Open a scene to compare two passes here.",
     before: "Before",
@@ -116,10 +114,9 @@ export const en = {
   aud: {
     aria: "How much detail to show",
     label: "Detail",
-    explore: "Simple", teach: "Classroom", analyze: "Data",
+    explore: "Simple", analyze: "Data",
     hint: {
       explore: "Plain words, nothing technical",
-      teach: "How radar works and questions to ask a class",
       analyze: "Orbits, parameters and the limits of the data",
     },
   },
@@ -142,7 +139,6 @@ export const en = {
     ask: "How do you want to read it?",
     choices: {
       explore: "I am curious. Show me what changed, in plain words.",
-      teach: "I am explaining this to others. Give me the how, and questions to ask.",
       analyze: "I work with data. Show me orbits, parameters and limits.",
     },
     note: "You can switch at any time, at the top of the page.",
@@ -188,7 +184,6 @@ export const en = {
       "A camera in orbit would often see only cloud here. Why does the radar still get an image?",
       "Switch between HH and HV. What stands out in one and fades in the other?",
     ],
-    glossaryLead: "Words used on this page",
     copy: "Copy a link to this exact view",
     copied: "Link copied",
     copyFailed: "Could not copy. Copy the address from the browser's address bar.",
@@ -198,6 +193,7 @@ export const en = {
     interval: (days: number, laps: number) => `${days} days · ${laps} × the 12-day cycle`,
     scoreLead: "Score",
     sectionsAria: "Sections of this scene",
+    backToStory: "Back to the story",
     sections: { story: "Story", activity: "Activity", how: "How radar sees", measure: "Measure", origin: "Origin", ranking: "Ranking" },
     next: { story: "", activity: "Start the class activity", how: "", measure: "Measure the change", origin: "", ranking: "" },
     activity: {
@@ -270,7 +266,6 @@ export const en = {
     span: (days: number) => `${days} days between the two passes`,
     spanPairs: (count: number, days: number) => `${count} pairs of passes, ${days} days each`,
     spanPlain: (days: number) => `${days} days between the two visits`,
-    center: "Center of the map",
   },
   tabs: { aria: "Panels", scenes: "Scene", passes: "Place", ask: "Ask" },
   scenes: {
@@ -334,7 +329,6 @@ export const en = {
     clear: "Clear conversation",
     suggestions: {
       explore: ["What changed here?", "Why can radar see through clouds?", "What is NISAR?"],
-      teach: ["How does radar see water?", "What is NISAR?", "How reliable is this data?"],
       analyze: ["How reliable is this data?", "Where does the data come from?", "What is one fringe worth?"],
     },
     thinking: "Thinking…",

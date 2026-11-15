@@ -43,8 +43,6 @@ export const pt: Dict = {
     aria: "Mapa-múndi com as cenas analisadas. Use a lista ao lado para escolher uma cena pelo teclado.",
     loading: "Carregando o mapa…",
     failed: "O mapa não carregou. Recarregue a página.",
-    zoomIn: "Ampliar",
-    zoomOut: "Reduzir",
     world: "Ver o mundo",
     hint: "Arraste para girar o globo, role para ampliar. Clique em qualquer ponto para ver quando o satélite passou ali. Abra uma cena para comparar duas passagens aqui.",
     before: "Antes",
@@ -118,10 +116,9 @@ export const pt: Dict = {
   aud: {
     aria: "Quanto detalhe mostrar",
     label: "Detalhe",
-    explore: "Simples", teach: "Aula", analyze: "Dados",
+    explore: "Simples", analyze: "Dados",
     hint: {
       explore: "Palavras simples, nada técnico",
-      teach: "Como o radar funciona e perguntas para a turma",
       analyze: "Órbitas, parâmetros e os limites do dado",
     },
   },
@@ -144,7 +141,6 @@ export const pt: Dict = {
     ask: "Como você quer ler?",
     choices: {
       explore: "Sou curioso. Mostre o que mudou, em palavras simples.",
-      teach: "Vou explicar isso a outras pessoas. Quero o como e perguntas para fazer.",
       analyze: "Trabalho com dados. Mostre órbitas, parâmetros e limites.",
     },
     note: "Dá para trocar a qualquer momento, no topo da página.",
@@ -190,7 +186,6 @@ export const pt: Dict = {
       "Uma câmera em órbita muitas vezes veria só nuvem aqui. Por que o radar ainda consegue a imagem?",
       "Troquem entre HH e HV. O que se destaca em um e some no outro?",
     ],
-    glossaryLead: "Palavras usadas nesta página",
     copy: "Copiar um link para esta tela",
     copied: "Link copiado",
     copyFailed: "Não deu para copiar. Pegue o endereço na barra do navegador.",
@@ -200,6 +195,7 @@ export const pt: Dict = {
     interval: (days, laps) => `${days} dias · ${laps} × o ciclo de 12 dias`,
     scoreLead: "Nota",
     sectionsAria: "Seções desta cena",
+    backToStory: "Voltar à história",
     sections: { story: "História", activity: "Atividade", how: "Como o radar vê", measure: "Medir", origin: "Origem", ranking: "Ranking" },
     next: { story: "", activity: "Começar a atividade da turma", how: "", measure: "Medir a mudança", origin: "", ranking: "" },
     activity: {
@@ -272,7 +268,6 @@ export const pt: Dict = {
     span: (days) => `${days} dias entre as duas passagens`,
     spanPairs: (count: number, days: number) => `${count} pares de passagens, de ${days} dias cada`,
     spanPlain: (days) => `${days} dias entre as duas visitas`,
-    center: "Centro do mapa",
   },
   tabs: { aria: "Legenda", scenes: "Cena", passes: "Lugar", ask: "Perguntar" },
   scenes: {
@@ -336,7 +331,6 @@ export const pt: Dict = {
     clear: "Limpar conversa",
     suggestions: {
       explore: ["O que mudou aqui?", "Por que o radar atravessa nuvens?", "O que é o NISAR?"],
-      teach: ["Como o radar enxerga a água?", "O que é o NISAR?", "Quão confiável é este dado?"],
       analyze: ["Quão confiável é este dado?", "De onde vêm os dados?", "Quanto vale uma franja?"],
     },
     thinking: "Pensando…",
