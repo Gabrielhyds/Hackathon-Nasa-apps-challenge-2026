@@ -38,8 +38,8 @@ The catch is that a radar image is hard to read. It is grainy, black and white, 
 | **A globe of scenes.** Each pin is a place NISAR imaged at least twice. Documented events come first in the carousel, seasonal changes after. | **Before and after.** Drag the divider between two passes, or press play and watch one sweep over the other. HH and HV polarizations are one click apart. |
 | ![The change map over Chókwè with the darker and brighter areas in km²](docs/preview-mudanca.jpg) | ![MODIS cloud cover over southern Brazil with the radar scene showing through](docs/preview-sob-nuvem.jpg) |
 | **What changed.** The change map paints where the signal fell (amber) and where it rose (ice blue), and reports the area of each side in km². It is computed in the browser from the two images. | **Under cloud.** The optical image from the day of the event covers the screen, and the radar scene shows through it. |
-| ![Passes over Campinas with the orbit swaths and the next pass estimate](docs/preview-passagens.jpg) | ![Live GOES-East cloud cover with the radar image of Lábrea on top](docs/preview-agora.jpg) |
-| **Any place on Earth.** Search a city, state or country to list the real NISAR passes over it, the swath of each orbit and an estimate of the next pass. | **Now.** One button loads the latest cloud cover over the Americas, with the radar scene on top of it. |
+| ![Passes over Campinas with the orbit swaths and the next pass estimate](docs/preview-passagens.jpg) | ![Cloud cover with the radar image of Lábrea on top](docs/preview-agora.jpg) |
+| **Any place on Earth.** Search a city, state or country to list the real NISAR passes over it, the swath of each orbit and an estimate of the next pass. | **Clouds.** One button covers the whole globe with the cloud cover of the latest full day, with the radar scene on top of it. |
 
 ### Three levels of detail
 
@@ -327,7 +327,7 @@ The app labels example data on screen wherever it appears.
 | Interferograms | Real. NISAR GUNW products |
 | Pass lists | Real, from NASA's CMR catalog; example data with a warning if the catalog is down |
 | Globe imagery, borders, place search | Real |
-| Live cloud cover (Now) | Real, Americas only, needs a connection |
+| Cloud cover (Clouds) | Real, whole globe, from the latest full day (not live); needs a connection |
 | Rain and discharge in the flood ruler | Reanalysis (ERA5) and model (GloFAS), not measurements at the river |
 | Pulse compression | Simulation with NISAR L-band parameters |
 | Scene scores | Example |
@@ -350,7 +350,8 @@ Everything the app shows is committed, so none of this is needed to run it. The 
 ## Credits
 
 - **Radar data:** NISAR (NASA and ISRO), via NASA Earthdata and the CMR catalog. OPERA DSWx-S1 water maps by NASA JPL.
-- **Imagery:** NASA GIBS (Blue Marble, MODIS Aqua, HLS; GOES-East GeoColor by NOAA and CIRA) and Esri World Imagery for close-up detail.
+- **Imagery:** NASA GIBS (Blue Marble, MODIS Aqua, HLS) and Esri World Imagery for close-up detail.
+- **Cloud cover:** VIIRS Corrected Reflectance (True Color) from the NOAA-20 satellite (NOAA and NASA), via NASA GIBS.
 - **Places and borders:** [GeoNames](https://www.geonames.org/) (CC BY 4.0), Natural Earth (public domain) and world-atlas; Open-Meteo Geocoding API as online fallback.
 - **Rain and discharge:** ERA5 and GloFAS, via Open-Meteo.
 - **Earthquake data:** USGS.

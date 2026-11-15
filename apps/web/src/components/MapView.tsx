@@ -16,7 +16,7 @@ import { syntheticSeries, type Outline } from "../lib/speckle";
 import { grayToDb, meanGray, pixelUnder, type Reading } from "../lib/probe";
 import { corners, hasOptical, opticalFrame, opticalImage } from "../lib/optical";
 import { releases } from "../lib/provenance";
-import { cloudSource, imagerySources, inGoesEastView, latestCloudTime } from "../lib/tiles";
+import { cloudSource, imagerySources, latestCloudDay } from "../lib/tiles";
 
 export interface MapHandle {
   flyToScene(scene: Scene): void;
@@ -566,7 +566,13 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     return () => cancelAnimationFrame(bandRaf.current);
   }, [props.passes, props.place, ready]);
 
-  // ---------- nuvens de agora ----------
+  // ---------- nuvens do último dia ----------
+  // pouco depois de o globo abrir, já pergunta qual é o dia: ligar as nuvens não espera essa resposta
+  useEffect(() => {
+    if (!ready) return;
+    const warm = window.setTimeout(() => { latestCloudDay().catch(() => {}); }, 1500);
+    return () => window.clearTimeout(warm);
+  }, [ready]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -577,7 +583,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     if (!clouds) { clear(); setLiveTime(null); return; }
     const abort = new AbortController();
     let shown: string | null = null;
-    // horas cujos tiles falharam no mapa: a próxima busca pula essas e fica com uma anterior
+    // dias cujos tiles falharam no mapa: a próxima busca pula esses e fica com um anterior
     const bad: string[] = [];
     let errors = 0, retry = 0;
     const onError = (e: { sourceId?: string }) => {
@@ -588,8 +594,8 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       retry = window.setTimeout(() => void refresh(), 500);
     };
     map.on("error", onError);
-    const refresh = () => latestCloudTime(abort.signal, bad).then((time) => {
-      if (time === shown || mapRef.current !== map) return;
+    const refresh = () => latestCloudDay(bad).then((time) => {
+      if (abort.signal.aborted || time === shown || mapRef.current !== map) return;
       shown = time;
       errors = 0;
       clear();
@@ -602,9 +608,8 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       setLiveFailed(false);
     }).catch(() => { if (!abort.signal.aborted && !shown) { setLiveFailed(true); setClouds(false); } });
     void refresh();
-    const timer = window.setInterval(refresh, 5 * 60_000);
-    // o GOES-East só enxerga as Américas: de longe, vira o globo para lá
-    if (map.getZoom() < 4 && !inGoesEastView(map.getCenter().lng)) { spinning.current = false; map.flyTo({ center: [-62, -8], duration: 1800 }); }
+    // a imagem é diária: basta conferir de hora em hora se o dia virou
+    const timer = window.setInterval(refresh, 60 * 60_000);
     return () => { abort.abort(); window.clearInterval(timer); window.clearTimeout(retry); map.off("error", onError); };
   }, [clouds, ready]);
 
@@ -850,9 +855,8 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
         <p className="map__caption glass" role="status">
           {liveFailed ? t.map.liveFailed : !liveTime ? t.map.liveLoading : (
             <>
-              {/* cena fora das Américas: não há nuvem na tela, e a legenda diz isso em vez de apontar para o branco */}
-              <b>{!nearScene ? t.map.liveLead : inGoesEastView(nearScene.lon) ? t.map.liveLeadNear : t.map.liveLeadFar}</b>
-              {!nearScene ? t.map.liveCaption(f.time(liveTime)) : inGoesEastView(nearScene.lon) ? t.map.liveCaptionNear(f.time(liveTime)) : t.map.liveCaptionFar}
+              <b>{nearScene ? t.map.liveLeadNear : t.map.liveLead}</b>
+              {nearScene ? t.map.liveCaptionNear(f.shortDate(liveTime)) : t.map.liveCaption(f.shortDate(liveTime))}
             </>
           )}
         </p>
