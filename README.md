@@ -4,6 +4,8 @@
 
 Nexxus puts radar change detection on a globe anyone can explore: pick a place, compare two satellite passes, and read in plain language what changed and how much. It was built for the *Dancing with the SARs* challenge of the [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/).
 
+It runs on open NASA data: NISAR radar products from NASA Earthdata (GCOV, the calibrated brightness, and GUNW, the interferograms), the pass list from NASA's CMR catalog and, for context, the OPERA DSWx-S1 water map and MODIS, HLS and VIIRS imagery through GIBS. See [Data provenance](#data-provenance).
+
 **Live demo: [nexxus.earth](https://nexxus.earth)**. Three places to start:
 
 - [The flood under cloud](https://nexxus.earth/?scene=taquari&view=optical): what an optical satellite saw over the Taquari Valley on the day of the radar pass, and the radar scene showing through it.
@@ -14,9 +16,14 @@ Nexxus puts radar change detection on a globe anyone can explore: pick a place, 
 
 *The lower Taquari Valley, Brazil. The river peaked on July 22, 2026; NISAR passed the next evening. The app compares that pass with earlier ones on the same orbit (the first of the series, 36 days before, in this capture), measures what got darker, and shows what an optical satellite saw that day: cloud.*
 
+## Why radar
+
+Optical satellites need daylight and a clear sky. Radar needs neither: it sends its own signal and measures what bounces back, through cloud, smoke and darkness. That makes it the right instrument for a flood in the middle of a storm or a forest that is almost always under cloud.
+
+The catch is that a radar image is hard to read. It is grainy, black and white, and brightness means "how much signal came back", not colour. Nexxus exists to close that gap.
+
 ## Contents
 
-- [Why radar](#why-radar)
 - [Features](#features)
 - [Quick start](#quick-start)
 - [Architecture](#architecture)
@@ -26,14 +33,9 @@ Nexxus puts radar change detection on a globe anyone can explore: pick a place, 
 - [Data provenance](#data-provenance)
 - [Regenerating the data](#regenerating-the-data)
 - [Use of AI](#use-of-ai)
+- [Team](#team)
 - [Credits](#credits)
 - [License](#license)
-
-## Why radar
-
-Optical satellites need daylight and a clear sky. Radar needs neither: it sends its own signal and measures what bounces back, through cloud, smoke and darkness. That makes it the right instrument for a flood in the middle of a storm or a forest that is almost always under cloud.
-
-The catch is that a radar image is hard to read. It is grainy, black and white, and brightness means "how much signal came back", not colour. Nexxus exists to close that gap.
 
 ## Features
 
@@ -72,7 +74,7 @@ The Radar lab tab sits between Scene and Ask. It has three tools, each with a sh
 
 The Ask tab talks to the Mission Guide, an agent that answers only from fact cards the team checked.
 
-- **Grounded answers.** The agent picks the fact cards that match the question, has the language model write from those cards alone, and rejects any answer with a number, date or scene that is not in them. Without the model (no key, no quota, a slow or rejected answer) it replies with the cards' own sentences, and the screen says so. Outside its subject, it says it does not know and lists what it does.
+- **Grounded answers.** The agent picks the fact cards that match the question, has the language model write from those cards alone, and checks the answer against them: a figure with its unit, a date written in digits or a scene that the cards do not carry fails the check. It checks figures and names, not the prose around them. Without the model (no key, no quota, a slow or rejected answer) it replies with the cards' own sentences, and the screen says so. Outside its subject, it says it does not know and lists what it does.
 - **A caveat and the sources with every answer**, attached by the agent's code, not written by the model, plus a button for each scene the answer used.
 - **Aware of the open scene.** "What changed here?" is answered about the scene on screen, and the tab suggests questions to start with.
 - **Listen.** A button reads the answer and its caveat aloud in the browser's own voice, in the language of the question, with units spelled out. It appears when the browser has a voice for that language.
@@ -84,11 +86,9 @@ The Ask tab talks to the Mission Guide, an agent that answers only from fact car
 - **The real sky.** Behind the globe are 15,500 stars from the Hipparcos catalogue, placed where they are behind the Earth at the time of the visit.
 - **Soundtrack.** Two public-domain tracks follow the screen, one for exploring and one for the data views. The Sound button turns them off.
 - **Room for the map.** The arrow beside the tabs folds the panel into a rail of icons; opening a scene or picking a place brings it back.
-- **A welcome screen** on the first visit, which the About button reopens.
 - **Works offline.** The globe, the surroundings of every scene, the lab and the place search ship with the app.
 - **Shareable links.** The address follows the screen, and the panel has a button that copies a link to the exact view. See [Deep links](#deep-links).
-- **Performance panel.** `?perf=1` shows load times, Web Vitals and the cost of each computation.
-- **Keyboard and motion.** Keyboard focus stays visible, Esc closes the lab, and animations follow the system's reduced-motion setting.
+- **Smaller things.** A welcome screen on the first visit (the About button reopens it), a performance panel at `?perf=1`, visible keyboard focus, and animations that follow the system's reduced-motion setting.
 
 ## Quick start
 
@@ -98,7 +98,7 @@ Docker is the only requirement.
 docker compose up -d --build
 ```
 
-Open http://localhost:8080. The API answers at http://localhost:3000/api.
+Open http://localhost:8080. The API answers at http://localhost:3000/api. The agent has its own test page at http://localhost:8090; its `/api/health` says whether the model is on.
 
 For development with hot reload (front end at http://localhost:5173):
 
@@ -106,14 +106,14 @@ For development with hot reload (front end at http://localhost:5173):
 docker compose -f docker-compose.dev.yml up
 ```
 
-Type checks and tests run in the same container:
+Type checks and tests run in the same container. The commands install the dependencies first, so they also work on a fresh clone:
 
 ```bash
-docker compose -f docker-compose.dev.yml run --rm dev npm run typecheck
+docker compose -f docker-compose.dev.yml run --rm dev sh -c "npm install && npm run typecheck"
 ```
 
 ```bash
-docker compose -f docker-compose.dev.yml run --rm dev npm test
+docker compose -f docker-compose.dev.yml run --rm dev sh -c "npm install && npm test"
 ```
 
 With Node 20 or newer you can also run it directly: `npm install`, then `npm run dev`. On Windows, outside WSL, `npm run dev` does not start the front end (its script sets an environment variable the POSIX way): use Docker.
@@ -153,10 +153,10 @@ Base URL: `http://localhost:3000/api` (behind the front end's nginx: `/api`). JS
 ### `GET /health`
 
 ```json
-{ "ok": true, "data": "example", "passes": "nisar", "agent": "example" }
+{ "ok": true, "data": "example", "passes": "nisar", "agent": "connected" }
 ```
 
-`passes` tells where the last pass list came from (the NASA catalog or example data); `agent` is `connected` when the API has an agent to call (the default in Docker), `example` otherwise.
+`data` is always `example`: the scene list comes from the fixtures committed in this repository, not from a live catalog query. The images, dates and granules in it are real NISAR products (see [Data provenance](#data-provenance)). `passes` tells where the last pass list came from (`nisar` for the NASA catalog, `example` otherwise); `agent` is `connected` when the API has an agent to call (the default in Docker), `example` otherwise.
 
 ### `GET /scenes`
 
@@ -268,7 +268,7 @@ curl -X POST "http://localhost:3000/api/ask" \
 |---|---|---|
 | `question` | string | Required |
 | `sceneIds` | string[] | Scenes in context: the open one and the ones being compared |
-| `history` | `{ role, content }[]` | Earlier turns, oldest first (the last 20 are kept) |
+| `history` | `{ role, content }[]` | Earlier turns, oldest first (the last 20 are kept). Accepted for compatibility: the agent answers each question on its own and does not receive them |
 | `lang` | `en`, `pt` | |
 
 ```json
@@ -310,6 +310,7 @@ Copy `.env.example` to `.env` at the repository root. Docker Compose reads it; a
 | `VITE_API_MODE` | `http` | `http` reads from the API; `mock` uses example data in the browser |
 | `VITE_API_URL` | `/api` | API address as seen by the browser |
 | `GEMINI_API_KEY` | empty | Gemini key for the agent. Empty: the agent answers from its fact cards, without the model |
+| `GEMINI_MODEL` | `gemini-3.5-flash-lite` | Model the agent asks. It moves down a queue of models when one is full or gone |
 | `AGENT_URL` | empty | Empty: the agent of this repository (`apps/agent`), started by Docker. Another URL: that agent. `off`: the Ask tab answers with example text |
 | `AGENT_API_KEY` | empty | Key sent to the agent, if it needs one |
 | `PASSES_ONLINE` | `1` | `0` turns off the NASA catalog query and serves example passes |
@@ -317,6 +318,7 @@ Copy `.env.example` to `.env` at the repository root. Docker Compose reads it; a
 | `PUBLIC_API_URL` | `/api` | Public address of the API, used in the scene image URLs |
 | `EARTHDATA_TOKEN` | empty | NASA Earthdata token, used only by the image generation scripts |
 | `WEB_PORT` | `8080` | Port of the front end on the host |
+| `AGENT_PORT` | `8090` | Port of the agent's own test page on the host |
 
 `VITE_*` variables are compiled into the page: never put a secret in them.
 
@@ -383,11 +385,20 @@ Everything the app shows is committed, so none of this is needed to run it. The 
 
 We used AI in two ways, and say so here as the Space Apps rules ask.
 
-**In the product.** The agent behind the Ask tab (`apps/agent`) uses Google Gemini (`gemini-3.5-flash-lite`) to word its answers. The model only sees fact cards written and checked by the team (`apps/agent/data/cards.json`); the agent's code rejects an answer with a number, date or scene that is not in those cards and attaches the caveats and sources itself. `apps/agent/data/respostas_prontas.json` holds 112 answers to likely questions, generated by the same model through the same check, so they cost no quota. When the model is not used, the screen says the answer came straight from the cards.
+**In the product.** The agent behind the Ask tab (`apps/agent`) uses Google Gemini (`gemini-3.5-flash-lite`) to word its answers. The model only sees fact cards written and checked by the team (`apps/agent/data/cards.json`); the agent's code checks each answer against those cards (figures with their units, dates written in digits and scene names; not the prose), falls back to the cards' own sentences when the check fails, and attaches the caveats and sources itself. `apps/agent/data/respostas_prontas.json` holds 112 answers to likely questions, generated by the same model through the same check, so they cost no quota. When the model is not used, the screen says the answer came straight from the cards.
 
 **In development.** We wrote the code with AI coding assistants: mostly Claude Code (Anthropic), and Gemini for read-only passes over the code. They generated and reviewed code, tests and documentation, including this README, under the direction of the team, who reviewed the result and ran it. [CLAUDE.md](CLAUDE.md) is the guide those assistants follow. Commits made this way carry the name of the team member who asked for and reviewed the change; some also carry a `Claude-Session` trailer.
 
 **Not generated by AI.** The radar and optical images are satellite data, and the measurements come from scripts in `scripts/` that read that data. The screenshots are captures of the app. The music is by human composers, in the public domain. The read-aloud voice is the browser's built-in speech synthesis. The project has no AI-generated image, video or music, and does not use the NASA logo.
+
+## Team
+
+Nexxus is a team of four from Campinas, Brazil.
+
+- **Gabriel:** the front end (`apps/web`) and its integration with the API.
+- **Mateus:** the API (`apps/api`) and the scripts that turn NASA data into the images and measurements (`scripts/`).
+- **Vitor:** the agent behind the Ask tab (`apps/agent`): fact cards, prompt and answer quality.
+- **Laís:** submission, story and demo.
 
 ## Credits
 
