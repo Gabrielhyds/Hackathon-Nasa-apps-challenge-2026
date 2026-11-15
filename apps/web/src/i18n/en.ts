@@ -487,7 +487,7 @@ export const en = {
       readingLabel: (km: string) => `The ends are ${km} km apart. The count includes the atmosphere and does not say which way the ground moved.`,
       unreliable: "This line crosses sea or noise, where the echo does not repeat from one pass to the next. Move it onto the land.",
       profileAria: "Fringes counted along the ruler",
-      profileNote: "Along the ruler. Each horizontal line is one fringe.",
+      profileNote: "Along the ruler. Each horizontal line is one fringe; dashed where the signal is noise.",
       compareCalm: (fringes: string) => `The same line on the 12 calm days before: ${fringes} fringes, with no earthquake. That much is atmosphere: read it as the error bar.`,
       compareQuake: (fringes: string) => `The same line across the quake: ${fringes} fringes.`,
       presetsAria: "Ready-made lines",

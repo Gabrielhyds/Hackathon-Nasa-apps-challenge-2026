@@ -612,7 +612,8 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 .fringe-read__compare { font-size: 13.5px; line-height: 1.45; color: var(--soft); text-wrap: pretty; }
 .fringe-profile { display: block; width: 100%; height: auto; border-radius: 14px; background: rgba(255, 255, 255, 0.05); }
 .fringe-profile line { stroke: var(--line); stroke-width: 1; }
-.fringe-profile polyline { fill: none; stroke: var(--ice); stroke-width: 2; stroke-linejoin: round; }
+.fringe-profile polyline { fill: none; stroke: var(--ice); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.fringe-profile .fringe-profile__noise { stroke: var(--mute); stroke-width: 1.5; stroke-dasharray: 3 4; }
 
 /* painel de medidas de desempenho (?perf=1) */
 .perf { --tint: 0.82; position: fixed; z-index: 40; left: var(--gap); top: 156px; width: 272px; padding: 12px 14px 12px; display: grid; gap: 8px; border-radius: 18px; font-size: 12.5px; }
