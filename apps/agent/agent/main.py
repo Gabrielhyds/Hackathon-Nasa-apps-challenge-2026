@@ -61,6 +61,11 @@ def _carregar_prontas() -> int:
     except Exception as exc:  # arquivo torto não pode derrubar o servidor
         log.warning("respostas prontas ignoradas: %s", exc)
         return 0
+    # JSON válido com outro formato (lista no lugar do objeto, item sem pergunta) também não derruba:
+    # esta função roda quando o módulo é carregado, e uma exceção aqui impede o servidor de subir.
+    if not isinstance(dados, dict) or not isinstance(dados.get("respostas", []), list):
+        log.warning("respostas prontas ignoradas: formato inesperado")
+        return 0
     from .core import CARDS_VERSAO
 
     if dados.get("cards_versao") and dados["cards_versao"] != CARDS_VERSAO:
@@ -70,8 +75,9 @@ def _carregar_prontas() -> int:
         )
     n = 0
     for item in dados.get("respostas", []):
-        resposta = item.get("resposta")
-        if not resposta:
+        resposta = item.get("resposta") if isinstance(item, dict) else None
+        if not isinstance(resposta, dict) or not isinstance(item.get("question"), str) \
+                or resposta.get("lang") not in ("pt", "en") or not isinstance(resposta.get("answer"), str):
             continue
         _cache[_chave(item["question"], resposta["lang"], item.get("scene"))] = resposta
         n += 1
