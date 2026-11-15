@@ -60,6 +60,8 @@ export function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
   const [place, setPlace] = useState<Place | null>(LINK.place ?? null);
+  /** Muda quando o lugar é retirado: a busca recomeça vazia. */
+  const [searchReset, setSearchReset] = useState(0);
   /** O usuário abriu uma cena de propósito (em vez de só ver a primeira selecionada no globo). */
   const [opened, setOpened] = useState(false);
   /** O usuário mexeu nas caixas de comparar. */
@@ -145,6 +147,12 @@ export function App() {
     setTab("passes");
     if (fly) move((m) => m.flyToPlace(next));
   }
+  /** Tira o lugar escolhido: o ponto e as faixas saem do mapa, a aba do lugar some e a busca esvazia. */
+  function clearPlace() {
+    setPlace(null);
+    setTab("scenes");
+    setSearchReset((n) => n + 1);
+  }
   // o hidrograma é da cena aberta, se ela tiver um; senão, da primeira que tiver
   const hydroScene = scenes.find((s) => s.id === selectedId && s.waterSeries) ?? scenes.find((s) => s.waterSeries);
   function openLab(panel: LabId) {
@@ -190,7 +198,7 @@ export function App() {
 
       <header className="hud">
         <div className="brand"><h1>Nexxus</h1><p>{t.cover.tagline}</p></div>
-        <PlaceSearch onPick={(p) => choosePlace(p, true)} />
+        <PlaceSearch key={searchReset} onPick={(p) => choosePlace(p, true)} />
         <div className="hud__right">
           {API_MODE === "mock" && <p className="badge" title={t.badge.exampleTitle}>{t.badge.example}</p>}
           <button type="button" className="ghost" aria-pressed={intro} onClick={() => (intro ? closeIntro() : setIntro(true))}>{t.cover.about}</button>
@@ -247,7 +255,7 @@ export function App() {
           {tab === "passes" && (
             <PassesPanel place={place} audience={audience} passes={passesQuery.data} loading={passesQuery.isFetching && !passesQuery.data}
               failed={passesQuery.isError} example={API_MODE === "mock" ? "mock" : passesQuery.data?.some((p) => p.isExample) ? "fallback" : null} scenes={scenes}
-              onRetry={() => passesQuery.refetch()} onOpenScene={openScene} />
+              onRetry={() => passesQuery.refetch()} onOpenScene={openScene} onClear={clearPlace} />
           )}
           {tab === "ask" && <AskPanel chat={chat} scenes={scenes} context={context} suggestions={t.ask.suggestions[audience]} onOpenScene={openScene} />}
         </div>
