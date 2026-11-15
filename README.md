@@ -6,7 +6,7 @@ Nexxus puts radar change detection on a globe anyone can explore: pick a place, 
 
 ![The app flying to the lower Taquari Valley, sweeping the radar image from before to after the July 2026 flood, painting the change map and revealing the radar under the day's cloud cover](docs/demo-taquari.gif)
 
-*The lower Taquari Valley, Brazil. The river peaked on July 22, 2026; NISAR passed the next evening. The app compares that pass with the one 12 days earlier, measures what got darker, and shows what an optical satellite saw that day: cloud.*
+*The lower Taquari Valley, Brazil. The river peaked on July 22, 2026; NISAR passed the next evening. The app compares that pass with earlier ones on the same orbit (the one 12 days before, in this capture), measures what got darker, and shows what an optical satellite saw that day: cloud.*
 
 ## Contents
 
@@ -35,7 +35,7 @@ The catch is that a radar image is hard to read. It is grainy, black and white, 
 | | |
 |---|---|
 | ![The globe with a pin for each analyzed scene and the scene carousel](docs/preview-mundo.jpg) | ![Before and after radar images of the Limpopo flood around Chókwè](docs/preview-cena.jpg) |
-| **A globe of scenes.** Each pin is a place NISAR imaged twice. Documented events come first in the carousel, seasonal changes after. | **Before and after.** Drag the divider between two passes, or press play and watch one sweep over the other. HH and HV polarizations are one click apart. |
+| **A globe of scenes.** Each pin is a place NISAR imaged at least twice. Documented events come first in the carousel, seasonal changes after. | **Before and after.** Drag the divider between two passes, or press play and watch one sweep over the other. HH and HV polarizations are one click apart. |
 | ![The change map over Chókwè with the darker and brighter areas in km²](docs/preview-mudanca.jpg) | ![MODIS cloud cover over southern Brazil with the radar scene showing through](docs/preview-sob-nuvem.jpg) |
 | **What changed.** The change map paints where the signal fell (amber) and where it rose (ice blue), and reports the area of each side in km². It is computed in the browser from the two images. | **Under cloud.** The optical image from the day of the event covers the screen, and the radar scene shows through it. |
 | ![Passes over Campinas with the orbit swaths and the next pass estimate](docs/preview-passagens.jpg) | ![Live GOES-East cloud cover with the radar image of Lábrea on top](docs/preview-agora.jpg) |

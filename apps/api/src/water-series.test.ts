@@ -67,9 +67,9 @@ test("a cena do Taquari leva a série até quatro dias depois da cheia, igual ao
       date: p.date, direction: p.direction, track: p.track, newWaterKm2: p.newWaterKm2, lowKm2: p.lowKm2, highKm2: p.highKm2,
       ...(p.reference ? { reference: true } : {}),
     })));
-    // a maior medida é a da passagem da noite seguinte à cheia, a segunda do par de imagens da cena
+    // a maior medida é a da passagem da noite seguinte à cheia, a última da série de imagens da cena
     const peak = samples.reduce((a, b) => (b.newWaterKm2 > a.newWaterKm2 ? b : a));
-    assert.equal(peak.date, s.acquisitions[1].date);
+    assert.equal(peak.date, s.acquisitions[s.acquisitions.length - 1].date);
     assert.equal(peak.reference, undefined);
     assert.ok(samples.filter((x) => x.reference).every((x) => x.newWaterKm2 < peak.newWaterKm2 / 10));
     // sem a API (modo mock do front) a série é a mesma
