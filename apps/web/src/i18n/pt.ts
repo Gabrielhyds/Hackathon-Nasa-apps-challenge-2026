@@ -280,7 +280,7 @@ export const pt: Dict = {
     spanPairs: (count: number, days: number) => `${count} pares de passagens, de ${days} dias cada`,
     spanPlain: (days) => `${days} dias entre as duas visitas`,
   },
-  tabs: { aria: "Legenda", scenes: "Cena", passes: "Lugar", ask: "Perguntar" },
+  tabs: { aria: "Legenda", scenes: "Cena", passes: "Lugar", ask: "Perguntar", fold: "Recolher painel" },
   scenes: {
     loading: "Carregando as cenas…",
     error: "As cenas não carregaram. Confira se a API está no ar.",

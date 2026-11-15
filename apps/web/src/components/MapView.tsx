@@ -61,6 +61,8 @@ interface Props {
   onHome?(): void;
   /** O laboratório está aberto: um painel largo cobre a direita no lugar da folha, e o centro útil do mapa vai mais para a esquerda. */
   labOpen?: boolean;
+  /** A folha está recolhida no trilho de ícones: o mapa ganha a largura dela. */
+  sideFolded?: boolean;
 }
 
 /** Cores desenhadas no mapa. Espelham os tokens de styles.css; o mapa não lê variáveis CSS. */
@@ -73,6 +75,8 @@ const NEAR_FROM = 4.4, NEAR_FULL = 5.4;
 const SWIPE_BOX = 290;
 /** Largura do painel de vidro mais a margem, em pixels. Espelha --story e --gap de styles.css. */
 const SHEET = 432;
+/** Largura do trilho de ícones (folha recolhida) mais a margem. Espelha --story de .app--rail em styles.css. */
+const RAIL = 84;
 /** Largura do painel do laboratório em tela larga. Espelha `--lab-panel` de styles.css: min(60vw, 960px). */
 const labPanelWidth = (viewport: number) => Math.min(viewport * 0.6, 960);
 /** Tempo para a faixa da órbita atravessar o lugar escolhido. */
@@ -111,7 +115,11 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   const labRef = useRef(props.labOpen ?? false);
   labRef.current = props.labOpen ?? false;
   /** Quanto da direita do mapa está coberto: a folha normal ou o painel largo do laboratório. */
-  const sideWidth = () => (labRef.current ? labPanelWidth(window.innerWidth) + 32 : SHEET);
+  const foldedRef = useRef(props.sideFolded ?? false);
+  foldedRef.current = props.sideFolded ?? false;
+  const sideWidth = () => (foldedRef.current ? RAIL : labRef.current ? labPanelWidth(window.innerWidth) + 32 : SHEET);
+  /** A margem direita em vigor, para saber se o globo ainda está no tamanho que ela pedia. */
+  const lastRight = useRef(0);
   /** Para onde o giro inicial leva a margem e o zoom, aos poucos. O giro reposiciona o mapa a cada quadro e cancelaria uma animação comum. */
   const spinTarget = useRef<{ right: number; zoom: number } | null>(null);
   const mapRef = useRef<GlMap | null>(null);
@@ -822,21 +830,22 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
 
   // painel do laboratório aberto ou fechado: o mapa desliza para manter a cena à vista na parte que sobra
   const labOpen = props.labOpen ?? false;
+  const sideFolded = props.sideFolded ?? false;
   const padded = useRef(false);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready || window.matchMedia("(max-width: 900px)").matches) return;
     // ao abrir a página a margem já foi posta na criação do mapa: animar aqui cortaria o voo até a cena do link
-    if (!padded.current) { padded.current = true; return; }
-    const box = boxRef.current, right = sideWidth();
+    if (!padded.current) { padded.current = true; lastRight.current = sideWidth(); return; }
+    const box = boxRef.current, right = sideWidth(), was = lastRight.current;
+    lastRight.current = right;
     // na visão do mundo o globo também muda de tamanho, para caber na parte livre; se o usuário já mexeu no zoom, ele fica como está
-    const was = labOpen ? SHEET : labPanelWidth(window.innerWidth) + 32;
     const atHome = box !== null && Math.abs(map.getZoom() - homeZoom(box.clientWidth - was, box.clientHeight - 220)) < 0.05;
     const zoom = atHome && box ? homeZoom(box.clientWidth - right, box.clientHeight - 220) : map.getZoom();
     if (spinning.current) spinTarget.current = { right, zoom };
     else map.easeTo({ padding: { top: 64, right, bottom: 0, left: 0 }, zoom, duration: reduceMotion() ? 0 : 500 });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [labOpen, ready]);
+  }, [labOpen, sideFolded, ready]);
 
   const audience = props.audience;
   return (

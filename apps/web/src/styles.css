@@ -208,6 +208,17 @@ input[type="range"]:active::-webkit-slider-thumb { scale: 1.2; }
 
 /* ---------- painel da cena ---------- */
 .story { position: absolute; z-index: 6; top: 76px; right: var(--gap); bottom: var(--gap); width: var(--story); display: flex; flex-direction: column; overflow: hidden; animation: rise 0.6s var(--ease) 0.1s backwards; }
+.story__head { flex: none; display: flex; align-items: center; gap: 8px; margin: 12px 12px 0; }
+.story__head > .tabs { flex: 1; min-width: 0; margin: 0; }
+/* recolhe a folha: as abas viram ícones num trilho à direita e o mapa ganha a largura */
+.story__fold { flex: none; margin-left: auto; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: var(--fill); color: var(--soft); transition: background-color 0.18s, color 0.18s; }
+.story__fold:hover { background: rgba(255, 255, 255, 0.15); color: var(--ink); }
+.story--rail { bottom: auto; border-radius: 999px; }
+.rail { display: flex; flex-direction: column; gap: 4px; padding: 6px; }
+.rail button { position: relative; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--soft); transition: background-color 0.18s, color 0.18s; }
+.rail button:hover { background: rgba(255, 255, 255, 0.12); color: var(--ink); }
+.rail button[aria-current="true"] { background: rgba(255, 255, 255, 0.15); color: var(--ink); }
+.rail span { position: absolute; top: 1px; right: 0; min-width: 16px; padding: 2px 4px; border-radius: 999px; background: var(--glass-solid); font: 500 10.5px/1 var(--data); color: var(--ice); }
 .tabs { flex: none; display: flex; gap: 2px; margin: 12px 12px 0; padding: 3px; border-radius: 999px; background: var(--fill); }
 /* cada aba numa moldura, para a do lugar levar o × de fechar ao lado do rótulo */
 .tabs__item { flex: 1; min-width: 0; display: flex; position: relative; }
@@ -445,9 +456,11 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 /* painel lateral largo: fica no lugar da folha, e quem se alinha por --story (divisor, carrossel, dica) encolhe junto. A largura é espelhada em MapView.tsx (labPanelWidth) */
 @media (min-width: 901px) {
   .app--lab { --story: min(60vw, 960px); }
+  /* folha recolhida: a largura do trilho, espelhada em MapView.tsx (RAIL) */
+  .app--rail { --story: 52px; }
   .story { transition: width 0.4s var(--ease); }
   /* as abas não esticam com a folha: ficam do tamanho que têm na folha normal */
-  .app--lab .story > .tabs { align-self: flex-start; width: 432px; max-width: calc(100% - 24px); }
+  .app--lab .story__head > .tabs { flex: none; width: 400px; max-width: calc(100% - 40px); }
 }
 /* gráficos pedem um fundo mais fechado que o texto da cena */
 .app--lab .story { --tint: 0.84; }
@@ -679,6 +692,8 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
   .player { position: absolute; left: 12px; right: 12px; bottom: 12px; width: auto; translate: none; padding: 12px 14px; }
   .strip { position: relative; order: 3; right: auto; padding: 10px var(--gap) 4px; }
   .story { position: relative; order: 4; top: auto; right: auto; bottom: auto; width: auto; margin: 10px var(--gap) var(--gap); }
+  .story--rail { align-self: flex-end; }
+  .rail { flex-direction: row; }
   .panel { overflow: visible; }
   .chat { height: auto; }
   .hero { position: absolute; top: 90px; bottom: auto; }

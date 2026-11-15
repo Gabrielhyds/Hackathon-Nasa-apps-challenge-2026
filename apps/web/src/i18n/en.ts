@@ -278,7 +278,7 @@ export const en = {
     spanPairs: (count: number, days: number) => `${count} pairs of passes, ${days} days each`,
     spanPlain: (days: number) => `${days} days between the two visits`,
   },
-  tabs: { aria: "Panels", scenes: "Scene", passes: "Place", ask: "Ask" },
+  tabs: { aria: "Panels", scenes: "Scene", passes: "Place", ask: "Ask", fold: "Hide panel" },
   scenes: {
     loading: "Loading scenes…",
     error: "The scenes did not load. Check that the API is running.",
