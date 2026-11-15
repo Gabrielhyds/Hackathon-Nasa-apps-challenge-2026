@@ -146,11 +146,14 @@ test("fontes, ressalva e notas de exemplo na fixture, nos dois idiomas", () => {
 
 test("as cenas servidas levam o que vem da fixture e o que vem do manifest", () => {
   const { criteria: served, scenes: list } = servedScenes("en");
+  const real = readManifest().scenes!;
   assert.equal(served.length, criteria("en").length);
   assert.deepEqual(list.map((s) => s.id), scenes("en").map((s) => s.id));
   for (const s of list) {
     assert.equal(s.imagery, "gcov", s.id);
-    assert.equal(s.acquisitions.length, 2, s.id);
+    // duas passagens por cena, mais as anteriores que o manifest trouxer (hoje, só o Taquari)
+    assert.equal(s.acquisitions.length, 2 + (real[s.id].earlier?.length ?? 0), s.id);
+    assert.deepEqual(s.acquisitions.map((a) => a.date), s.acquisitions.map((a) => a.date).sort(), s.id);
     for (const a of s.acquisitions) {
       assert.ok(a.granule && a.release, s.id);
       for (const p of s.polarizations) assert.ok((a.images[p] ?? "").startsWith(`/api/scene-images/${s.id}/`), s.id);
@@ -164,7 +167,15 @@ test("as cenas servidas levam o que vem da fixture e o que vem do manifest", () 
   assert.ok(taquari.caveat);
   // Chókwè compara duas passagens da versão beta; o Taquari, duas provisórias
   assert.deepEqual(list.find((s) => s.id === "chokwe")!.acquisitions.map((a) => a.release), ["beta", "beta"]);
-  assert.deepEqual(taquari.acquisitions.map((a) => a.release), ["provisional", "provisional"]);
+  // a série mais longa do Taquari: quatro passagens provisórias da mesma órbita, e o par da fixture são as duas últimas
+  const m = real.taquari;
+  assert.deepEqual(taquari.acquisitions.map((a) => a.date), ["2026-06-17", "2026-06-29", "2026-07-11", "2026-07-23"]);
+  assert.deepEqual(taquari.acquisitions.map((a) => a.release), ["provisional", "provisional", "provisional", "provisional"]);
+  assert.equal(usableEarlier(m).length, m.earlier?.length);
+  for (const a of taquari.acquisitions) {
+    assert.ok(a.granule?.includes(`_${m.stack}_`), a.date);
+    assert.ok(a.granule?.split("_")[11].startsWith(a.date.replace(/-/g, "")), a.date);
+  }
 });
 
 test("a versão das imagens muda quando o manifest da cena muda", () => {

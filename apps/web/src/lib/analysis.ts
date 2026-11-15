@@ -14,6 +14,13 @@ export const LN_TO_DB = 20 / Math.LN10;
 export const ratioToDb = (ratio: number) => 20 * Math.log10(ratio);
 export const dbToRatio = (db: number) => 10 ** (Math.abs(db) / 20);
 
+/**
+ * Abaixo disto a área de um lado aparece como "0 km²" depois de arredondada, o que parece defeito: a tela escreve
+ * "quase nada" no lugar. Vale para um lado só; quando os dois somam pouco, a tela já troca tudo por uma frase.
+ */
+export const NEGLIGIBLE_KM2 = 0.05;
+export const negligibleArea = (km2: number): boolean => !(km2 >= NEGLIGIBLE_KM2);
+
 export interface Histogram {
   /** Quantos pixels caem em cada faixa, da maior queda (−`rangeDb`) à maior subida (+`rangeDb`). */
   counts: number[];
