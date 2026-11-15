@@ -51,17 +51,20 @@ export function useSoundtrack(track: Track) {
   const engine = useRef<Engine | null>(null);
   const wanted = useRef(track);
   wanted.current = track;
+  /** O ligado ou desligado da vez, lido também por quem termina depois (o áudio acordando, a faixa chegando). */
+  const playing = useRef(on);
 
-  /** Leva os volumes ao estado pedido: a faixa da vez sobe quando estiver carregada, a outra desce. */
-  const mix = useCallback((playing: boolean) => {
+  /** Leva os volumes ao estado da vez: com o som ligado, a faixa da tela sobe quando estiver carregada; o resto desce. */
+  const mix = useCallback(() => {
     const e = engine.current;
     if (!e) return;
     const target = wanted.current;
     const now = e.ctx.currentTime;
-    for (const id of TRACKS) if (!playing || id !== target) e.gains[id].gain.setTargetAtTime(0, now, FADE);
-    if (!playing) return;
+    for (const id of TRACKS) if (!playing.current || id !== target) e.gains[id].gain.setTargetAtTime(0, now, FADE);
+    if (!playing.current) return;
     load(e, target).then(() => {
-      if (wanted.current === target) e.gains[target].gain.setTargetAtTime(LEVEL, e.ctx.currentTime, FADE);
+      // a faixa pode chegar depois de alguém desligar o som ou mudar de tela
+      if (playing.current && wanted.current === target) e.gains[target].gain.setTargetAtTime(LEVEL, e.ctx.currentTime, FADE);
     }).catch(() => { delete e.ready[target]; setFailed(true); });
   }, []);
 
@@ -72,7 +75,7 @@ export function useSoundtrack(track: Track) {
       if (e.ctx.state !== "running") await e.ctx.resume();
       if (e.ctx.state !== "running") return false;
       setFailed(false);
-      mix(true);
+      mix();
       return true;
     } catch { setFailed(true); return false; }
   }, [mix]);
@@ -88,7 +91,7 @@ export function useSoundtrack(track: Track) {
   }, [on, wake]);
 
   // mudou a tela ou o botão: acerta os volumes
-  useEffect(() => { if (engine.current?.ctx.state === "running") mix(on); }, [track, on, mix]);
+  useEffect(() => { if (engine.current?.ctx.state === "running") mix(); }, [track, on, mix]);
 
   // aba escondida não toca
   useEffect(() => {
@@ -104,11 +107,15 @@ export function useSoundtrack(track: Track) {
   useEffect(() => () => { void engine.current?.ctx.close(); engine.current = null; }, []);
 
   const toggle = useCallback(() => {
-    const next = !on;
+    // depois de uma falha o botão diz "clique para tentar de novo": o clique tenta, sem desligar
+    if (failed && playing.current) { void wake(); return; }
+    const next = !playing.current;
+    playing.current = next;
     setOn(next);
     saveSound(next);
     if (next) void wake(); // o clique no botão já é o gesto
-  }, [on, wake]);
+    else mix();
+  }, [failed, wake, mix]);
 
   return { on, failed, toggle };
 }
