@@ -82,14 +82,6 @@ Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask m
 - **Ranking fora da tela, régua de cheia no topo e setas no carrossel:** feito em 15/11.
 - **Pronto quando:** nenhum número do preview aparece na tela (a régua de cheia já não tem; a de franjas só conta franjas), tipos e testes passam e as três abas foram conferidas nos dois idiomas.
 
-### 22. Série mais longa no Taquari: rodar o script (Mateus)
-
-- **O quê:** o Taquari com quatro passagens da mesma órbita (17/06, 29/06, 11/07 e 23/07/2026), para o botão de tocar mostrar a cheia chegando.
-- **Já feito, nesta branch:** `SCENES` tem as duas datas em `earlier`; `gcov_crop.py` acha as granules no catálogo (conferido em 14/11: as duas existem na órbita 053_D_103), recorta e grava `earlier-<data>-<POL>.png` e a lista no manifest; a API serve a série (com teste) e a tela foi conferida com quatro passagens simuladas.
-- **Falta:** rodar `gcov_crop.py taquari` com o `EARTHDATA_TOKEN` (comando no cabeçalho do script; umas quatro datas de 40 s a 3,5 min) e commitar as imagens e o manifest. O trecho novo do script que recorta as datas anteriores nunca rodou de verdade: quem editou não tinha o token. Conferir os PNGs e a parte válida (`validPct` passa a contar as quatro datas).
-- **Cuidados:** a cena passa a abrir em 17/06 contra 23/07; se a demo quiser 11/07 contra 23/07, o link leva `steps=2,3`. Só datas da mesma órbita.
-- **Pronto quando:** `GET /api/scenes` devolve quatro passagens no Taquari, o botão de tocar percorre as quatro e os números do `CLAUDE.md` foram conferidos.
-
 ## Depois do hackathon
 
 ### 16. Notas do ranking medidas (dono a definir)
