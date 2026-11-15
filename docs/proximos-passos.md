@@ -44,11 +44,6 @@ Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask m
 - Conteúdo: o radar manda um chirp longo, e o filtro casado (Fourier) junta a energia num pico estreito; o ganho é banda × duração e a resolução é c/2B (40 MHz, cerca de 3,75 m na direção do satélite, em seis das dez cenas de brilho; pelo código do modo no nome da granule, Lábrea, Pantanal e Kalimantan seriam de 20 MHz e Jakobshavn, de 77 MHz: é leitura do nome do arquivo, falta conferir no guia do produto antes de citar). A onda do NISAR tem 24 cm e o caminho é de ida e volta, então cada ciclo de cor de um interferograma vale 12 cm de movimento na direção do satélite; nos terremotos de 24/06/2026, no norte da Venezuela, a NASA mediu até 60 cm de deslocamento para oeste, valor preliminar (NASA Earth Observatory).
 - A duração do pulso no explicador é ilustrativa, e a parte 1 dele usa os números antigos do Taquari.
 
-### 8. Revisar os textos em inglês com alguém fluente (Laís, antes da submissão)
-
-- **Onde:** `apps/web/src/i18n/en.ts` (interface) e os textos em inglês de `packages/contract/src/fixtures/scenes.ts` (cenas, critérios, fontes, método da água, leituras do rio). Os da fixture foram conferidos contra o português em 14/11 (grafia americana, quatro acertos); falta a leitura de alguém fluente, na fixture e na interface.
-- **Pronto quando:** os dois arquivos foram lidos e o que mudou de sentido foi acertado também em `pt.ts` e no português da fixture.
-
 ### 15. Conferir os termos de uso do Esri World Imagery (dono a definir, antes da submissão)
 
 - O detalhe de perto do globo (acima do zoom 8) vem do Esri World Imagery (`apps/web/src/lib/tiles.ts`); o resto do fundo é da NASA (GIBS).
@@ -66,7 +61,7 @@ Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask m
 - O laboratório, o redesenho e a tela reorganizada estão na `main` e descritos no `CLAUDE.md` (Estrutura e O laboratório). Ficou:
 - **Tela estreita:** a legenda do gráfico da régua de cheia rola junto com ele e a simulação do pulso tem umas duas telas de altura.
 - **Captura do README:** `docs/preview-regua-cheia.jpg` foi refeita só em inglês.
-- **Inglês:** "flood level" ou "flood stage" nos textos das cenas e "through frequency" no laboratório, para o time decidir; a leitura de alguém fluente segue no item 8.
+- **Inglês:** "flood level" ou "flood stage" nos textos das cenas e "through frequency" no laboratório, para o time decidir (a Laís, fluente, revisou os textos em inglês da interface e das cenas).
 - **Cenas sazonais no mapa de mudança:** o lado que muda cobre quase toda a cena em Maceió (cerca de 1.430 km² mais escuros) e no Campo de Gelo Sul (cerca de 1.980 km²), em 1,25× e HH, vistos na tela em 15/11. É o que o dado calibrado diz; decidir se é o que queremos mostrar.
 - **Pronto quando:** nenhum número do preview aparece na tela (a régua de cheia já não tem; a de franjas só conta franjas), tipos e testes passam e as três abas foram conferidas nos dois idiomas.
 
