@@ -150,6 +150,19 @@ def test_sem_cartao_nunca_usa_texto_do_modelo(monkeypatch):
     assert a.mode == "no_info" and "Brazil" not in a.text
 
 
+def test_sem_cartao_nao_gasta_pedido_do_modelo(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    chamou = []
+
+    async def gen(system, user):
+        chamou.append(1)
+        return "Brazil will win the World Cup."
+
+    monkeypatch.setattr(llm, "generate", gen)
+    a = run(core.ask("Who will win the World Cup?"))
+    assert a.mode == "no_info" and not chamou
+
+
 def test_modelo_area_alagada_cai_para_reserva(monkeypatch):
     fake_model(monkeypatch, "The flooded area was about 53 km² [taquari].")
     a = run(core.ask("How big was the Taquari flood?"))
