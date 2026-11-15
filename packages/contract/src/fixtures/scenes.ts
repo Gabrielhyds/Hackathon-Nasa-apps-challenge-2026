@@ -8,7 +8,8 @@ import water from "./taquari-water.json";
  * com fonte: a enchente do Taquari de 22/07/2026 e a do Limpopo em Chókwè, de janeiro de 2026. As outras são descritas
  * como mudança sazonal, e o resumo diz o que o par de imagens calibradas mostra. `change` é o sentido da maior parte
  * da área que o mapa de mudança marca nesse par (HH, 1,25×); onde nada passa do limiar, o sinal da mediana da
- * diferença. As notas são inventadas (`isExample` em cada critério); o Taquari fica em primeiro com os pesos iguais
+ * diferença. Chókwè é a exceção: fica `darker`, o lado da cheia, embora o chão molhado em volta clareie numa área
+ * bem maior (o resumo avisa); é esse campo que escolhe o lado da comparação de escala na tela. As notas são inventadas (`isExample` em cada critério); o Taquari fica em primeiro com os pesos iguais
  * (um teste do front conta com isso).
  * Fonte (`sources`) só entra se alguém do time abriu a página e leu nela o fato que o título diz; sem isso, a cena
  * não tem evento e sai como "interpretation". `caveat` é a ressalva de leitura da imagem: até duas frases, 280

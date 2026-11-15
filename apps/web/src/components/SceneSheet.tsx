@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "
 import { hasOptical } from "../lib/optical";
 import type { Polarization, Scene } from "@nexxus/contract";
 import { useI18n } from "../i18n";
-import { dbToRatio, ratioToDb, type MapAnalysis } from "../lib/analysis";
+import { dbToRatio, negligibleArea, ratioToDb, type MapAnalysis } from "../lib/analysis";
 import type { Audience } from "../lib/audience";
 import { ratioFor, sensitivityFor } from "../lib/change";
 import { NISAR, bboxAreaKm2 } from "../lib/geo";
@@ -153,7 +153,7 @@ export function SceneSheet(props: Props) {
             <button type="button" className="action action--quiet" onClick={() => setSection("activity")}>{t.sheet.next.activity}</button>
           )}
           {audience !== "explore" && sections[1] && (
-            <button type="button" className="action action--next" onClick={() => setSection(sections[1])}>{t.sheet.next[sections[1]]}</button>
+            <button type="button" className="action action--next" onClick={() => setSection(sections[1])}>{phase ? t.sheet.nextPhase : t.sheet.next[sections[1]]}</button>
           )}
         </>
       )}
@@ -214,7 +214,8 @@ export function SceneSheet(props: Props) {
                   </div>
                 ))}
                 {whitePoints(scene).map((w) => (<div key={w.pol}><dt>{t.sheet.originWhite(w.pol)}</dt><dd>{t.sheet.originWhiteValue(f.num(w.db))}</dd></div>))}
-                {missingPct(scene) !== null && <div><dt>{t.sheet.originMissing}</dt><dd>{t.sheet.originMissingValue(f.num(missingPct(scene) ?? 0, 1))}</dd></div>}
+                {/* no interferograma os vazios são transparentes (água ou sinal perdido num dos pares), e a legenda do divisor já diz */}
+                {!phase && missingPct(scene) !== null && <div><dt>{t.sheet.originMissing}</dt><dd>{t.sheet.originMissingValue(f.num(missingPct(scene) ?? 0, 1))}</dd></div>}
               </dl>
             </section>
           )}
@@ -398,8 +399,8 @@ function Measure({ scene, analysis, view, onView, onSensitivity }: {
       <section className="block">
         <h3 className="block__lead">{m.lead}<small>{analysis.pol} · {f.shortDate(analysis.from)} → {f.shortDate(analysis.to)}</small></h3>
         <div className="measure__figures">
-          <p><b className="figure__fell">{t.map.fell(km(analysis.fellKm2))}</b></p>
-          <p><b className="figure__rose">{t.map.rose(km(analysis.roseKm2))}</b></p>
+          <p><b className="figure__fell">{negligibleArea(analysis.fellKm2) ? t.map.fellNone : t.map.fell(km(analysis.fellKm2))}</b></p>
+          <p><b className="figure__rose">{negligibleArea(analysis.roseKm2) ? t.map.roseNone : t.map.rose(km(analysis.roseKm2))}</b></p>
         </div>
         <svg ref={svg} className="histogram" viewBox={`0 0 ${HW} ${HH}`} role="img" aria-label={m.histogramAria(f.num(db, 1))}
           onPointerDown={(e) => { dragging.current = true; e.currentTarget.setPointerCapture?.(e.pointerId); drag(e); }}

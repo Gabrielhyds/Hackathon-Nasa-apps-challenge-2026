@@ -4,7 +4,7 @@ import { mesh } from "topojson-client";
 import type { GeometryCollection } from "topojson-specification";
 import type { Pass, Place, Polarization, Scene } from "@nexxus/contract";
 import { useI18n } from "../i18n";
-import { changeHistogram, thresholdTable, type MapAnalysis } from "../lib/analysis";
+import { changeHistogram, negligibleArea, thresholdTable, type MapAnalysis } from "../lib/analysis";
 import { ALMOST_NOTHING, DEFAULT_SENSITIVITY, changeMap, changedParts, ratioFor } from "../lib/change";
 import { bboxAreaKm2, swath } from "../lib/geo";
 import { compareArea } from "../lib/scale";
@@ -876,8 +876,8 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
                 ) : (
                   // queda e subida do sinal lado a lado, sem somar: são coisas diferentes no chão, e as cores do mapa são estas
                   <p className="figure figure--parts" aria-live="polite" title={t.map.changedShare(f.num(measured.fraction * 100, 1))}>
-                    <b className="figure__fell">{t.map.fell(km(measured.fellKm2))}</b>
-                    <b className="figure__rose">{t.map.rose(km(measured.roseKm2))}</b>
+                    <b className="figure__fell">{negligibleArea(measured.fellKm2) ? t.map.fellNone : t.map.fell(km(measured.fellKm2))}</b>
+                    <b className="figure__rose">{negligibleArea(measured.roseKm2) ? t.map.roseNone : t.map.rose(km(measured.roseKm2))}</b>
                     {audience === "explore" && measuredScale && (
                       <span>{t.map.scaleOf[nearScene.change]} {measuredScale.kind === "same" ? t.scenes.scaleSame(measuredScale.ref) : t.scenes.scaleTimes(f.num(measuredScale.times, measuredScale.times < 3 ? 1 : 0), measuredScale.ref)}</span>
                     )}
