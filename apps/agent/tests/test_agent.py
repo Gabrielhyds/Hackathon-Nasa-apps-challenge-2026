@@ -156,6 +156,16 @@ def test_modelo_area_alagada_cai_para_reserva(monkeypatch):
     assert a.mode == "offline"
 
 
+def test_guard_pelo_menos_nao_conta_como_negacao():
+    cards = [core.CARDS["taquari"]]
+    assert check_answer("A área alagada foi de pelo menos 53 km².", cards)
+    assert check_answer("Ao menos 53 km² de área alagada apareceram no radar.", cards)
+    assert check_answer("O vale vai alagar de novo, pelo menos em parte.", cards)
+    # a negação de verdade continua valendo
+    assert check_answer("Os 53 km² não são a área alagada: são água aberta nova.", cards) == []
+    assert check_answer("É água aberta nova, e a área alagada real é maior, nunca menos que isso.", cards) == []
+
+
 def test_modelo_sentido_do_chao_cai_para_reserva(monkeypatch):
     fake_model(monkeypatch, "The ground moved west by about 12 cm [venezuela].")
     a = run(core.ask("Quanto o chão andou na Venezuela?"))
@@ -218,16 +228,6 @@ def test_guard_barra_rascunho_vazado():
 def test_guard_aceita_sentido_do_chao_creditado_a_nasa():
     cards = [core.CARDS["venezuela"]]
     assert check_answer("Segundo a NASA, o chão andou até 60 cm para oeste.", cards) == []
-
-
-def test_guard_pelo_menos_nao_conta_como_negacao():
-    cards = [core.CARDS["taquari"]]
-    assert check_answer("A área alagada foi de pelo menos 53 km².", cards)
-    assert check_answer("Ao menos 53 km² de área alagada apareceram no radar.", cards)
-    assert check_answer("O vale vai alagar de novo, pelo menos em parte.", cards)
-    # a negação de verdade continua valendo
-    assert check_answer("Os 53 km² não são a área alagada: são água aberta nova.", cards) == []
-    assert check_answer("É água aberta nova, e a área alagada real é maior, nunca menos que isso.", cards) == []
 
 
 # ---------- Cota do modelo e respostas prontas ----------
