@@ -75,7 +75,10 @@ def _sem_cota(exc: Exception) -> bool:
 
 
 def _try_next(exc: Exception) -> bool:
-    """Modelo que não existe (404), que está lotado (503) ou sem cota (429): tenta o próximo."""
+    """Modelo que não existe (404), que está lotado (503), sem cota (429) ou que não respondeu a tempo: tenta o próximo."""
+    # O tempo esgotado não traz texto nenhum (str(TimeoutError()) é ""), então não casa com os códigos abaixo.
+    if isinstance(exc, (asyncio.TimeoutError, TimeoutError)):
+        return True
     texto = str(exc)
     return any(c in texto for c in ("404", "NOT_FOUND", "503", "UNAVAILABLE", "429", "RESOURCE_EXHAUSTED"))
 
