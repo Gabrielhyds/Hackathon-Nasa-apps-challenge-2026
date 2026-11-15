@@ -38,7 +38,8 @@ export function SceneIndex({ ranked, selectedId, hoverId, onSelect, onHover }: P
   const foldable = events.length > 0 && others.length > 0;
   const [expanded, setExpanded] = useState(false);
   const selectedIsOther = others.some((r) => r.scene.id === selectedId);
-  useEffect(() => { if (selectedIsOther) setExpanded(true); }, [selectedIsOther]);
+  // também ao ir de uma sazonal para outra, com o grupo recolhido no meio do caminho
+  useEffect(() => { if (selectedIsOther) setExpanded(true); }, [selectedIsOther, selectedId]);
   const showOthers = !foldable || expanded;
   // há cartões escondidos de cada lado? Decide se as setas aparecem
   const [more, setMore] = useState({ left: false, right: false });

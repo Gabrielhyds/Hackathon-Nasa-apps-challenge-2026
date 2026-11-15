@@ -37,6 +37,8 @@ interface Props {
   audience: Audience;
   scenes: Scene[];
   selectedId: string | null;
+  /** Cena cujo nome a folha está mostrando (`null` em outra aba ou com o laboratório aberto): a caixa do divisor não o repete. */
+  titledId: string | null;
   /** Cena sob o ponteiro, no mapa ou na lista. Ganha rótulo e um eco branco. */
   hoverId: string | null;
   place: Place | null;
@@ -114,6 +116,24 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   const sideWidth = () => (labRef.current ? labPanelWidth(window.innerWidth) + 32 : SHEET);
   /** Para onde o giro inicial leva a margem e o zoom, aos poucos. O giro reposiciona o mapa a cada quadro e cancelaria uma animação comum. */
   const spinTarget = useRef<{ right: number; zoom: number } | null>(null);
+  /** Para o giro. Se o laboratório abriu ou fechou durante o giro, a margem e o zoom vão de uma vez para o destino: parados no meio do caminho, ficariam errados. */
+  function haltSpin() {
+    spinning.current = false;
+    const target = spinTarget.current, map = mapRef.current;
+    spinTarget.current = null;
+    if (target && map) map.jumpTo({ zoom: target.zoom, padding: { top: 64, right: target.right, bottom: 0, left: 0 } });
+  }
+  /** Voo em curso, guardado para ser refeito se a margem do mapa mudar no meio dele (o laboratório abriu ou fechou). */
+  const flight = useRef<(() => void) | null>(null);
+  function fly(go: () => void) {
+    go();
+    // o movimento anterior termina dentro de `go` e limpa a marca: ela só é posta depois
+    flight.current = mapRef.current?.isMoving() ? go : null;
+  }
+  /** Cena para a qual `showPass` está levando o mapa: na chegada o divisor fica como foi posto, sem a varredura. */
+  const passHold = useRef<string | null>(null);
+  /** Em tela estreita a folha fica abaixo do mapa, longe da caixa do divisor. */
+  const [narrowScreen, setNarrowScreen] = useState(() => window.matchMedia("(max-width: 900px)").matches);
   const mapRef = useRef<GlMap | null>(null);
   const pins = useRef(new Map<string, Pin>());
   const spot = useRef<{ marker: Marker; label: HTMLElement } | null>(null);
@@ -353,7 +373,16 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     const narrow = window.matchMedia("(max-width: 900px)");
     const fit = () => map.setPadding(narrow.matches ? { top: 0, right: 0, bottom: 0, left: 0 } : { top: 64, right: sideWidth(), bottom: 0, left: 0 });
     fit();
-    narrow.addEventListener("change", fit);
+    // a largura do laboratório acompanha a janela; só mexe quando a margem muda, para não cortar um voo à toa
+    const refit = () => {
+      setNarrowScreen(narrow.matches);
+      const right = narrow.matches ? 0 : sideWidth();
+      if (spinTarget.current && !narrow.matches) spinTarget.current.right = right;
+      else if ((map.getPadding().right ?? 0) !== right) fit();
+    };
+    narrow.addEventListener("change", refit);
+    window.addEventListener("resize", refit);
+    map.on("moveend", () => { flight.current = null; });
 
     // giro lento até a primeira interação
     let last = performance.now(), spinRaf = 0;
@@ -372,7 +401,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       last = now;
       spinRaf = requestAnimationFrame(spin);
     };
-    const stopSpin = () => { spinning.current = false; };
+    const stopSpin = () => haltSpin();
     for (const type of ["pointerdown", "wheel", "touchstart"]) box.addEventListener(type, stopSpin, { passive: true });
 
     map.on("load", () => {
@@ -436,7 +465,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     return () => {
       cancelAnimationFrame(spinRaf); cancelAnimationFrame(bandRaf.current); cancelAnimationFrame(swipeRaf.current); cancelAnimationFrame(probeRaf.current);
       for (const type of ["pointerdown", "wheel", "touchstart"]) box.removeEventListener(type, stopSpin);
-      narrow.removeEventListener("change", fit);
+      narrow.removeEventListener("change", refit); window.removeEventListener("resize", refit);
       // a fila de movimentos fica: se o mapa for montado de novo (o React faz isso em desenvolvimento), ela roda no próximo load
       readyRef.current = false;
       pins.current.clear(); canvases.current.clear(); clouded.current.clear(); spot.current = null; mapRef.current = null;
@@ -604,7 +633,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     void refresh();
     const timer = window.setInterval(refresh, 5 * 60_000);
     // o GOES-East só enxerga as Américas: de longe, vira o globo para lá
-    if (map.getZoom() < 4 && !inGoesEastView(map.getCenter().lng)) { spinning.current = false; map.flyTo({ center: [-62, -8], duration: 1800 }); }
+    if (map.getZoom() < 4 && !inGoesEastView(map.getCenter().lng)) { haltSpin(); fly(() => map.flyTo({ center: [-62, -8], duration: 1800 })); }
     return () => { abort.abort(); window.clearInterval(timer); window.clearTimeout(retry); map.off("error", onError); };
   }, [clouds, ready]);
 
@@ -642,7 +671,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     // a imagem fica acima da caixa do divisor, que ocupa a base do mapa (em tela estreita a caixa fica fora dele)
     const reserve = window.matchMedia("(max-width: 900px)").matches ? 150 : box.clientHeight > 560 ? SWIPE_BOX : 0;
     const wide = modeRef.current === "optical" && optical(scene) ? opticalFrame(scene) : null, b = wide ?? scene.bbox;
-    map.fitBounds([[b[0], b[1]], [b[2], b[3]]], { padding: { top: 72, bottom: reserve + 16, left: 32, right: 32 }, duration, maxZoom: 10 });
+    fly(() => map.fitBounds([[b[0], b[1]], [b[2], b[3]]], { padding: { top: 72, bottom: reserve + 16, left: 32, right: 32 }, duration, maxZoom: 10 }));
   }
   /**
    * Entrada do modo óptico: primeiro só nuvem, com a moldura da cena vazia; depois o radar entra varrendo, da direita
@@ -754,7 +783,10 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
     syncOptical();
     repaintAll();
     report(nearScene);
-    if (nearId && modeRef.current === "swipe") playSwipe();
+    // chegada pedida pela régua de cheia: o divisor fica todo aberto na passagem escolhida
+    const held = nearId !== undefined && passHold.current === nearId;
+    if (held) passHold.current = null;
+    if (nearId && modeRef.current === "swipe" && !held) playSwipe();
     // chegou por link já no modo óptico: afasta o mapa e mostra a nuvem antes do radar
     if (nearScene && modeRef.current === "optical" && optical(nearScene)) { frameScene(nearScene, OPTICAL_FLY); playReveal(); }
     return stopSwipe;
@@ -764,23 +796,26 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   function reset() {
     const map = mapRef.current, box = boxRef.current;
     if (!map || !box) return;
-    spinning.current = false;
+    haltSpin();
+    passHold.current = null;
     live.current.onHome?.();
-    map.flyTo({ center: HOME, zoom: homeZoom(box.clientWidth - (box.clientWidth > 900 ? sideWidth() : 0), box.clientHeight - 220), duration: 2000 });
+    fly(() => map.flyTo({ center: HOME, zoom: homeZoom(box.clientWidth - (box.clientWidth > 900 ? sideWidth() : 0), box.clientHeight - 220), duration: 2000 }));
   }
   useImperativeHandle(ref, () => ({
     flyToScene(scene) { whenReady(() => {
       if (!mapRef.current) return;
-      spinning.current = false;
+      haltSpin();
+      passHold.current = null;
       frameScene(scene, 2800);
     }); },
     flyToPlace(place) { whenReady(() => {
       const map = mapRef.current;
       if (!map) return;
-      spinning.current = false;
+      haltSpin();
       // países e estados: ampliação que faz o lugar ocupar boa parte da tela
       const zoom = place.spanDeg ? Math.max(1.8, Math.min(8, Math.log2(360 / place.spanDeg) + 0.4)) : 6.2;
-      map.flyTo({ center: [place.lon, place.lat], zoom, duration: 2400 });
+      passHold.current = null;
+      fly(() => map.flyTo({ center: [place.lon, place.lat], zoom, duration: 2400 }));
     }); },
     setView(view) { chooseMode(view); },
     play() { if (modeRef.current !== "swipe") chooseMode("swipe"); playSwipe(); },
@@ -794,7 +829,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
       // a passagem pedida fica como a de depois, contra a anterior, com o divisor todo aberto nela; a primeira da série fica como a de antes
       setSteps(scene, k > 0 ? [k - 1, k] : [0, 1]);
       setSplit(k > 0 ? 0 : 1);
-      if (nearScene?.id !== scene.id) { spinning.current = false; frameScene(scene, 1600); }
+      if (nearScene?.id !== scene.id) { haltSpin(); passHold.current = scene.id; frameScene(scene, 1600); }
     }); },
     reset,
   }));
@@ -820,10 +855,14 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
   const padded = useRef(false);
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !ready || window.matchMedia("(max-width: 900px)").matches) return;
+    if (!map || !ready) return;
     // ao abrir a página a margem já foi posta na criação do mapa: animar aqui cortaria o voo até a cena do link
     if (!padded.current) { padded.current = true; return; }
+    if (window.matchMedia("(max-width: 900px)").matches) return;
     const box = boxRef.current, right = sideWidth();
+    // há um voo em curso (abrir uma cena fecha o laboratório): outro movimento o cortaria, então o voo recomeça já com a margem nova
+    const again = flight.current;
+    if (again && map.isMoving()) { map.setPadding({ top: 64, right, bottom: 0, left: 0 }); fly(again); return; }
     // na visão do mundo o globo também muda de tamanho, para caber na parte livre; se o usuário já mexeu no zoom, ele fica como está
     const was = labOpen ? SHEET : labPanelWidth(window.innerWidth) + 32;
     const atHome = box !== null && Math.abs(map.getZoom() - homeZoom(box.clientWidth - was, box.clientHeight - 220)) < 0.05;
@@ -875,7 +914,7 @@ export const MapView = forwardRef<MapHandle, Props>(function MapView(props, ref)
         return (
           <section className="player glass" key={nearScene.id} aria-label={t.console.aria}>
             <header className="player__head">
-              <p className="player__name">{nearScene.id !== props.selectedId && <b>{nearScene.name}</b>}<span>{phase ? t.console.spanPairs(pairList.length, pairList[0] ? daysBetween(pairList[0].from, pairList[0].to) : apart) : audience === "explore" ? t.console.spanPlain(apart) : t.console.span(apart)}</span></p>
+              <p className="player__name">{(narrowScreen || nearScene.id !== props.titledId) && <b>{nearScene.name}</b>}<span>{phase ? t.console.spanPairs(pairList.length, pairList[0] ? daysBetween(pairList[0].from, pairList[0].to) : apart) : audience === "explore" ? t.console.spanPlain(apart) : t.console.span(apart)}</span></p>
               {audience !== "explore" && !phase && (
                 <div className="pills pills--mono" role="group" aria-label={t.map.polAria}>
                   {(["HH", "HV"] as const).map((option) => {

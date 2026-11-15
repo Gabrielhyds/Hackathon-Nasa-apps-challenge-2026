@@ -51,8 +51,8 @@ export function SceneSheet(props: Props) {
   const [copy, setCopy] = useState<"idle" | "done" | "failed">("idle");
   const sections = SECTIONS[audience];
   const [section, setSection] = useState<Section>("story");
-  // trocou o nível de detalhe: a folha volta para a primeira seção dele
-  useEffect(() => { setSection("story"); }, [audience]);
+  // trocou o nível de detalhe ou a cena: a folha volta para a primeira seção
+  useEffect(() => { setSection("story"); }, [audience, selectedId]);
   const entry = ranked.find((r) => r.scene.id === selectedId);
   if (!entry) return <p className="muted">{t.sheet.none}</p>;
   const { scene } = entry;

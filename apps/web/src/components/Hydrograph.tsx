@@ -32,10 +32,12 @@ export function Hydrograph({ scene, onPass }: { scene: Scene; /** A passagem esc
   const pass = samples[index];
 
   // a passagem escolhida comanda o mapa; não ao abrir, para não mexer no par que a pessoa deixou na cena
-  const mounted = useRef(false), notify = useRef(onPass);
+  // (a última data avisada fica guardada: em desenvolvimento o efeito roda duas vezes ao montar)
+  const told = useRef(selected), notify = useRef(onPass);
   notify.current = onPass;
   useEffect(() => {
-    if (!mounted.current) { mounted.current = true; return; }
+    if (told.current === selected) return;
+    told.current = selected;
     notify.current?.(selected);
   }, [selected]);
   /** O mapa tem imagem desta passagem? Só das que estão na série da cena. */
