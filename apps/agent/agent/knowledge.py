@@ -281,9 +281,15 @@ MIN_SCORE = 3.2
 # A pergunta aponta para o lugar que está na tela: "aqui", "esta cena", "this place".
 DEICTIC = re.compile(
     r"\b(?:here|aqui)\b"
-    r"|\b(?:this|that)\s+(?:scene|place|image|area|region|spot|location|map)\b"
-    r"|\b[nd]?es[st][ae]\s+(?:cena|lugar|local|imagem|area|regiao|ponto|mapa)\b"
+    r"|\b(?:this|that)\s+(?:scene|place|image|area|region|spot|location|map|data|number|measurement|result)\b"
+    r"|\b[nd]?es[st][ae]\s+(?:cena|lugar|local|imagem|area|regiao|ponto|mapa|dado|numero|medida|medicao|resultado)\b"
 )
+# Palavras de uma pergunta de seguimento, que não dizem o assunto: "Why does it matter?", "Conte mais".
+FOLLOW_UP = {
+    "matter", "matters", "important", "importa", "importante", "mean", "means", "meaning", "significa",
+    "detail", "details", "detalhe", "detalhes", "conte", "continue", "go", "further", "again", "novo",
+    "better", "simpler", "simples", "summary", "resumo", "resuma", "summarize", "ok", "hm", "hmm",
+}
 
 
 def scene_in_focus(question: str, cards: dict[str, Card], scene: str | None) -> str | None:
@@ -294,6 +300,9 @@ def scene_in_focus(question: str, cards: dict[str, Card], scene: str | None) -> 
     quando a pergunta aponta para ela ("aqui", "esta cena") ou quando o cartão dela já responde
     por conta própria: pelo menos metade da nota do melhor cartão, e nenhuma outra cena casa melhor
     (a pergunta que dá o nome de outro lugar é sobre o outro lugar).
+
+    Também entra na pergunta de seguimento ("E por quê?", "Tell me more"): sem palavra de conteúdo
+    e sem cartão que a responda, ela é sobre o que está na tela. O agente não recebe a conversa.
     """
     cid = SCENE_CARDS.get((scene or "").strip().lower()) if scene else None
     if not cid or cid not in cards:
@@ -301,6 +310,8 @@ def scene_in_focus(question: str, cards: dict[str, Card], scene: str | None) -> 
     if DEICTIC.search(norm(question)):
         return cid
     scores = _scores(question, cards)
+    if max(scores.values()) < MIN_SCORE and all(t in FOLLOW_UP for t in _terms(question)):
+        return cid
     own = scores[cid]
     if own < MIN_SCORE or own < 0.5 * max(scores.values()):
         return None

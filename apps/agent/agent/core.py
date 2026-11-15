@@ -6,7 +6,7 @@ import re
 from dataclasses import asdict, dataclass, field
 
 from . import llm
-from .guard import check_answer, cited_ids, clean, collect, wrong_scene
+from .guard import check_answer, cited_ids, clean, collect, refuses, wrong_scene
 from .knowledge import Card, _terms, detect_lang, load_cards, load_versao, retrieve, scene_in_focus
 from .prompt import SYSTEM_PROMPT, build_context
 
@@ -73,14 +73,19 @@ def _pick_sentences(texto: str, question: str, keep: int = 3) -> str:
     return " ".join(sentences[i] for i in chosen)
 
 
-def offline_answer(question: str, lang: str, hits: list[tuple[Card, float]]) -> Answer:
-    """Resposta sem modelo: usa as frases mais próximas da pergunta no cartão mais forte."""
+def offline_answer(question: str, lang: str, hits: list[tuple[Card, float]], foco: str | None = None) -> Answer:
+    """Resposta sem modelo: usa as frases mais próximas da pergunta no cartão mais forte.
+
+    `foco` é o cartão da cena de que a pergunta fala. Quando outro cartão responde melhor ("Quão
+    confiável é este dado?" dá no cartão dos limites), a cena entra com a ressalva e as fontes dela.
+    """
     if not hits:
         return _finish(NO_INFO[lang].format(t=TOPICS[lang]), lang, "no_info", [])
     used = [hits[0][0]]
     if len(hits) > 1 and hits[1][1] >= 0.75 * hits[0][1] and hits[1][0].tipo != "regra":
         used.append(hits[1][0])
     body = "\n\n".join(_pick_sentences(c.texto[lang], question) for c in used)
+    used += [c for c, _ in hits if c.id == foco and c not in used]
     return _finish(body, lang, "offline", used)
 
 
@@ -98,7 +103,7 @@ async def ask(question: str, lang: str | None = None, scene: str | None = None) 
     cards = [c for c, _ in hits]
 
     if not llm.available():
-        return offline_answer(question, lang, hits)
+        return offline_answer(question, lang, hits, aberta)
     if not cards:
         # Sem cartão, a única resposta aceita é dizer que não sabe: nem pergunta ao modelo, que gastaria
         # um pedido da cota por minuto numa resposta que seria jogada fora.
@@ -108,13 +113,17 @@ async def ask(question: str, lang: str | None = None, scene: str | None = None) 
         raw = await llm.generate(SYSTEM_PROMPT, build_context(question, lang, cards, scene))
     except Exception as exc:  # rede, cota, tempo esgotado: cai para a reserva
         log.warning("modelo falhou, usando reserva: %s", exc)
-        return offline_answer(question, lang, hits)
+        return offline_answer(question, lang, hits, aberta)
 
     ids = cited_ids(raw, CARDS)
-    used = [CARDS[i] for i in ids if CARDS[i] in cards] or [cards[0]]
     answer = clean(raw)
+    if not ids and refuses(answer):
+        # O modelo leu os cartões e disse que não sabe, sem citar nenhum: é um "não sei", e não leva
+        # as fontes e a ressalva do cartão que a busca trouxe por engano ("copa" das árvores).
+        return _finish(NO_INFO[lang].format(t=TOPICS[lang]), lang, "no_info", [])
+    used = [CARDS[i] for i in ids if CARDS[i] in cards] or [cards[0]]
     problems = check_answer(answer, cards) + wrong_scene(answer, scene)
     if problems:
         log.warning("resposta reprovada (%s); usando reserva", "; ".join(problems))
-        return offline_answer(question, lang, hits)
+        return offline_answer(question, lang, hits, aberta)
     return _finish(answer, lang, "model", used)

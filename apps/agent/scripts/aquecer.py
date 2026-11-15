@@ -22,15 +22,18 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
-# Carrega o .env antes de importar o agente: o modelo é escolhido na importação.
-env = RAIZ / ".env"
-if env.exists():
-    for linha in env.read_text(encoding="utf-8").splitlines():
-        if "=" in linha and not linha.strip().startswith("#"):
-            chave, valor = linha.split("=", 1)
-            os.environ.setdefault(chave.strip(), valor.strip())
+# Carrega o .env antes de importar o agente: o modelo é escolhido na importação. Vale o de
+# apps/agent e, depois, o da raiz do repositório, que é onde a chave fica (o do Docker).
+for env in (RAIZ / ".env", RAIZ.parent.parent / ".env"):
+    if env.exists():
+        for linha in env.read_text(encoding="utf-8").splitlines():
+            if "=" in linha and not linha.strip().startswith("#"):
+                chave, valor = linha.split("=", 1)
+                if valor.strip().strip("\"'"):
+                    os.environ.setdefault(chave.strip(), valor.strip().strip("\"'"))
 
 from agent import core, llm  # noqa: E402
+from agent.knowledge import scene_in_focus  # noqa: E402
 
 CENAS = [
     "taquari", "chokwe", "venezuela", "sindh", "labrea", "jakobshavn",
@@ -43,6 +46,15 @@ POR_CENA = [
     ("Qual a fonte disso?", "pt"),
     ("What is the source?", "en"),
 ]
+# As sugestões da aba Ask (`ask.suggestions`, em apps/web/src/i18n): o clique mais provável da demo.
+# Mudou lá, mude aqui.
+SUGESTOES = [
+    ("What changed here?", "en"), ("Why can radar see through clouds?", "en"), ("What is NISAR?", "en"),
+    ("How reliable is this data?", "en"), ("Where does the data come from?", "en"),
+    ("What is one fringe worth?", "en"),
+    ("O que mudou aqui?", "pt"), ("Por que o radar atravessa nuvens?", "pt"), ("O que é o NISAR?", "pt"),
+    ("Quão confiável é este dado?", "pt"), ("De onde vêm os dados?", "pt"), ("Quanto vale uma franja?", "pt"),
+]
 
 
 def alvos(so_cenas: bool) -> list[dict]:
@@ -53,15 +65,21 @@ def alvos(so_cenas: bool) -> list[dict]:
             if item["card"] is None:
                 continue  # fora do assunto não chama o modelo
             lista.append({"question": item["q"], "lang": item["lang"], "scene": item.get("cena")})
+    # Cada sugestão sem cena e com cada cena aberta: a de baixo tira as que dão na mesma resposta.
+    for pergunta, lang in SUGESTOES:
+        for cena in [None] + CENAS:
+            lista.append({"question": pergunta, "lang": lang, "scene": cena})
     for cena in CENAS:
         for pergunta, lang in POR_CENA:
             lista.append({"question": pergunta, "lang": lang, "scene": cena})
+    # A marca é a mesma da chave do cache do servidor: a cena só conta quando a pergunta é sobre ela.
     vistos, unicos = set(), []
     for item in lista:
-        marca = (item["question"].lower(), item["lang"], item["scene"])
+        foco = scene_in_focus(item["question"], core.CARDS, item["scene"])
+        marca = (item["question"].lower(), item["lang"], foco)
         if marca not in vistos:
             vistos.add(marca)
-            unicos.append(item)
+            unicos.append({**item, "scene": item["scene"] if foco else None})
     return unicos
 
 

@@ -38,7 +38,8 @@ MAGNITUDE = re.compile(r"magnitude(?:\s+de)?\s*(\d+(?:[.,]\d+)?)", re.I)
 DATE = re.compile(r"\b(\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?\b")
 YEAR = re.compile(r"\b(19|20)\d{2}\b")
 
-TAG = re.compile(r"\s*\[([a-z_]+)\]")
+# Um cartão ou vários na mesma etiqueta: "[nisar]" e "[parceiros, nisar]".
+TAG = re.compile(r"\s*\[([a-z_]+(?:\s*,\s*[a-z_]+)*)\]")
 LINK = re.compile(r"https?://\S+|www\.\S+")
 
 # ---------------------------------------------------------------- afirmações
@@ -72,6 +73,12 @@ META = re.compile(
     r"rule check|word count|contagem de palavras|checklist|lang:|cards:|question:|facts:|caveat:|open scene|"
     r"system prompt|my instructions|minhas instrucoes|as regras dizem",
     re.I,
+)
+# Recusa: "Nexxus does not have that information", "O Nexxus não fala sobre esportes". Lida no texto
+# sem acento, em que "doesn't" vira "doesn t".
+REFUSAL = re.compile(
+    r"(?:\bnao|\bnot|n t)\s+(?:tem|possui|have|has)\s+(?:(?:essa|esta|that|this|any|the)\s+)?informa"
+    r"|(?:\bnao|\bnot|n t)\s+(?:fala|trata|talk|cover|discuss)\w*\s+(?:sobre|about|de)\b"
 )
 
 
@@ -161,10 +168,16 @@ def wrong_scene(answer: str, scene: str | None) -> list[str]:
 
 def cited_ids(answer: str, available: dict[str, Card]) -> list[str]:
     seen = []
-    for cid in TAG.findall(answer):
-        if cid in available and cid not in seen:
-            seen.append(cid)
+    for tag in TAG.findall(answer):
+        for cid in (part.strip() for part in tag.split(",")):
+            if cid in available and cid not in seen:
+                seen.append(cid)
     return seen
+
+
+def refuses(answer: str) -> bool:
+    """O modelo disse que o Nexxus não tem a informação ou não fala do assunto."""
+    return bool(REFUSAL.search(norm(answer)))
 
 
 def clean(answer: str) -> str:
