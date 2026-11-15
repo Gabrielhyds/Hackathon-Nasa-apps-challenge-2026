@@ -8,6 +8,9 @@ const URLS: Record<Track, string> = { explore: exploreUrl, data: cosmicUrl };
 const LEVEL = 0.7;
 /** Constante de tempo da transição, em segundos: a troca se completa em cerca de 2,5 s. */
 const FADE = 0.8;
+/** Volume enquanto uma voz lê uma resposta, e a constante de tempo da descida: rápida, para não cobrir a primeira frase. */
+const QUIET_LEVEL = 0.12;
+const QUIET_FADE = 0.12;
 
 interface Engine {
   ctx: AudioContext;
@@ -43,19 +46,22 @@ function load(engine: Engine, track: Track): Promise<void> {
 /**
  * Trilha de fundo com duas faixas e transição de volume entre elas. O navegador só deixa o som começar depois de
  * um gesto: com o som ligado, a música entra no primeiro clique ou tecla. Com a aba escondida, pausa.
- * `failed` avisa que o áudio não carregou ou que o navegador não toca.
+ * `failed` avisa que o áudio não carregou ou que o navegador não toca. Com `quiet`, a música baixa para dar lugar a
+ * uma voz (a leitura das respostas do agente) e volta quando ela termina.
  */
-export function useSoundtrack(track: Track) {
+export function useSoundtrack(track: Track, quiet = false) {
   const [on, setOn] = useState(savedSound);
   const [failed, setFailed] = useState(false);
   const engine = useRef<Engine | null>(null);
   const wanted = useRef(track);
   wanted.current = track;
+  const hushed = useRef(quiet);
+  hushed.current = quiet;
   /** O ligado ou desligado da vez, lido também por quem termina depois (o áudio acordando, a faixa chegando). */
   const playing = useRef(on);
 
   /** Leva os volumes ao estado da vez: com o som ligado, a faixa da tela sobe quando estiver carregada; o resto desce. */
-  const mix = useCallback(() => {
+  const mix = useCallback((fade = FADE) => {
     const e = engine.current;
     if (!e) return;
     const target = wanted.current;
@@ -64,7 +70,7 @@ export function useSoundtrack(track: Track) {
     if (!playing.current) return;
     load(e, target).then(() => {
       // a faixa pode chegar depois de alguém desligar o som ou mudar de tela
-      if (playing.current && wanted.current === target) e.gains[target].gain.setTargetAtTime(LEVEL, e.ctx.currentTime, FADE);
+      if (playing.current && wanted.current === target) e.gains[target].gain.setTargetAtTime(hushed.current ? QUIET_LEVEL : LEVEL, e.ctx.currentTime, fade);
     }).catch(() => { delete e.ready[target]; setFailed(true); });
   }, []);
 
@@ -92,6 +98,9 @@ export function useSoundtrack(track: Track) {
 
   // mudou a tela ou o botão: acerta os volumes
   useEffect(() => { if (engine.current?.ctx.state === "running") mix(); }, [track, on, mix]);
+
+  // uma voz começou ou terminou: a música desce depressa e volta devagar
+  useEffect(() => { if (engine.current?.ctx.state === "running") mix(quiet ? QUIET_FADE : FADE); }, [quiet, mix]);
 
   // aba escondida não toca
   useEffect(() => {

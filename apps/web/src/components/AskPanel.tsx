@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import type { Scene } from "@nexxus/contract";
 import { useI18n } from "../i18n";
-import type { Chat } from "../lib/useChat";
+import { spokenAnswer } from "../lib/speech";
+import type { Chat, ChatTurn } from "../lib/useChat";
+import type { Speech } from "../lib/useSpeech";
 
 /** O agente recusa pergunta mais longa que isto. */
 const QUESTION_MAX = 500;
 
 /** `context` são as cenas sobre as quais o agente responde: a aberta e as marcadas para comparar. */
-interface Props { chat: Chat; scenes: Scene[]; context: string[]; suggestions: string[]; onOpenScene(id: string): void }
+interface Props { chat: Chat; speech: Speech; scenes: Scene[]; context: string[]; suggestions: string[]; onOpenScene(id: string): void }
 
-export function AskPanel({ chat, scenes, context, suggestions, onOpenScene }: Props) {
+export function AskPanel({ chat, speech, scenes, context, suggestions, onOpenScene }: Props) {
   const { t } = useI18n();
   const [text, setText] = useState("");
   const end = useRef<HTMLDivElement>(null);
@@ -21,8 +23,18 @@ export function AskPanel({ chat, scenes, context, suggestions, onOpenScene }: Pr
   const live = last?.status === "streaming";
   useEffect(() => { if (live) end.current?.scrollIntoView({ block: "nearest" }); }, [live, chat.turns.length, last?.answer.length]);
 
+  // saiu da aba, a leitura para: a voz não fica falando de uma resposta que não está mais na tela
+  const stopSpeech = speech.stop;
+  useEffect(() => stopSpeech, [stopSpeech]);
+
+  function listen(turn: ChatTurn) {
+    if (speech.speaking === turn.id) speech.stop();
+    else speech.speak(turn.id, spokenAnswer(turn.answer, turn.caveats, t.ask.caveat, turn.lang), turn.lang);
+  }
+
   function submit(question: string) {
     if (!question.trim() || chat.busy) return;
+    speech.stop();
     setText("");
     void chat.send(question);
   }
@@ -58,6 +70,12 @@ export function AskPanel({ chat, scenes, context, suggestions, onOpenScene }: Pr
                   <button type="button" className="link" onClick={() => chat.retry(turn.id)}>{t.ask.retry}</button>
                 </div>
               )}
+              {turn.status === "done" && turn.answer && speech.canSpeak(turn.lang) && (
+                <button type="button" className="link turn__listen" title={t.ask.listenHint} onClick={() => listen(turn)}>
+                  {speech.speaking === turn.id ? t.ask.stopListening : t.ask.listen}
+                </button>
+              )}
+              {speech.failed === turn.id && <p className="meta">{t.ask.listenFailed}</p>}
               {turn.status === "done" && turn.caveats.length > 0 && (
                 <p className="turn__caveat"><b>{t.ask.caveat}.</b> {turn.caveats.join(" ")}</p>
               )}
@@ -92,7 +110,7 @@ export function AskPanel({ chat, scenes, context, suggestions, onOpenScene }: Pr
             : <button type="submit" disabled={!text.trim()}>{t.ask.send}</button>}
         </form>
         {chat.turns.length > 0 && !chat.busy && (
-          <button type="button" className="chat__clear" onClick={chat.clear}>{t.ask.clear}</button>
+          <button type="button" className="chat__clear" onClick={() => { speech.stop(); chat.clear(); }}>{t.ask.clear}</button>
         )}
       </div>
     </div>
