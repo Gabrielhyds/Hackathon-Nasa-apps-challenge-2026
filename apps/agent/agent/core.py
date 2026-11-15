@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass, field
 
 from . import llm
 from .guard import check_answer, cited_ids, clean, collect, wrong_scene
-from .knowledge import SCENE_CARDS, Card, _terms, detect_lang, load_cards, load_versao, retrieve
+from .knowledge import Card, _terms, detect_lang, load_cards, load_versao, retrieve, scene_in_focus
 from .prompt import SYSTEM_PROMPT, build_context
 
 log = logging.getLogger("nexxus.agent")
@@ -87,8 +87,11 @@ def offline_answer(question: str, lang: str, hits: list[tuple[Card, float]]) -> 
 async def ask(question: str, lang: str | None = None, scene: str | None = None) -> Answer:
     question = question.strip()
     lang = lang if lang in ("pt", "en") else detect_lang(question)
+    # A cena aberta só vale quando a pergunta é sobre ela: o front a manda em toda pergunta.
+    aberta = scene_in_focus(question, CARDS, scene)
+    if not aberta:
+        scene = None
     hits = retrieve(question, CARDS, scene=scene)
-    aberta = SCENE_CARDS.get((scene or "").strip().lower()) if scene else None
     if aberta:
         # Com uma cena aberta, não manda outras cenas para o modelo: ele troca os lugares.
         hits = [(c, s) for c, s in hits if c.tipo != "cena" or c.id == aberta]

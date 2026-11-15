@@ -67,6 +67,42 @@ def test_cena_do_front_puxa_o_cartao_certo():
         assert hits and hits[0][0].id == card, f"{cena} -> {[h[0].id for h in hits]}"
 
 
+def test_cena_aberta_nao_responde_pergunta_sobre_outro_assunto():
+    # O front manda a cena aberta em toda pergunta. Ela não pode tomar o lugar do cartão certo.
+    for q, cena, card in [
+        ("What is NISAR?", "campinas", "nisar"),
+        ("Where does the data come from?", "taquari", "dados_nisar"),
+        ("O que é o Nexxus?", "taquari", "nexxus"),
+        ("How big was the Taquari flood?", "campinas", "taquari"),
+        ("Qual foi a magnitude dos terremotos da Venezuela?", "taquari", "venezuela"),
+        ("A cheia do Limpopo foi vista através das nuvens?", "taquari", "chokwe"),
+    ]:
+        a = run(core.ask(q, scene=cena))
+        assert a.cards and a.cards[0] == card, f"{q} com {cena} aberta -> {a.cards}"
+
+
+def test_cena_aberta_nao_responde_pergunta_fora_do_assunto():
+    a = run(core.ask("Who will win the World Cup?", scene="campinas"))
+    assert a.mode == "no_info" and not a.cards
+
+
+def test_cena_aberta_vale_quando_a_pergunta_aponta_para_ela():
+    for q, cena in [("What changed here?", "campinas"), ("O que mudou nesta cena?", "pantanal"),
+                    ("Isso é a área alagada?", "taquari")]:
+        a = run(core.ask(q, scene=cena))
+        assert a.cards and a.cards[0] == cena, f"{q} com {cena} aberta -> {a.cards}"
+
+
+@pytest.mark.parametrize("item", [q for q in QUESTIONS if not q.get("cena")], ids=lambda q: q["q"][:40])
+def test_banco_de_perguntas_com_uma_cena_qualquer_aberta(item):
+    # A mesma pergunta, com uma cena sazonal aberta: a resposta não pode virar a da cena.
+    a = run(core.ask(item["q"], scene="kalimantan"))
+    if item["card"] is None:
+        assert a.mode == "no_info"
+        return
+    assert a.cards and a.cards[0] in [item["card"]] + item.get("aceita", []), f"cartão {a.cards}"
+
+
 def test_toda_cena_do_front_tem_cartao():
     for card_id in SCENE_CARDS.values():
         assert card_id in core.CARDS
