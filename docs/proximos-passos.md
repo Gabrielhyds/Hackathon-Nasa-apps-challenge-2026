@@ -17,8 +17,11 @@ Os números atuais estão só no `CLAUDE.md` (O que ainda é exemplo, Imagens de
 Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask mostra resposta, ressalva, fontes e cenas citadas (O agente, no `CLAUDE.md`). Falta:
 
 - Pôr `GEMINI_API_KEY` no `.env` da máquina da demo e conferir no navegador uma resposta escrita pelo modelo (a integração foi vista na tela só no modo reserva, sem chave). Em 15/11 entraram oito correções no agente (PRs #7 e #9 a #15), testadas só com modelo simulado: ao conferir, fazer pelo menos uma pergunta com "aqui" numa cena aberta (o modelo agora recebe a linha `OPEN SCENE`), uma sobre outro assunto com cena aberta e uma sobre a Groenlândia (o verificador reprovava "Greenland").
-- Gerar e commitar `apps/agent/data/respostas_prontas.json` (`python scripts/aquecer.py`, com a chave), para as perguntas prováveis não gastarem cota.
-- O agente não recebe a conversa anterior: pergunta de seguimento ("e por quê?") é respondida sem o contexto. Decidir se vale mandar o histórico.
+- Gerar e commitar `apps/agent/data/respostas_prontas.json` (`python scripts/aquecer.py`, com a chave; ele já lê o `.env` da raiz), para as perguntas prováveis não gastarem cota. São 114 perguntas, com as sugestões da aba Ask, cerca de 12 minutos. Só depois de fechar os cartões (item 24): mudou a versão deles, o arquivo fica velho.
+- Conferido com o modelo em 15/11 (50 perguntas direto no código, com a chave do time, respostas em cerca de 1 s): "aqui" com cena aberta, outro assunto com cena aberta e a Groenlândia passam. Falta ver uma delas na tela da máquina da demo.
+- O agente não recebe a conversa anterior. Com uma cena aberta, a pergunta de seguimento sem assunto próprio ("E por quê?", "Tell me more") agora é respondida sobre a cena; sem cena aberta continua em "não sei". Decidir se vale mandar o histórico.
+- Não há cartão para "para quem serve" e "por que importa" fora de uma cena: "How would a city use Nexxus?" dá "não sei". O texto é da narrativa (Laís).
+- O verificador confere números, datas e algumas afirmações, não a prosa: "Por que a imagem de radar é granulada?" voltou com a palavra "sarqueamento" e uma explicação que não está em cartão nenhum. Um cartão curto sobre o granulado resolve esse caso.
 - Os fatos das cenas existem em dois lugares, a fixture e os cartões. Conferir um contra o outro a cada mudança; o que não bate hoje está no item 24.
 
 ### 5. Ambiente público na VM da Azure (Mateus tem o acesso)
@@ -61,7 +64,7 @@ Conferido em 15/11, cartão por cartão, contra `packages/contract/src/fixtures/
 - `taquari`: "Comparando as passagens de 11/07 e 23/07/2026, o Nexxus mede cerca de 53 km²". A medida compara 23/07 com a referência de águas baixas da mesma órbita, não só com 11/07 (o método está em `waterSeries.method`, na fixture).
 - `taquari_metodo`, em inglês: a faixa de 49 a 56 km² viria de "moving those two thresholds". Só o limiar de água se move (−14, −12 e −10 dB, `THRESHOLDS_DB` no script); a queda de 3 dB fica fixa. Conferir também o português.
 - `taquari` e `taquari_hidrograma`: a fonte do nível do rio é o Jornal do Comércio de 22/07/2026 ("nível de 24 m em Lajeado"); a fixture usa 24,7 m, do Jornal do Comércio de 06/10/2026, e não tem a página de 22/07. Os números não se contradizem ("passou de 24 m"), mas a ressalva do agente fala em "o nível de 24 m" ao lado de uma cena que diz 24,7 m. Alinhar, e registrar quem abriu a página de 22/07 e quando.
-- `chokwe`: a fonte `svs.gsfc.nasa.gov/15087/` e os números de impacto ("mais de 600 mil pessoas, 400 mil acres de lavoura, 30 mil casas") não estão na fixture. Registrar quem abriu a página e quando, ou tirar.
+- `chokwe`: os números de impacto ("mais de 600 mil pessoas, 400 mil acres de lavoura, 30 mil casas") estão na página `svs.gsfc.nasa.gov/5661`, a mesma fonte da fixture, e valem para a cheia do sul de Moçambique, não só para Chókwè (o modelo já escreveu "in Chókwè": dizer o lugar no cartão). A outra fonte, `svs.gsfc.nasa.gov/15087/`, é uma série do Landsat e não traz esses números nem cita o NISAR: tirar do cartão ou dizer o que ela é. As duas páginas foram lidas em 15/11 por busca automática, numa sessão do Claude Code do Mateus; falta alguém abrir.
 - `sazonais` e os cartões das oito cenas sazonais: "duas passagens, entre junho e novembro de 2026", sem as datas de cada cena (estão em `dates`, na fixture).
 - Os cartões do Taquari falam em duas passagens; com a série de quatro (17/06, 29/06, 11/07 e 23/07), rever.
 
@@ -71,7 +74,7 @@ Conferido de novo na manhã de 15/11, contra a `main` depois dos PRs do agente: 
 - `nisar`: "cada faixa imageada tem 242 km de largura". O front desenha e escreve 240 km (`NISAR.swathKm`, em `lib/geo.ts`, e o texto da aba Passes). Escolher um dos dois, com a fonte.
 - `taquari_hidrograma`: a conferência viria de "as nuvens vistas pelo MODIS e pelo VIIRS em 22 e 23/07". No app há o MODIS Aqua de 23/07 (modo Sob nuvem) e o HLS de 25/07 (Conferência da régua de cheia); o VIIRS e o dia 22/07 não aparecem em lugar nenhum.
 - `dados_nisar`: "VALIDATED … para passagens a partir de 21/10/2026". No `manifest.json`, a passagem de 21/10 do Pantanal está no lote provisório e a de Maceió, do mesmo dia, no validado. Não é contradição do cartão, mas a tela do Pantanal diz "provisória" numa data que o cartão dá como validada.
-- **Palavra "copa":** "E quem ganha a Copa?" recebe o cartão `radar_basico`, porque "copa" casa com a copa das árvores. Visto na tela em 15/11, com a cena de La Guaira aberta. Tirar o peso do termo ou tratar "Copa do Mundo" como fora do assunto.
+- **Palavra "copa":** "E quem ganha a Copa?" recebe o cartão `radar_basico`, porque "copa" casa com a copa das árvores. Visto na tela em 15/11, com a cena de La Guaira aberta. Quando o modelo só recusa, a resposta agora sai como "não sei", sem as fontes do cartão; quando recusa e emenda uma explicação de radar, ainda sai com elas. Tirar o peso do termo ou tratar "Copa do Mundo" como fora do assunto.
 - **Bate, conferido:** 53 km² (49 a 56), 0,3 a 1,6 km² nas referências, 5 km² quatro dias depois e 8 passagens na série (`waterSeries`); 13 passagens de agosto a outubro, de 5 a 27 km² (`taquari-water.json`); pares de 06 a 18/06 e de 18 a 30/06 e cerca de 12 cm por ciclo em La Guaira; lotes BETA em Chókwè e PROVISIONAL no Taquari (`manifest.json`); Campinas, Kalimantan e Lábrea quase sem mudança (visto na tela).
 - **Pronto quando:** os cartões batem com a fixture e os testes do agente passam.
 
@@ -109,10 +112,8 @@ Reproduzido com modelo simulado, sem a chave do Gemini. Nenhum impede a demo: qu
 
 - **Verificador, o que passa:** número com a unidade por extenso ("57 square kilometers", "120 quilômetros quadrados"), data em palavras ("March 15", "15 de março"; em inglês os cartões escrevem todas as datas assim, então não há conferência de data), magnitude abreviada ("M 9,9"), número de pessoas atingidas e previsão com outros verbos ("o rio subirá"). Em `apps/agent/agent/guard.py`: `MEASURE`, `DATE`, `MAGNITUDE` e `FORECAST`.
 - **Verificador, o que reprova sem motivo:** negações que `NEGATION` não conhece ("cannot", "doesn't", "ninguém"), então "Nexxus cannot say whether the valley will flood again" cai como previsão; "a área alagada real é maior" cai como afirmação de área alagada; "o OPERA usa o Sentinel-1, pelo GIBS da NASA" cai como Sentinel-1 da NASA; qualquer resposta com a palavra "checklist".
-- **Etiqueta com dois cartões:** "[nisar, radar_basico]" não é lida por `TAG`: fica visível na resposta e o segundo cartão não entra nas fontes.
 - **Respostas prontas saem do cache primeiro:** entram antes de tudo no cache de 300 perguntas (`CACHE_SIZE`) e são as primeiras a ser descartadas quando ele enche; guardar à parte.
 - **Idioma sem `lang`:** "Explain a radar pass" é lida como português e "Fale sobre Campinas" como inglês (`PT_HINTS` tem "a", "o", "e", "as", "do"). O app sempre manda `lang`; só afeta a página de teste do agente.
-- **`scripts/aquecer.py`** lê `apps/agent/.env`, e a chave fica no `.env` da raiz: conferir antes de rodar (não foi rodado, sem chave).
 - **Pronto quando:** cada ponto tem teste em `tests/test_agent.py` e o banco de perguntas continua passando.
 
 ### 25. Contas do front para rever com calma (Gabriel, com o time)
