@@ -54,7 +54,7 @@ Resposta: `answer`, `caveats[]`, `sources[{nome,url}]`, `cards[]`, `lang`, `mode
 
 `GET /api/health` → `{"ok": true, "model": "gemini-3.5-flash-lite" | null, "cards": 28}`
 
-Para a aba Ask do front: chame `POST /api/ask` e mostre `answer`, depois `caveats` e `sources`. Passe `scene` com a cena aberta e `lang` com o idioma escolhido no app; sem `lang`, o agente detecta pelo texto da pergunta. O `scene` pode ser o id de qualquer uma das 10 cenas (`taquari`, `chokwe`, `venezuela`, `pantanal`, `campinas`, `maceio`, `sindh`, `labrea`, `jakobshavn`, `kalimantan`, `campo_de_gelo_sul`): o mapa está em `SCENE_CARDS`, em `agent/knowledge.py`, e o nome que o agente usa para a cena está em `SCENE_LABELS`. Com `scene`, a resposta que falar de outra cena é reprovada.
+Para a aba Ask do front: chame `POST /api/ask` e mostre `answer`, depois `caveats` e `sources`. Passe `scene` com a cena aberta e `lang` com o idioma escolhido no app; sem `lang`, o agente detecta pelo texto da pergunta. O `scene` pode ser o id de qualquer uma das 10 cenas (`taquari`, `chokwe`, `venezuela`, `pantanal`, `campinas`, `maceio`, `sindh`, `labrea`, `jakobshavn`, `kalimantan`, `campo_de_gelo_sul`): o mapa está em `SCENE_CARDS`, em `agent/knowledge.py`, e o nome que o agente usa para a cena está em `SCENE_LABELS`. Com `scene`, a resposta que falar de outra cena é reprovada. A cena aberta só entra quando a pergunta é sobre ela (`scene_in_focus`, em `agent/knowledge.py`): quando aponta para ela ("aqui", "esta cena") ou quando o cartão dela já casa com a pergunta. Pergunta sobre outro assunto ou outro lugar é respondida como se não houvesse cena aberta.
 
 ## Modelo e cota (medido em 15/11/2026 com a chave do time)
 
