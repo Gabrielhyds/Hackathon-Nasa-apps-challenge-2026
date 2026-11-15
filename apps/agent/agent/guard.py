@@ -47,10 +47,11 @@ FLOODED_AREA = re.compile(r"area alagada|flooded area|area inundada|inundated ar
 NEGATION = re.compile(r"\bnao\b|\bnot\b|\bisn|\bare n|\bnem\b|\bmenos\b|\brather than\b|\bem vez\b|\bnunca\b|\bnever\b|\bdoes not\b|\bdo not\b", re.I)
 DIRECTION = re.compile(
     # Sentido do movimento do CHÃO. "o sinal subiu" ou "a água baixou" não entram aqui.
-    r"(?:chao|terreno|solo|ground|land|superficie|surface)[^.]{0,50}"
-    r"(?:para (?:o )?(?:oeste|leste|norte|sul)|\bwest\b|\beast\b|\bnorth\b|\bsouth\b|\bsubiu\b|\bafundou\b|\bbaixou\b|\brose\b|\bsank\b|went up|went down|uplift)"
+    # Palavra inteira: "land" não pode casar dentro de "Greenland" ou "wetland", nem "sul" dentro de "resultado".
+    r"\b(?:chao|terreno|solo|ground|land|superficie|surface)\b[^.]{0,50}"
+    r"(?:para (?:o )?(?:oeste|leste|norte|sul)\b|\bwest\b|\beast\b|\bnorth\b|\bsouth\b|\bsubiu\b|\bafundou\b|\bbaixou\b|\brose\b|\bsank\b|went up|went down|uplift)"
     r"|(?:moved|andou|deslocou|se moveu|shifted)[^.]{0,25}"
-    r"(?:oeste|leste|norte|sul|\bwest\b|\beast\b|\bnorth\b|\bsouth\b|\bup\b|\bdown\b)"
+    r"\b(?:oeste|leste|norte|sul|west|east|north|south|up|down)\b"
     r"|westward|eastward",
     re.I,
 )
