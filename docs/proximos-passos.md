@@ -16,16 +16,16 @@ Os números atuais estão só no `CLAUDE.md` (O que ainda é exemplo, Imagens de
 
 Integrado em 15/11: o agente está em `apps/agent`, sobe no Docker e a aba Ask mostra resposta, ressalva, fontes e cenas citadas (O agente, no `CLAUDE.md`). Falta:
 
-- Pôr `GEMINI_API_KEY` no `.env` da máquina da demo e conferir no navegador uma resposta escrita pelo modelo (a integração foi vista na tela só no modo reserva, sem chave).
+- Pôr `GEMINI_API_KEY` no `.env` da máquina da demo e conferir no navegador uma resposta escrita pelo modelo (a integração foi vista na tela só no modo reserva, sem chave). Em 15/11 entraram oito correções no agente (PRs #7 e #9 a #15), testadas só com modelo simulado: ao conferir, fazer pelo menos uma pergunta com "aqui" numa cena aberta (o modelo agora recebe a linha `OPEN SCENE`), uma sobre outro assunto com cena aberta e uma sobre a Groenlândia (o verificador reprovava "Greenland").
 - Gerar e commitar `apps/agent/data/respostas_prontas.json` (`python scripts/aquecer.py`, com a chave), para as perguntas prováveis não gastarem cota.
-- No modo reserva, com uma cena aberta, pergunta fora do assunto ("Qual a capital da França?") devolve o cartão da cena em vez de "não sei": o bônus da cena aberta em `retrieve` (`agent/knowledge.py`) vale mesmo sem nenhum termo em comum.
 - O agente não recebe a conversa anterior: pergunta de seguimento ("e por quê?") é respondida sem o contexto. Decidir se vale mandar o histórico.
-- Os fatos das cenas existem em dois lugares, a fixture e os cartões. Conferir um contra o outro a cada mudança.
+- Os fatos das cenas existem em dois lugares, a fixture e os cartões. Conferir um contra o outro a cada mudança; o que não bate hoje está no item 24.
 
 ### 5. Publicar o ambiente (dono a definir)
 
 - **O quê:** página e API num endereço público, para quem avalia abrir sem Docker. Falta decidir onde hospedar e quem faz.
 - **Onde mexer:** o `docker compose up -d --build` já sobe os dois. Em outro domínio, `VITE_API_URL` e `PUBLIC_API_URL` no `.env` (Trocar exemplo por dado real, itens 1 e 4, no `CLAUDE.md`); com proxy na frente, sem buffer em `/api/` (Cuidados conhecidos).
+- **Limite de perguntas:** o agente conta as perguntas por minuto pelo primeiro endereço de `X-Forwarded-For` (`_client_ip`, em `apps/agent/agent/main.py`), e o nginx repassa o que o visitante mandar nesse cabeçalho (`$proxy_add_x_forwarded_for`): quem troca o valor a cada pedido não é limitado e gasta a cota do modelo. Num endereço público, o proxy da ponta precisa gravar o endereço real (no nginx deste repositório, `proxy_set_header X-Forwarded-For $remote_addr;` se ele for a ponta) ou o agente passa a ler o último valor da lista.
 - **Pronto quando:** o link abre de fora da rede do time com as cenas e as imagens reais, e `GET /api/health` responde.
 
 ### 6. Números do Taquari nos textos (Laís)
@@ -58,7 +58,8 @@ Vistos na tela com o Docker normal, na madrugada de 15/11. São pequenos e indep
 - **Pulso, "The sent pulse":** "a sweep of 25 µs, 3.7 km long on the ground" (`sentNote`, em `en.ts` e `pt.ts`). c·T/2 é o comprimento do pulso na direção do satélite, não no chão; o cartão ao lado já diz "along the line of sight". Usar o mesmo termo nos dois idiomas.
 - **Régua de cheia, "78% cloud":** a conta do `scripts/hydrograph.py` é nuvem ou sombra de nuvem (o cinza da máscara do HLS). Dizer "cloud or cloud shadow" / "nuvem ou sombra", nos três textos de `i18n` que mostram a porcentagem.
 - **Régua de cheia em tela estreita:** o gráfico tem 760 px e rola de lado dentro de `.hydro__chart`; abre no começo da série (junho), com o pico de 23/07 fora da tela. Visto em 375 px, em `?lab=hydro&lang=pt`. Abrir rolado até o pico.
-- **Pronto quando:** os cinco pontos foram vistos na tela, nos dois idiomas.
+- **Mapa de mudança com um lado quase nulo:** em Maceió a caixa do divisor mostra "≈ 1.430 km² mais escuros" e "≈ 0 km² mais claros". Quando os dois lados somam pouco a tela já troca o número por uma frase (`ALMOST_NOTHING`, em `MapView.tsx`), mas não quando só um deles é quase zero. Visto em `?scene=maceio&view=change`, em 15/11.
+- **Pronto quando:** os pontos acima foram vistos na tela, nos dois idiomas.
 
 ### 24. Cartões do agente contra a fixture e a tela (Vitor)
 
@@ -72,6 +73,15 @@ Conferido em 15/11, cartão por cartão, contra `packages/contract/src/fixtures/
 - `chokwe`: a fonte `svs.gsfc.nasa.gov/15087/` e os números de impacto ("mais de 600 mil pessoas, 400 mil acres de lavoura, 30 mil casas") não estão na fixture. Registrar quem abriu a página e quando, ou tirar.
 - `sazonais` e os cartões das oito cenas sazonais: "duas passagens, entre junho e novembro de 2026", sem as datas de cada cena (estão em `dates`, na fixture).
 - Os cartões do Taquari falam em duas passagens; com a série de quatro (17/06, 29/06, 11/07 e 23/07), rever.
+
+Conferido de novo na manhã de 15/11, contra a `main` depois dos PRs do agente: os pontos acima continuam valendo (os cartões só mudaram na maiúscula inicial de dois textos em inglês). Entram mais estes:
+
+- `nexxus`, `sazonais` e os oito cartões das cenas sazonais: "10 cenas", "oito das dez cenas", "uma das dez cenas". A tela com a API mostra onze: três eventos (Taquari, Chókwè e La Guaira) e oito sazonais. Dizer "dez cenas de brilho e uma de interferograma", ou contar onze.
+- `nisar`: "cada faixa imageada tem 242 km de largura". O front desenha e escreve 240 km (`NISAR.swathKm`, em `lib/geo.ts`, e o texto da aba Passes). Escolher um dos dois, com a fonte.
+- `taquari_hidrograma`: a conferência viria de "as nuvens vistas pelo MODIS e pelo VIIRS em 22 e 23/07". No app há o MODIS Aqua de 23/07 (modo Sob nuvem) e o HLS de 25/07 (Conferência da régua de cheia); o VIIRS e o dia 22/07 não aparecem em lugar nenhum.
+- `dados_nisar`: "VALIDATED … para passagens a partir de 21/10/2026". No `manifest.json`, a passagem de 21/10 do Pantanal está no lote provisório e a de Maceió, do mesmo dia, no validado. Não é contradição do cartão, mas a tela do Pantanal diz "provisória" numa data que o cartão dá como validada.
+- **Palavra "copa":** "E quem ganha a Copa?" recebe o cartão `radar_basico`, porque "copa" casa com a copa das árvores. Visto na tela em 15/11, com a cena de La Guaira aberta. Tirar o peso do termo ou tratar "Copa do Mundo" como fora do assunto.
+- **Bate, conferido:** 53 km² (49 a 56), 0,3 a 1,6 km² nas referências, 5 km² quatro dias depois e 8 passagens na série (`waterSeries`); 13 passagens de agosto a outubro, de 5 a 27 km² (`taquari-water.json`); pares de 06 a 18/06 e de 18 a 30/06 e cerca de 12 cm por ciclo em La Guaira; lotes BETA em Chókwè e PROVISIONAL no Taquari (`manifest.json`); Campinas, Kalimantan e Lábrea quase sem mudança (visto na tela).
 - **Pronto quando:** os cartões batem com a fixture e os testes do agente passam.
 
 ## Se sobrar tempo no domingo de manhã
@@ -109,6 +119,18 @@ Conferido em 15/11, cartão por cartão, contra `packages/contract/src/fixtures/
 
 - `packages/contract/src/fixtures/taquari-water.json` tem as 21 passagens medidas, até 31/10, mas a cena só publica até 27/07. De agosto em diante a medida sobe aos poucos e não volta ao piso, em manchas com forma de talhão: lavoura alagada ou preparada para o plantio também devolve pouco sinal, e a regra não a separa da água de uma cheia.
 - **Para publicar o resto:** separar lavoura de cheia (máscara de uso do solo ou critério de forma) e conferir com as cheias seguintes: o Jornal do Comércio de 06/10/2026 fala em mais três acima de 23 m depois da de julho, e o de 22/09/2026, num pico de 24,46 m em Estrela naquele dia (as duas páginas foram abertas e conferidas em 14/11).
+
+### 27. Agente: o que a auditoria de 15/11 achou e ficou de fora (Vitor)
+
+Reproduzido com modelo simulado, sem a chave do Gemini. Nenhum impede a demo: quando o verificador erra para o lado seguro, a resposta cai no texto do cartão.
+
+- **Verificador, o que passa:** número com a unidade por extenso ("57 square kilometers", "120 quilômetros quadrados"), data em palavras ("March 15", "15 de março"; em inglês os cartões escrevem todas as datas assim, então não há conferência de data), magnitude abreviada ("M 9,9"), número de pessoas atingidas e previsão com outros verbos ("o rio subirá"). Em `apps/agent/agent/guard.py`: `MEASURE`, `DATE`, `MAGNITUDE` e `FORECAST`.
+- **Verificador, o que reprova sem motivo:** negações que `NEGATION` não conhece ("cannot", "doesn't", "ninguém"), então "Nexxus cannot say whether the valley will flood again" cai como previsão; "a área alagada real é maior" cai como afirmação de área alagada; "o OPERA usa o Sentinel-1, pelo GIBS da NASA" cai como Sentinel-1 da NASA; qualquer resposta com a palavra "checklist".
+- **Etiqueta com dois cartões:** "[nisar, radar_basico]" não é lida por `TAG`: fica visível na resposta e o segundo cartão não entra nas fontes.
+- **Respostas prontas saem do cache primeiro:** entram antes de tudo no cache de 300 perguntas (`CACHE_SIZE`) e são as primeiras a ser descartadas quando ele enche; guardar à parte.
+- **Idioma sem `lang`:** "Explain a radar pass" é lida como português e "Fale sobre Campinas" como inglês (`PT_HINTS` tem "a", "o", "e", "as", "do"). O app sempre manda `lang`; só afeta a página de teste do agente.
+- **`scripts/aquecer.py`** lê `apps/agent/.env`, e a chave fica no `.env` da raiz: conferir antes de rodar (não foi rodado, sem chave).
+- **Pronto quando:** cada ponto tem teste em `tests/test_agent.py` e o banco de perguntas continua passando.
 
 ### 25. Contas do front para rever com calma (Gabriel, com o time)
 
