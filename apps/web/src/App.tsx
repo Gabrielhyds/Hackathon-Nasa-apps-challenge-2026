@@ -187,7 +187,7 @@ export function App() {
         <PlaceSearch onPick={(p) => choosePlace(p, true)} />
         <div className="hud__right">
           {API_MODE === "mock" && <p className="badge" title={t.badge.exampleTitle}>{t.badge.example}</p>}
-          <button type="button" className="ghost ghost--lab" aria-pressed={lab !== null} onClick={() => (lab ? closeLab() : openLab(hydroScene && hydroScene.id === selectedId ? "hydro" : "pulse"))}>{t.lab.open}</button>
+          <button type="button" className="ghost ghost--lab" aria-pressed={lab !== null} onClick={() => (lab ? closeLab() : openLab("hydro"))}>{t.lab.open}</button>
           <button type="button" className="ghost" aria-pressed={intro} onClick={() => (intro ? closeIntro() : setIntro(true))}>{t.cover.about}</button>
           <div className="lang" role="group" aria-label={t.language}>
             {LANGS.map((l) => (

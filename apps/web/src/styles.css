@@ -185,9 +185,8 @@ input[type="range"]:active::-webkit-slider-thumb { scale: 1.2; }
 .strip:has(.strip__more--left) ol { -webkit-mask-image: linear-gradient(90deg, transparent, #000 90px); mask-image: linear-gradient(90deg, transparent, #000 90px); }
 .strip:has(.strip__more--left):has(.strip__more--right) ol { -webkit-mask-image: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); mask-image: linear-gradient(90deg, transparent, #000 90px, #000 calc(100% - 90px), transparent); }
 /* rótulo de cada grupo do carrossel, de pé, na altura do cartão: não pode fazer a faixa crescer para cima do player */
-.strip__label { display: flex; align-items: center; height: 96px; padding: 0 1px 0 8px; animation: none; }
-.strip__label:first-child { padding-left: 0; }
-.strip__label span { writing-mode: vertical-rl; rotate: 180deg; max-height: 96px; font: 500 10.5px/1.25 var(--data); color: var(--soft); text-align: center; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8); }
+.card--more { width: 128px; background: rgba(255, 255, 255, 0.07); border-style: dashed; }
+.card--more::before { display: none; }
 .card { position: relative; display: block; width: 152px; height: 96px; border: 1px solid var(--line); border-radius: 16px; padding: 0; overflow: hidden; background: #111 center / cover; text-align: left; transition: transform 0.22s var(--ease), border-color 0.2s, box-shadow 0.2s; }
 .card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(5, 7, 12, 0.05) 30%, rgba(5, 7, 12, 0.88)); }
 .card__text { position: absolute; left: 11px; right: 11px; bottom: 9px; display: grid; }
@@ -681,7 +680,6 @@ input[type="range"]::-moz-range-thumb { width: 26px; height: 20px; border-radius
 @media (prefers-reduced-motion: reduce) { .activity__card { animation: none; } }
 
 /* laboratório: uma parte por vez em cada aba, com as mesmas seções da folha */
-.sections--lab { justify-self: start; width: min(100%, 460px); }
 .fringe-lab__main[hidden] { display: none; }
 /* na simulação ficam só os dois números que respondem aos controles; os outros dois estão em "a conta por dentro" */
 .figures--brief div:nth-child(n + 3) { display: none; }

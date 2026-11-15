@@ -123,10 +123,12 @@ export const en = {
   cover: {
     tagline: "Earth, seen by radar",
     index: "Scenes",
-    events: "Documented events",
     earlier: "Earlier scenes",
     later: "More scenes",
-    seasonal: "Seasonal change",
+    more: "More scenes",
+    moreCount: (n: number) => `${n} seasonal changes`,
+    seasonalGroup: "Seasonal changes",
+    fewer: "Show fewer",
     about: "About",
     mission: "NISAR, the radar satellite from NASA and ISRO",
   },
@@ -345,11 +347,8 @@ export const en = {
     aria: "Radar lab: flood ruler, pulse compression and fringe ruler",
     close: "Close",
     tabs: { hydro: "Flood ruler", pulse: "Inside the pulse", fringes: "Fringe ruler" },
-    sectionsAria: "Parts of this lab",
     sections: {
-      chart: "Chart", checks: "Cross-checks", method: "Method",
-      sim: "Simulation", inside: "Inside the math",
-      ruler: "Ruler", read: "How to read it",
+      method: "Method", inside: "Inside the math", read: "How to read it",
     },
     brief: {
       hydro: (passes: number, gaps: number[]) => `Each dot is one of ${passes} NISAR passes: how many km² of new open water it found. One reading every ${gaps.join(" or ")} days, whatever the weather. Pick a pass.`,

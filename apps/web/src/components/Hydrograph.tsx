@@ -28,7 +28,6 @@ export function Hydrograph({ scene }: { scene: Scene }) {
   const [playing, setPlaying] = useState(false);
   const [discharge, setDischarge] = useState(false);
   /** Uma parte por vez: o gráfico, a conferência com fontes independentes ou o método. */
-  const [part, setPart] = useState<"chart" | "checks" | "method">("chart");
   const index = Math.max(0, samples.findIndex((s) => s.date === selected));
   const pass = samples[index];
 
@@ -88,13 +87,8 @@ export function Hydrograph({ scene }: { scene: Scene }) {
         <p className="lab__lead">{t.lab.brief.hydro(samples.length, usualRevisit(samples))}</p>
       </header>
 
-      <nav className="sections sections--lab" aria-label={t.lab.sectionsAria}>
-        {(["chart", ...(scene.riverGauge?.length || context ? ["checks" as const] : []), "method"] as const).map((id) => (
-          <button key={id} type="button" aria-pressed={part === id} onClick={() => setPart(id)}>{t.lab.sections[id]}</button>
-        ))}
-      </nav>
-
-      {part === "chart" && <div className="hydro__main">
+      {/* sem sub-abas: o gráfico, a conferência logo abaixo e o método recolhido no fim */}
+      <div className="hydro__main">
         <figure className="hydro__chart">
           <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label={t.lab.hydro.chartAria(samples.length, f.date(peak.date), f.num(peak.newWaterKm2, 0))}>
             {context && (
@@ -196,9 +190,9 @@ export function Hydrograph({ scene }: { scene: Scene }) {
             <span className="hydro__count">{index + 1} / {samples.length}</span>
           </div>
         </aside>
-      </div>}
+      </div>
 
-      {part === "checks" && (scene.riverGauge?.length || context) && (
+      {(scene.riverGauge?.length || context) && (
         <section className="checks">
           <h3 className="lab__sub">{t.lab.hydro.checksLead}</h3>
           <div className="checks__grid">
@@ -255,7 +249,8 @@ export function Hydrograph({ scene }: { scene: Scene }) {
         </section>
       )}
 
-      {part === "method" && <section className="checks">
+      <details className="fold">
+        <summary>{t.lab.sections.method}</summary>
         <h3 className="lab__sub">{t.lab.hydro.limitsLead}</h3>
         <p className="lab__lead">{t.lab.hydro.lead(samples.length, usualRevisit(samples))} {t.lab.hydro.anywhere}</p>
         <ul className="notes notes--grid">
@@ -265,7 +260,7 @@ export function Hydrograph({ scene }: { scene: Scene }) {
           <li>{t.lab.hydro.limits.stops}</li>
           {context && <li>{t.lab.hydro.limits.context}</li>}
         </ul>
-      </section>}
+      </details>
     </div>
   );
 }

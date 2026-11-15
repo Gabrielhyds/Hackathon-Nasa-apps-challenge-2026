@@ -125,10 +125,12 @@ export const pt: Dict = {
   cover: {
     tagline: "A Terra, vista por radar",
     index: "Cenas",
-    events: "Eventos documentados",
     earlier: "Cenas anteriores",
     later: "Mais cenas",
-    seasonal: "Mudança sazonal",
+    more: "Mais cenas",
+    moreCount: (n: number) => `${n} mudanças sazonais`,
+    seasonalGroup: "Mudanças sazonais",
+    fewer: "Mostrar menos",
     about: "Sobre",
     mission: "NISAR, o satélite de radar da NASA e da ISRO",
   },
@@ -347,11 +349,8 @@ export const pt: Dict = {
     aria: "Laboratório do radar: régua de cheia, compressão de pulso e régua de franjas",
     close: "Fechar",
     tabs: { hydro: "Régua de cheia", pulse: "Por dentro do pulso", fringes: "Régua de franjas" },
-    sectionsAria: "Partes deste laboratório",
     sections: {
-      chart: "Gráfico", checks: "Conferência", method: "Método",
-      sim: "Simulação", inside: "A conta por dentro",
-      ruler: "Régua", read: "Como ler",
+      method: "Método", inside: "A conta por dentro", read: "Como ler",
     },
     brief: {
       hydro: (passes: number, gaps: number[]) => `Cada ponto é uma das ${passes} passagens do NISAR: quantos km² de água aberta nova ela achou. Uma leitura a cada ${gaps.join(" ou ")} dias, com qualquer céu. Escolha uma passagem.`,
