@@ -140,6 +140,7 @@ export const pt: Dict = {
     seasonalGroup: "Mudanças sazonais",
     fewer: "Mostrar menos",
     about: "Sobre",
+    repo: "Código-fonte no GitHub",
     mission: "NISAR, o satélite de radar da NASA e da ISRO",
   },
   welcome: {

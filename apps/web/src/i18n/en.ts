@@ -138,6 +138,7 @@ export const en = {
     seasonalGroup: "Seasonal changes",
     fewer: "Show fewer",
     about: "About",
+    repo: "Source code on GitHub",
     mission: "NISAR, the radar satellite from NASA and ISRO",
   },
   welcome: {
